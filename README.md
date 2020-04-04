@@ -5,7 +5,7 @@ This package delivers a `scikit-learn` compatible Python 3 package for some stat
 a focus on dimension reduction. 
 
 The categories of methods delivered in this package, are: 
-- Projection pursuit dimension reduction (`ppdire` folder; cf. docs and examples)
+- Projection pursuit dimension reduction (`ppdire` folder; cf. [SPRM Documentation file](https://github.com/SvenSerneels/direpack/blob/master/docs/sprm.md) and [SPRM Examples Notebook](https://github.com/SvenSerneels/direpack/blob/master/examples/sprm_example.ipynb))
 - Robust M-estimators for dimension reduction (`sprm` folder; cf. docs and examples)
 
 The package also contains a set of tools for pre- and postprocessing: 
@@ -31,12 +31,12 @@ The package is distributed through PyPI, so install through:
         
 Documentation
 =============
-Detailed documentation on how to use the classes is provided in the [Documentation file](https://github.com/SvenSerneels/direpack/blob/master/docs/sprm.md).
+Detailed documentation on how to use the classes is provided in the `docs` folder per class.
 
 
 Examples
 ========
-For examples, please have a look at the [SPRM Examples Notebook](https://github.com/SvenSerneels/direpack/blob/master/examples/sprm_example.ipynb).
+Jupyter Notebooks with Examples are provided for each of the classes in the `examples` folder.
   
         
 References
