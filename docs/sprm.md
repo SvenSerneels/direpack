@@ -1,3 +1,36 @@
+Sparse partial robust M regression
+==================================
+
+Description
+-----------
+
+The `sprm` module in `direpack` comprises code for Sparse Partial Robust M-regeression, as 
+well as a few closely related estimators: the Sparse NIPALS estimator (a non-robust option
+for sparse PLS) and the Robust M-regression estoimator (multiple regression based on the same
+re-weighting priciple as SPRM, yet without dimension reduction). 
+
+The SPRM method performs four tasks at the same time in a single, consistent estimate: 
+- *regression*: yields regression coefficients and predicts responses
+- *dimension reduction*: calculates interpretable PLS-like components maximizing covariance to the predictand in a robust way 
+- *variable selection*: depending on the paramter settings, can yield highly sparse regression coefficients that contain exact zero elements 
+- *outlier detection and compensation*: yields a set of case weights in \[0,1\]. The lower the weight, the more outlying a case is. The estimate itself is outlier robust. 
+
+Note: all the methods contained in this package have been designed for continuous data. They do not work correctly for caetgorical or textual data. 
+        
+The code is aligned to ScikitLearn, such that modules such as `GridSearchCV` can flawlessly be applied to it. 
+
+The repository contains
+- The estimator (`sprm.py`) 
+
+- Options for data pre-processing (`robcent.py`)
+- The Sparse NIPALS (SNIPLS) estimator \[3\](`snipls.py`)
+- Robust M regression estimator (`rm.py`)
+- Ancillary functions for M-estimation (`_m_support_functions.py`)
+
+Note that the `plot` folder contains some plotting functionality specific to SPRM (`sprm_plot.py`). 
+
+
+
 1\. The SPRM estimator
 ======================
 

@@ -14,7 +14,7 @@ import os
 SRC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),"./src")
 if SRC_DIR not in sys.path:
     sys.path.insert(0,SRC_DIR)
-from sprm import __version__, __author__, __license__
+from direpack import __version__, __author__, __license__
 
 readme_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'README.md')
 try:
@@ -26,14 +26,14 @@ except ImportError:
         readme = f.read()
 
 setup(
-    name="sprm",
+    name="direpack",
     version=__version__,
     author=__author__,
     author_email="svenserneels@gmail.com",
-    description="Sparse Partial Robust M Regression, including plot functions",
+    description="A Python 3 Library for State-of-the-Art Statistical Dimension Reduction Methods",
     long_description=readme,
     long_description_content_type='text/markdown',
-    url="https://github.com/SvenSerneels/sprm",
+    url="https://github.com/SvenSerneels/direpack",
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",

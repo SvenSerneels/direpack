@@ -1,52 +1,42 @@
-Sparse partial robust M regression
-==================================
+`direpack`: a Python 3 library for state-of-the-art statistical dimension reduction techniques
+==============================================================================================
 
-A `scikit-learn` compatible Python 3 package for robust multivariate regression and dimension reduction statistics, including:
-- Sparse Partial Robust M regresion (SPRM)\[1\],  a sparse and robust version of univariate partial least squares (PLS1). 
-- Sparse NIPALS Regression (SNIPLS)
-- Robust M regression
-- Robust centring and scaling   
+This package delivers a `scikit-learn` compatible Python 3 package for some state-of-the art multivariate statistical methods, with 
+a focus on dimension reduction. 
 
- ![AIG sprm score space](https://github.com/SvenSerneels/sprm/blob/master/img/AIG_T12.png "AIG SPRM score space")
+The categories of methods delivered in this package, are: 
+- Projection pursuit dimension reduction (`ppdire` folder; cf. docs and examples)
+- Robust M-estimators for dimension reduction (`sprm` folder; cf. docs and examples)
+
+The package also contains a set of tools for pre- and postprocessing: 
+- The `preprocessing` folder provides classical and robust centring and scaling, as well as spatial sign transforms
+- Plotting utilities in the `plot` folder 
+- Cross-validation utilities in the `cross-validation` folder  
+
+ ![AIG sprm score space](https://github.com/SvenSerneels/direpack/blob/master/img/AIG_T12.png "AIG SPRM score space")
 
 
-Description
------------
-
-The SPRM method performs four tasks at the same time in a single, consistent estimate: 
-- *regression*: yields regression coefficients and predicts responses
-- *dimension reduction*: calculates interpretable PLS-like components maximizing covariance to the predictand in a robust way 
-- *variable selection*: depending on the paramter settings, can yield highly sparse regression coefficients that contain exact zero elements 
-- *outlier detection and compensation*: yields a set of case weights in \[0,1\]. The lower the weight, the more outlying a case is. The estimate itself is outlier robust. 
-
-Note: all the methods contained in this package have been designed for continuous data. They do not work correctly for caetgorical or textual data. 
-        
-The code is aligned to ScikitLearn, such that modules such as `GridSearchCV` can flawlessly be applied to it. 
-
-The repository contains
-- The estimator (`sprm.py`) 
-- Plotting functionality based on Matplotlib (`sprm_plot.py`)
-- Options for data pre-processing (`robcent.py`)
+Methods in the `sprm` folder
+----------------------------
+- The estimator (`sprm.py`) \[1\]
 - The Sparse NIPALS (SNIPLS) estimator \[3\](`snipls.py`)
 - Robust M regression estimator (`rm.py`)
-- Ancillary functions for plotting (`_plot_internals.py`)
 - Ancillary functions for M-estimation (`_m_support_functions.py`)
-- Ancillary functions for preprocessing (`_preproc_utilities.py`)
 
 How to install
 --------------
 The package is distributed through PyPI, so install through: 
         
-        pip install sprm 
+        pip install direpack
         
 Documentation
 =============
-Detailed documentation on how to use the classes is provided in the [Documentation file](https://github.com/SvenSerneels/sprm/blob/master/docs/sprm.md).
+Detailed documentation on how to use the classes is provided in the [Documentation file](https://github.com/SvenSerneels/direpack/blob/master/docs/sprm.md).
 
 
 Examples
 ========
-For examples, please have a look at the [SPRM Examples Notebook](https://github.com/SvenSerneels/sprm/blob/master/examples/sprm_example.ipynb).
+For examples, please have a look at the [SPRM Examples Notebook](https://github.com/SvenSerneels/direpack/blob/master/examples/sprm_example.ipynb).
   
         
 References
@@ -55,6 +45,6 @@ References
 2. [Partial robust M regression](https://doi.org/10.1016/j.chemolab.2005.04.007), Sven Serneels, Christophe Croux, Peter Filzmoser, Pierre J. Van Espen, Chemometrics and Intelligent Laboratory Systems, 79 (2005), 55-64.
 3. [Sparse and robust PLS for binary classification](https://onlinelibrary.wiley.com/doi/abs/10.1002/cem.2775), I. Hoffmann, P. Filzmoser, S. Serneels, K. Varmuza, Journal of Chemometrics, 30 (2016), 153-162.
         
-[Release Notes](https://github.com/SvenSerneels/sprm/blob/master/SPRM_Release_Notes.md) can be checked out in the repository.  
+[Release Notes](https://github.com/SvenSerneels/direpack/blob/master/direpack_Release_Notes.md) can be checked out in the repository.  
 
-[A list of possible topics for further development](https://github.com/SvenSerneels/sprm/blob/master/SPRM_Future_Dev.md) is provided as well. Additions and comments are welcome!
+[A list of possible topics for further development](https://github.com/SvenSerneels/direpack/blob/master/direpack_Future_Dev.md) is provided as well. Additions and comments are welcome!
