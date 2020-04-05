@@ -5,11 +5,11 @@ This package delivers a `scikit-learn` compatible Python 3 package for some stat
 a focus on dimension reduction. 
 
 The categories of methods delivered in this package, are: 
-- Projection pursuit dimension reduction (`ppdire` folder; cf. [SPRM Documentation file](https://github.com/SvenSerneels/direpack/blob/master/docs/sprm.md) and [SPRM Examples Notebook](https://github.com/SvenSerneels/direpack/blob/master/examples/sprm_example.ipynb))
-- Robust M-estimators for dimension reduction (`sprm` folder; cf. docs and examples)
+- Projection pursuit dimension reduction (`ppdire` folder; cf. docs and examples)
+- Robust M-estimators for dimension reduction (`sprm` folder; cf. [SPRM Documentation file](https://github.com/SvenSerneels/direpack/blob/master/docs/sprm.md) and [SPRM Examples Notebook](https://github.com/SvenSerneels/direpack/blob/master/examples/sprm_example.ipynb))
 
 The package also contains a set of tools for pre- and postprocessing: 
-- The `preprocessing` folder provides classical and robust centring and scaling, as well as spatial sign transforms
+- The `preprocessing` folder provides classical and robust centring and scaling, as well as spatial sign transforms \[4\]
 - Plotting utilities in the `plot` folder 
 - Cross-validation utilities in the `cross-validation` folder  
 
@@ -44,6 +44,7 @@ References
 1. [Sparse partial robust M regression](https://www.sciencedirect.com/science/article/abs/pii/S0169743915002440), Irene Hoffmann, Sven Serneels, Peter Filzmoser, Christophe Croux, Chemometrics and Intelligent Laboratory Systems, 149 (2015), 50-59.
 2. [Partial robust M regression](https://doi.org/10.1016/j.chemolab.2005.04.007), Sven Serneels, Christophe Croux, Peter Filzmoser, Pierre J. Van Espen, Chemometrics and Intelligent Laboratory Systems, 79 (2005), 55-64.
 3. [Sparse and robust PLS for binary classification](https://onlinelibrary.wiley.com/doi/abs/10.1002/cem.2775), I. Hoffmann, P. Filzmoser, S. Serneels, K. Varmuza, Journal of Chemometrics, 30 (2016), 153-162.
+4. [Spatial Sign Preprocessing:  A Simple Way To Impart Moderate Robustness to Multivariate Estimators](https://pubs.acs.org/doi/abs/10.1021/ci050498u), Sven Serneels, Evert De Nolf, Pierre J. Van Espen, Journal of Chemical Information and Modeling, 46 (2006), 1402-1409.
         
 [Release Notes](https://github.com/SvenSerneels/direpack/blob/master/direpack_Release_Notes.md) can be checked out in the repository.  
 
