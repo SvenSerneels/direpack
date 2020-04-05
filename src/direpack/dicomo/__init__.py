@@ -1,0 +1,19 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Jul 9 14:20:17 2019
+
+@author: Sven Serneels, Ponalytics
+"""
+
+__name__ = "dicomo"
+__author__ = "Sven Serneels"
+__license__ = "MIT"
+__version__ = "0.2.3"
+__date__ = "2020-04-04"
+
+
+
+
+
+
