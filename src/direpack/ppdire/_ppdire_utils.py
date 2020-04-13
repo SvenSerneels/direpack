@@ -9,17 +9,6 @@ Created on Thu Jan 2 2020
 import numpy as np
 import pandas as ps
 
-def convert_X_input(X):
-    
-    if type(X) == ps.core.frame.DataFrame:
-            X = X.to_numpy().astype('float64')
-    return(X)
-            
-def convert_y_input(y):
-
-    if type(y) in [ps.core.frame.DataFrame,ps.core.series.Series]:
-        y = y.to_numpy().T.astype('float64')
-    return(y)
 
 def pp_objective(x,est,X,opt_args):
     

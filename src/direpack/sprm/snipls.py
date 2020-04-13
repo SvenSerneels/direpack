@@ -14,7 +14,7 @@ import copy
 import numpy as np
 import pandas as ps
 from ..preprocessing.robcent import VersatileScaler
-from ._m_support_functions import MyException
+from ..utils.utils import MyException
 from ..preprocessing._preproc_utilities import scale_data
 
 class snipls(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):

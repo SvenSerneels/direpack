@@ -22,17 +22,14 @@ from sklearn.base import RegressorMixin,BaseEstimator,TransformerMixin, defaultd
 from sklearn.utils.extmath import svd_flip
 from ..sprm.rm import rm 
 from ..preprocessing.robcent import VersatileScaler
-from ..sprm._m_support_functions import MyException
 import warnings
 from ..dicomo.dicomo import dicomo 
 from ..dicomo._dicomo_utils import * 
 from .capi import capi
 from ._ppdire_utils import *
 from ..preprocessing._preproc_utilities import scale_data
+from ..utils.utils import MyException, convert_X_input, convert_y_input
 import inspect
-
-class MyException(Exception):
-        pass
 
 class ppdire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
     

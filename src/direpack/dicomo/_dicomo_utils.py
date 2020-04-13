@@ -3,7 +3,7 @@
 """
 Created on Sun Dec 16 13:44:19 2018
 
-@author: Sven Serneels, Ponalytics. 
+@author: sven
 """
 
 import scipy.stats as sps
@@ -11,25 +11,20 @@ import scipy.spatial as spp
 import numpy as np
 import copy
 
-# Use direct mean or trimmed mean where appropriate
-# Using trimmed mean, even with 0% trimming, will cause errors in QP optimization
-def trim_mean(x,trimming):
+def trim_mean(x,trimming,axis=0):
     
     if trimming == 0: 
-        return(np.mean(x))
+        return(np.mean(x,axis=axis))
     else:
-        return(sps.trim_mean(x,trimming)[0])
+        return(sps.trim_mean(x,trimming,axis=axis))
 
-# Calculate trimmed variance
 def trimvar(x,trimming):
         # division by n
-        return(trim_mean(np.square(x - trim_mean(x,trimming)),trimming))
-
-# Dummy identity function       
+        return(sps.trim_mean(np.square(x - sps.trim_mean(x,trimming)),trimming))
+        
 def identity(x): 
     return(x)
-
-# Calculate trimmed moments. 
+        
 def trim_mom(x,y,locest,order,trimming,option,fscorr=True):
         # division by n
         
@@ -80,5 +75,255 @@ def trim_mom(x,y,locest,order,trimming,option,fscorr=True):
         else:
             if type(como) is np.ndarray:
                 como = como[0]
+            
         
         return(como)
+
+def double_center_flex(a, center='mean', **kwargs):
+    """
+    Double centered function adapted to accommodate for location types different
+    from mean. 
+
+    """
+    
+    # print(kwargs)
+    
+    if 'trimming' not in kwargs:
+        trimming = 0
+    else:
+        trimming = kwargs.get('trimming')
+        # print('trimming is: ' + str(trimming))
+        
+    if 'biascorr' not in kwargs:
+        biascorr = False
+    else:
+        biascorr = kwargs.get('biascorr')
+    
+    out = copy.deepcopy(a)
+    
+    dim = np.size(a, 0)
+    n1 = dim
+
+    # mu = np.sum(a) / (dim * dim)
+    if center=='mean':
+        mu = trim_mean(a.reshape((dim**2,1)),trimming)
+        if biascorr:
+            n1 = np.round(dim*(1-trimming))
+            # print(n1)
+            mu *= (n1**2) / ((n1-1) * (n1-2))
+        mu_cols = trim_mean(a, trimming, axis=0).reshape((1,dim))
+        mu_rows = trim_mean(a, trimming, axis=1).reshape((dim,1))
+        if biascorr:
+            mu_cols *= n1/(n1 - 2)
+            mu_rows *= n1/(n1 - 2)
+        mu_cols = np.ones((dim, 1)).dot(mu_cols)
+        mu_rows = mu_rows.dot(np.ones((1, dim)))
+    elif center=='median':
+        mu = np.median(a.reshape((dim**2,1)))
+        mu_cols = np.median(a,axis=0).reshape((1,dim))
+        mu_rows = np.median(a,axis=1).reshape((dim,1))
+        mu_cols = np.ones((dim, 1)).dot(mu_cols)
+        mu_rows = mu_rows.dot(np.ones((1, dim)))
+    else:
+        raise(ValueError('Center should be mean or median'))
+        
+
+    # Do one operation at a time, to improve broadcasting memory usage.
+    out -= mu_rows
+    out -= mu_cols
+    out += mu
+    
+    if biascorr:
+        out[np.eye(dim, dtype=bool)] = 0
+
+    return out,n1
+
+
+def distance_matrix_centered(x,**kwargs):
+    
+    if 'trimming' not in kwargs:
+        trimming = 0
+    else:
+        trimming = kwargs.get('trimming')
+            
+    if 'biascorr' not in kwargs:
+        biascorr = False
+    else:
+        biascorr = kwargs.get('biascorr')
+        
+    if 'center' not in kwargs:
+        center = 'mean'
+    else:
+        center = kwargs.get('center')
+        
+    if 'dmetric' not in kwargs:
+        dmetric = 'euclidean'
+    else:
+        dmetric = kwargs.get('dmetric')
+        
+    dx = spp.distance.squareform(spp.distance.pdist(x,metric=dmetric))
+    dmx, n1 = double_center_flex(dx,biascorr=biascorr,
+                                 trimming=trimming,center=center)
+    
+    return dmx,n1
+
+
+def distance_moment(dmx,dmy,**kwargs):
+    
+    if 'trimming' not in kwargs:
+        trimming = 0
+    else:
+        trimming = kwargs.get('trimming')
+            
+    if 'biascorr' not in kwargs:
+        biascorr = False
+    else:
+        biascorr = kwargs.get('biascorr')
+        
+    if 'center' not in kwargs:
+        center = 'mean'
+    else:
+        center = kwargs.get('center')
+        
+    if 'order' not in kwargs:
+        order = 2
+    else:
+        order = kwargs.get('order')
+        
+    if order > 2: 
+        if 'option' not in kwargs:
+            option = 1
+        else:
+            option = kwargs.get('option')
+            
+        iter_stop_2 = option 
+        iter_stop_1 = order - option
+    else:
+        option = 0
+        iter_stop_1 = 1
+        iter_stop_2 = 1
+        
+    nx = dmx.shape[0]
+    ny = dmy.shape[0]
+    if nx!=ny:
+        raise(ValueError)
+        
+        
+    if biascorr: 
+        
+        if trimming == 0:
+            n1 = nx
+        elif 'n1' not in kwargs:
+            raise(MyException('n1 needs to be provided when correcting for bias'))
+        else:
+            n1 = kwargs.get('n1')
+        
+        corr4bias = n1**2/(n1*(n1-3))
+        
+    else:
+        corr4bias = 1
+        
+    if order>2:
+        i = 1
+        while i < iter_stop_1:  
+            dmx *= dmx
+            i += 1
+        i = 1
+        while i < iter_stop_2:  
+            dmy *= dmy
+            i += 1
+        
+        
+    if center=='mean':
+        moment = trim_mean((dmx*dmy).reshape((nx**2,1)),trimming)
+        moment *= corr4bias
+        moment = moment[0]
+        moment = (-1)**order*abs(moment)**(1/order)
+    elif center=='median':
+        moment = np.median(dmx*dmy)
+        
+    return(moment)
+
+def difference_divergence(X,Y,**kwargs):
+    
+    
+    """
+    input :
+    
+        X : A  matrix or data frame, where rows represent samples, and columns represent variables.
+        Y : The response variable or matrix.
+        biascorr : if True, uses U centering to produce an unbiased estimator of MDD
+        
+    output:
+        returns the squared martingale difference divergence of Y given X.
+       
+    """
+    
+    if 'trimming' not in kwargs:
+        trimming = 0
+    else:
+        trimming = kwargs.get('trimming')
+        
+    if 'biascorr' not in kwargs:
+        biascorr = False
+    else:
+        biascorr = kwargs.get('biascorr')
+    if 'center' not in kwargs:
+        center = 'mean'
+    else:
+        center = kwargs.get('center')
+        
+    if 'dmetric' not in kwargs:
+        dmetric = 'euclidean'
+    else:
+        dmetric = kwargs.get('dmetric')
+    
+   
+    
+    
+    
+    A, Adim = distance_matrix_centered(X,biascorr=biascorr,trimming=trimming,center=center)  
+    dy=  spp.distance.squareform(spp.distance.pdist(Y.reshape(-1, 1),metric=dmetric)**2)
+    B,Bdim = double_center_flex(0.5*dy,biascorr=biascorr,trimming=trimming,center=center)
+    if biascorr:
+        return(U_inner(A,B))
+    else:
+        return(D_inner(A,B))
+       
+        
+    return(mdd)
+
+
+def U_inner(X,Y):
+    
+    """
+        Computes the inner product in the space of U centered matrices, between matrices X and Y. The matrices are square matrices.
+    
+    """
+        
+    nx = X.shape[0]
+    ny = Y.shape[0]
+    
+    if nx != ny:
+        raise(MyException('Please feed x and y data of equal length'))
+        
+    arr= np.multiply(X,Y)
+    return ((1/(nx*(nx-3))) *(np.sum(arr)))
+
+
+def D_inner(X,Y):
+    
+    """
+        Computes the inner product in the space of D centered matrices, between Double centered matrices X and Y. The matrices are square matrices.
+    
+    """
+        
+    nx = X.shape[0]
+    ny = Y.shape[0]
+    
+    if nx != ny:
+        raise(MyException('Please feed x and y data of equal length'))
+        
+    arr= np.multiply(X,Y)
+    return((1/(nx*nx)) *(np.sum(arr)))
+

@@ -16,10 +16,11 @@ scipy
 sklearn
 copy
 pandas
-statsmodels
+statsmodels-api
 collections
 inspect
 warnings
+ipopt
 
 #
 ###### Requirements with Version Specifiers ######

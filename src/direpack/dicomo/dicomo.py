@@ -3,7 +3,7 @@
 """
 Created on Sun Dec  2 13:14:51 2018
 
-@author: Sven Serneels, Ponalytics 
+@author: sven
 """
 import numpy as np
 import scipy.stats as sps
@@ -12,63 +12,24 @@ from sklearn.base import BaseEstimator
 from sklearn.utils.metaestimators import _BaseComposition
 from statsmodels import robust as srs
 from ._dicomo_utils import *
+import dcor as dc
+# Optional: if Ballcov required, import Ball 
+# import Ball
 
 class MyException(Exception):
         pass
 
 class dicomo(_BaseComposition,BaseEstimator):
-    
-    """
-    DICOMO Diverse set of Co-Moments 
-    
-    Inputs
-    mode, str: which (co-)moment to estimate. General options are 'mom' or 'com'
-        (univariate of bivariate). Many other specific flags are allowed that will 
-        specifically scale the co-moments, or are just shortcuts to 'mom'/'com':
-            'var'       - variance 
-            'std'       - standard deviation 
-            'skew'      - skewness 
-            'kurt'      - kurtosis 
-            'cov'       - co-variance 
-            'cos'       - co-skewness
-            'cok'       - co-kurtosis 
-            'corr'      - correlation 
-            'continuum' - continuum = com * mom^(alpha-1), alpha defaults to 1
-                          and can be passed as an argument to fit 
-            'M3'        - non-scaled third order co-moment 
-        Third and fourth order co-moments are by default the 'x-heavy' version,
-        i.e. M3(x,x,y). To access e.g. M3(x,y,y), pass option=2 to fit function. 
-        
-    est, str: which type of co-moment to estimate. Presently defaults to 
-    'arithmetic', will be extended to more options. 
-    
-    center, str: Which internal location estimator to use in (co-)moment 
-        calculation. Works with 'mean' and 'median'; to access trimmed means,
-        pass trimming = k, k>0 to fit function. 
-        
-    Example
-        covest = dicomo(mode='com')
-        covest.fit(x,y=y,order=3,option=1,trimming=.1)
-        
-    Returns: float with estimated moment. Also stored as output moment_. 
-        (Co-)moments estimated in the course of calculating the result will 
-        also be stored in the object, e.g. if est = 'corr', center = 'mean', 
-            moment_     = correlation coefficient 
-            co_moment_  = co-variance 
-            x_moment_   = x std
-            y_moment_   = y std 
-    
-    """
 
     def __init__(self,est='arithmetic',mode='mom',center='mean'):
         self.mode = mode
         self.est=est
         self.center=center
         self.liest = ['arithmetic','distance','sign','entropy']
-        self.limo = ['mom','var','std','skew','kurt','com','cov','cok','cos','corr','continuum','M3']
+        self.limo = ['mom','var','std','skew','kurt','com','cov','cok','cos','corr','continuum','M3', 'mdd','ballcov']
         self.licenter = ['mean','median']
         if not(self.mode in self.limo):
-            raise(MyException("Only models allowed are: 'mom','var','skew','kurt','com','cov','cos','cok','corr','continuum','M3'"))
+            raise(MyException("Only models allowed are: 'mom','var','skew','kurt','com','cov','cos','cok','corr','continuum','M3','mdd','ballcov'"))
         if not(self.est in self.liest):
             raise(MyException('Only estimator classes allowed are: "arithmetic", "distance", "sign", "entropy"'))
         if not(self.center in self.licenter):
@@ -77,38 +38,6 @@ class dicomo(_BaseComposition,BaseEstimator):
         
         
     def fit(self,x,**kwargs):
-        
-        """
-        Fit function takes kwargs: 
-            
-            y: y data 
-            
-            trimming, float, as fraction (e.g. .15 for 15% trimming)
-            
-            biascorr, bool. Bias correction at normal distribution (e.g. (n-1) 
-                division for co-variance if True, (n) division is False))
-            
-            dmetric, str. Internal distance metric used. Defaults to 'euclidean' 
-            
-            order, int: order of co-moemnt to estimate. E.g. mode='com', order=2
-                is equivalent to mode='cov' 
-                
-            option, int: which version of co-moment to estimate. in np.arange(1,5). 
-                e.g. option = 2 yields M3(x,y,y) or M4(x,x,y,y). 
-                
-            calcmode, str: defaults to 'fast'. Not all options have different 
-                calculation modes. 
-                
-        Kwargs only relevant for continuum:  
-            
-            alpha, float. continuum parameter.
-                
-        Kwargs only relevant for kurtosis: 
-            
-            Fisher, bool: use Fisher's "-3" correction if True.  
-        
-        
-        """
         
         
         if 'trimming' not in kwargs:
@@ -225,12 +154,15 @@ class dicomo(_BaseComposition,BaseEstimator):
         # Classical variance, covariance and continuum as well as robust alternatives
         if self.est=='arithmetic':
             
-            # X moment 
+            # Variance
             if mode!='com':
+#                if self.center=='mean':
+#                    xvar = trimvar(x,trimming)*ntrim/(ntrim-1)
+#                elif self.center=='median':
+#                    xvar = srs.mad(x)**2
                 xmom = trim_mom(x,x,locest,order,trimming,option,biascorr) 
                 self.x_moment_ = xmom
                 
-                # Standardization
                 if self.mode in ('std','skew','kurt'):
                     x2mom = trim_mom(x,x,locest,2,trimming,option,False)
                     xmom /= (x2mom**num_power) 
@@ -244,14 +176,12 @@ class dicomo(_BaseComposition,BaseEstimator):
                             if not Fisher:
                                 xmom += 3
                 
-                # Store Output 
                 if mode=='mom':
                     self.moment_ = xmom
             
             # Covariance or continuum
             if mode!='mom':
                 
-                # get y data and run checks 
                 if 'y' not in kwargs:
                     raise(MyException('Please supply second data vector'))
                 else:
@@ -265,20 +195,17 @@ class dicomo(_BaseComposition,BaseEstimator):
                 if len(y.shape)==1:
                     y = np.matrix(y).reshape((n,1))
                 
-                # calculate co-moment 
                 como = trim_mom(x,y,locest,order,trimming,option,biascorr)
                 
                 self.co_moment_ = como
                 
-                # Bias correction 
                 if (biascorr and (order > 2)):
                     como *= ntrim
                 
-                # Store output 
                 if mode=='com':
                     self.moment_ = como
                 
-                # Standardization    
+                    
                 if self.mode in ('cok','cos'):
                     x2sd = np.sqrt(trim_mom(x,x,locest,2,trimming,option,biascorr))
                     y2sd = np.sqrt(trim_mom(y,y,locest,2,trimming,option,biascorr))
@@ -287,14 +214,141 @@ class dicomo(_BaseComposition,BaseEstimator):
                         como -= como/(ntrim**2)
                         como -= 3*(ntrim-1)**2.0 / ((ntrim-2)*(ntrim-3))
 
-                # Calculate y moment when needed
-                if mode in ['corr','continuum']:
                 
+                if mode in ['corr','continuum']:
+                    
+#                    if self.center=='mean':
+#                        yvar = trimvar(y,trimming)*ntrim/(ntrim-1)
+#                    
+#                    elif self.center=='median':
+#                        yvar = srs.mad(y)
                     ymom = trim_mom(y,y,locest,order,trimming,option,biascorr)
                     
                     self.y_moment_ = ymom
                     
-        # Calculate composite moments when needed
+        
+        # Distance based metrics
+        elif self.est=='distance':
+            
+            if 'dmetric' not in kwargs:
+                dmetric = 'euclidean'
+            else:
+                dmetric = kwargs.get('dmetric')
+                
+            if (mode=='ballcov' or mode=='mdd'):
+                
+                dmx, n1 = distance_matrix_centered(x,biascorr=biascorr,
+                                                   trimming=trimming,
+                                                   center=self.center,
+                                                   dmetric=dmetric)
+                if 'y' not in kwargs:
+                        raise(MyException('Please supply second data vector'))
+                else:
+                    y = kwargs.get('y')
+                    n1 = len(y)
+                    if n1==0:
+                        raise(MyException('Please feed data with length > 0'))
+                    if n1!=n:
+                        raise(MyException('Please feed x and y data of equal length')) 
+                    if (mode=='mdd'):
+                        mdd_res=np.sqrt(difference_divergence(x,y,center=self.center,trimming=trimming,biascorr=biascorr))
+                        self.moment_ = mdd_res
+                    else:
+                        dmy, n2 = distance_matrix_centered(y,biascorr=biascorr,
+                                                   trimming=trimming,
+                                                   center=self.center,
+                                                   dmetric=dmetric) 
+                        bcov_res=Ball.bcov_test(x,y,num_permutations=0)[0]
+                        self.moment_ = bcov_res
+                        
+                
+                
+            
+            elif (calcmode=='fast' and self.center =='mean' and trimming == 0 and order==2):
+                if mode != 'com':
+                    if biascorr:
+                        xmom = np.sqrt(dc.u_distance_covariance_sqr(x,x))
+                    else:
+                        xmom = np.sqrt(dc.distance_covariance_sqr(x,x))
+                    self.moment_ = xmom
+                if mode !='mom':
+                    if 'y' not in kwargs:
+                        raise(MyException('Please supply second data vector'))
+                    else:
+                        y = kwargs.get('y')
+                        n1 = len(y)
+                    
+                    if biascorr:
+                        como = np.sqrt(dc.u_distance_covariance_sqr(x,y))
+                    else:
+                        como = np.sqrt(dc.distance_covariance_sqr(x,y))
+                    if mode=='com':
+                        self.co_moment_ = como
+                        self.moment_ = como
+                    elif mode in ['corr','continuum','cos','cok']:
+                        if biascorr:
+                            ymom = np.sqrt(dc.u_distance_covariance_sqr(y,y))
+                        else:
+                            ymom = np.sqrt(dc.distance_covariance_sqr(y,y))
+                        self.y_moment_ = ymom
+                        
+            
+                
+            else:
+                dmx, n1 = distance_matrix_centered(x,biascorr=biascorr,
+                                                   trimming=trimming,
+                                                   center=self.center,
+                                                   dmetric=dmetric)
+                
+                # Variance
+                if mode!='com':
+                    
+                    xmom = distance_moment(dmx,dmx,n1=n1,biascorr=biascorr,center=self.center,trimming=trimming,order=order,option=option)
+                        
+                    self.x_moment_ = xmom
+                    
+                    if self.mode in ('std','skew','kurt'):
+                        x2mom =distance_moment(dmx,dmx,n1=n1,biascorr=biascorr,center=self.center,trimming=trimming,order=2,option=option)
+                        xmom /= x2mom**num_power
+                        
+                    if mode=='mom':
+                        self.moment_ = xmom
+                        
+                if mode!='mom':
+                    
+                    if 'y' not in kwargs:
+                        raise(MyException('Please supply second data vector'))
+                    else:
+                        y = kwargs.get('y')
+                        n1 = len(y)
+                    if n1==0:
+                        raise(MyException('Please feed data with length > 0'))
+                    if n1!=n:
+                        raise(MyException('Please feed x and y data of equal length'))
+                    
+                    dmy, n2 = distance_matrix_centered(y,biascorr=biascorr,
+                                                   trimming=trimming,
+                                                   center=self.center,
+                                                   dmetric=dmetric)
+                    
+                    como = distance_moment(dmx,dmy,n1=n1,biascorr=biascorr,center=self.center,trimming=trimming,order=order,option=option)
+                    
+                    self.co_moment_ = como
+                    
+                    if mode=='com':
+                        self.moment_ = como
+                        
+                    if self.mode in ('cok','cos'):
+                        x2sd = distance_moment(dmx,dmx,n1=n1,biascorr=biascorr,center=self.center,trimming=trimming,order=2,option=option)
+                        x2sd = np.sqrt(x2sd)
+                        y2sd = distance_moment(dmy,dmy,n1=n1,biascorr=biascorr,center=self.center,trimming=trimming,order=2,option=option)
+                        y2sd = np.sqrt(y2sd)
+                    
+                    if mode in ['corr','continuum','cok','cos']:
+                        
+                        ymom = distance_moment(dmy,dmy,n1=n,biascorr=biascorr,center=self.center,trimming=trimming,order=order,option=option)
+                        self.y_moment_ = ymom
+                    
         if mode == 'corr': 
             como /= (np.sqrt(xmom)*np.sqrt(ymom))
             self.moment_=como
@@ -302,7 +356,6 @@ class dicomo(_BaseComposition,BaseEstimator):
             como *= como * (np.sqrt(xmom)**(alpha -1))
             self.moment_=como
         
-        # Standardization where not yet done 
         if (self.mode in ('cok','cos') and standardized):
             iter_stop_2 = option 
             iter_stop_1 = order - option
@@ -313,7 +366,7 @@ class dicomo(_BaseComposition,BaseEstimator):
             self.moment_=como
         
                         
-        # Store output 
+        
         if type(self.moment_)==np.ndarray:
             self.moment_ = self.moment_[0]
         return(self.moment_)
