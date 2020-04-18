@@ -66,15 +66,15 @@ Version 0.8
 
 Version 0.9
 -----------
-`preprocessing` widely extended 
-`plot` functions adapted 
-documentation improved 
+- `preprocessing` widely extended 
+- `plot` functions adapted 
+- documentation improved 
 
 Version 1.0
 -----------
-`sudire` joins in
-`plot` functions adapted 
-documentation provided for `dicomo` 
+- `sudire` joins in
+- `plot` functions adapted 
+- documentation provided for `dicomo` 
 
 
 
