@@ -11,7 +11,7 @@ The categories of methods delivered in this package, are:
 
 The package also contains a set of tools for pre- and postprocessing: 
 - The `preprocessing` folder provides classical and robust centring and scaling, as well as spatial sign transforms \[4\]
-- The `dicomo` folder contains a versatile class to access a wide variety of moment and co-moment statistics, and statistics derived from those. Check out the [dicomo Examples Notebook](https://github.com/SvenSerneels/direpack/blob/master/examples/dicomo_example.ipynb).
+- The `dicomo` folder contains a versatile class to access a wide variety of moment and co-moment statistics, and statistics derived from those. Check out the [dicomo Documentation file](https://github.com/SvenSerneels/direpack/blob/master/docs/dicomo.md) and the [dicomo Examples Notebook](https://github.com/SvenSerneels/direpack/blob/master/examples/dicomo_example.ipynb).
 - Plotting utilities in the `plot` folder 
 - Cross-validation utilities in the `cross-validation` folder  
 
