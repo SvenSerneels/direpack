@@ -13,6 +13,7 @@ from sklearn.utils.metaestimators import _BaseComposition
 from statsmodels import robust as srs
 from ._dicomo_utils import *
 import dcor as dc
+from ..sudire._sudire_utils import difference_divergence, D_inner, U_inner
 # Optional: if Ballcov required, import Ball 
 # import Ball
 
@@ -20,6 +21,61 @@ class MyException(Exception):
         pass
 
 class dicomo(_BaseComposition,BaseEstimator):
+    
+    """
+    The `dicomo` class implements (co)-moment statistics, covering both clasical product-moment 
+    statistics, as well as more recently developed energy statistics. 
+    The `dicomo` class also serves as a plug-in into `capi` and  `ppdire`. 
+    It has been written consistently with `ppdire` such that it provides a wide range of 
+    projection indices based on (co-)moments. Ancillary functions for (co-)moment 
+    estimation are in `_dicomo_utils.py`.
+    
+    Parameters:
+        `est`, str: mode of estimation. The set of options are `'arithmetic'` (product-moment) 
+            or `'distance'` (energy statistics)
+        `mode`, str: type of moment. Options are: 
+            * `'mom'`: moment 
+            * `'var'`: variance 
+            * `'std'`: standard deviation 
+            * `'skew'`: skewness 
+            * `'kurt'`: kurtosis
+            * `'com'`: co-moment 
+            * `'M3'`: shortcut for third order co-moment
+            * `'cov'`: covariance 
+            * `'cos'`: co-skewness
+            * `'cok'`: co-kurtosis 
+            * `'corr'`: correlation, 
+            * `'continuum'`: continuum association 
+            * `'mdd'`: martingale difference divergence (requires `est = 'distance'`)
+            * `'mdc'`: martingale difference correlation (requires `est = 'distance'`)
+            * `'ballcov'`: ball covariance (requires installing `Ball` and uncommenting the `import` statement)
+        `center`: internal centring used in calculation. Options are `mean` or `median`.  
+
+    Attributes:
+        Always provided: 
+        `moment_`: The resulting (co-)moment
+        Depending on the options picked, intermediate results are stored as well, 
+        such as `x_moment_`, `y_moment_` or `co_moment_`
+    
+    Methods
+        `fit(X, *args, **kwargs)`: fit model 
+
+    Remarks:
+    The `fit` function takes several optional input arguments. These are options that 
+    apply to individual settings: 
+        `biascorr`, Bool, when `True`, correct for bias. For classical product-moment statistics, this 
+            is the small sample correction. For energy statistics, this leads to the estimates 
+            that are unbiased in high dimension
+            (but not preferred in low dimension). 
+        `alpha`, float, parameter for continuum association. Has no effect for other options.  
+        `option`, int, determines which higher order co-moment to calculate, 
+            e.g. for co-skewness, `option=1` calciulates CoS(x,x,y)
+        `order`, int, which order (co-)moment to calculate. Can be overruled by `mode`, 
+            e.g. if `mode='var'`, `order` is set to 2. 
+        `calcmode`, str, to use the efficient or naive algorithm to calculate distance statistics. Defaults to `fast` when available. 
+    
+    """
+    
 
     def __init__(self,est='arithmetic',mode='mom',center='mean'):
         self.mode = mode
@@ -29,11 +85,15 @@ class dicomo(_BaseComposition,BaseEstimator):
         self.limo = ['mom','var','std','skew','kurt','com','cov','cok','cos','corr','continuum','M3', 'mdd','ballcov']
         self.licenter = ['mean','median']
         if not(self.mode in self.limo):
-            raise(MyException("Only models allowed are: 'mom','var','skew','kurt','com','cov','cos','cok','corr','continuum','M3','mdd','ballcov'"))
+            raise(MyException("Only models allowed are: 'mom','var','skew','kurt','com','cov','cos','cok','corr','continuum','M3','mdd','mdc','ballcov'"))
         if not(self.est in self.liest):
             raise(MyException('Only estimator classes allowed are: "arithmetic", "distance", "sign", "entropy"'))
         if not(self.center in self.licenter):
             raise(MyException('Only centring classes allowed are: "mean", "median"'))
+        if (self.est=='arithmetic' and self.mode in ['mdd','mdc']):
+            raise(MyException('MDD only defined when est="distance"'))
+        if (self.mode=='ballcov'): 
+            print("To use the Ballcov functionality, uncomment the import statement and comment this line")
         
         
         
@@ -235,12 +295,8 @@ class dicomo(_BaseComposition,BaseEstimator):
             else:
                 dmetric = kwargs.get('dmetric')
                 
-            if (mode=='ballcov' or mode=='mdd'):
-                
-                dmx, n1 = distance_matrix_centered(x,biascorr=biascorr,
-                                                   trimming=trimming,
-                                                   center=self.center,
-                                                   dmetric=dmetric)
+            if (mode in ['ballcov','mdd','mdc']):
+        
                 if 'y' not in kwargs:
                         raise(MyException('Please supply second data vector'))
                 else:
@@ -250,9 +306,18 @@ class dicomo(_BaseComposition,BaseEstimator):
                         raise(MyException('Please feed data with length > 0'))
                     if n1!=n:
                         raise(MyException('Please feed x and y data of equal length')) 
-                    if (mode=='mdd'):
-                        mdd_res=np.sqrt(difference_divergence(x,y,center=self.center,trimming=trimming,biascorr=biascorr))
-                        self.moment_ = mdd_res
+                    if (mode in ['mdd','mdc']):
+                        como=np.sqrt(difference_divergence(x,y,center=self.center,trimming=trimming,biascorr=biascorr))
+                        self.co_moment_ = como
+                        if mode=='mdd':
+                            self.moment_ = como 
+                        else:
+                            xmom=difference_divergence(x,x,center=self.center,trimming=trimming,biascorr=biascorr)
+                            ymom=difference_divergence(y,y,center=self.center,trimming=trimming,biascorr=biascorr)
+                            self.x_moment_ = xmom
+                            self.y_moment_ = ymom
+                            mode = 'corr'
+
                     else:
                         dmy, n2 = distance_matrix_centered(y,biascorr=biascorr,
                                                    trimming=trimming,
