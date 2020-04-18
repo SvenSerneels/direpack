@@ -58,3 +58,7 @@ apply to individual settings:
 -   `option`, int, determines which higher order co-moment to calculate, e.g. for co-skewness, `option=1` calciulates CoS(x,x,y)
 -   `order`, int, which order (co-)moment to calculate. Can be overruled by `mode`, e.g. if `mode='var'`, `order` is set to 2. 
 -   `calcmode`, str, to use the efficient or naive algorithm to calculate distance statistics. Defaults to `fast` when available. 
+
+Examples 
+--------
+Check out the [dicomo examples notebook](https://github.com/SvenSerneels/direpack/blob/master/examples/dicomo_example.ipynb)
