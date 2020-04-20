@@ -28,7 +28,7 @@ from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
 from ..sprm.sprm import sprm
-from ..sprm._m_support_functions import MyException
+from ..utils.utils import MyException, convert_X_input, convert_y_input
 from ..cross_validation._cv_support_functions import cv_score_table
 
 import matplotlib.pyplot as pp 

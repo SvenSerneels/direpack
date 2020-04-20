@@ -16,8 +16,12 @@ scipy
 sklearn
 copy
 pandas
-statsmodels
-scipy
+statsmodels-api
+collections
+inspect
+warnings
+ipopt
+dcor
 
 #
 ###### Requirements with Version Specifiers ######

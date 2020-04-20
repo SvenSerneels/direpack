@@ -1,5 +1,5 @@
-SPRM Release notes
-==================
+`sprm` Release notes (versions 0.0 through 0.7)
+====================
 
 Version 0.2.1
 -------------
@@ -56,6 +56,28 @@ Version 0.6
 -----------
 Preprocessing files moved into separate folder. More preprocessing options. 
 Examples moved into Jupyter notebook in separate examples section.
+
+`direpack` release notes (since version 0.8)
+========================
+
+Version 0.8
+-----------
+`ppdire` merges in
+
+Version 0.9
+-----------
+- `preprocessing` widely extended 
+- `plot` functions adapted 
+- documentation improved 
+
+Version 1.0
+-----------
+- `sudire` joins in
+- `plot` functions adapted 
+- documentation provided for `dicomo` 
+
+
+
 
  
 

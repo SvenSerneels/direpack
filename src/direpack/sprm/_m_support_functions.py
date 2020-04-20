@@ -10,9 +10,6 @@ Functions called internally in M-estimation
 
 import numpy as np
 
-class MyException(Exception):
-        pass
-
 def Fair(x,probct,*args):
     return((1/(1 + abs(x/(probct * 2)))**2)) 
          

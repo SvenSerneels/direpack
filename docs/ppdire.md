@@ -14,7 +14,7 @@ indices.
 
 While the class will also work with user-defined projection indices, a set of projection indices are 
 included into the `direpack` package as two ancillary classes: 
-- `dicomo` class for (co-)moment statistics (separate folder)
+- `dicomo` class for (co-)moment statistics (separate folder), cf the [dicomo Documentation file](https://github.com/SvenSerneels/direpack/blob/master/docs/dicomo.md)
 - `capi` specifically for analyzing financial market returns based on a linear combination of co-moments \[2\] 
 
 When using the `dicomo` class as a plugin, several well-known multivariate dimension reduction techniques 

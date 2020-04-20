@@ -6,11 +6,12 @@ a focus on dimension reduction.
 
 The categories of methods delivered in this package, are: 
 - Projection pursuit dimension reduction (`ppdire` folder; cf. [ppdire Documentation file](https://github.com/SvenSerneels/direpack/blob/master/docs/ppdire.md) and [ppdire Examples Notebook](https://github.com/SvenSerneels/direpack/blob/master/examples/ppdire_example.ipynb))
+- Sufficient dimension reduction (`sudire` folder; cf. [sudire Documentation file](https://github.com/SvenSerneels/direpack/blob/master/docs/sudire.md) and [sudire Examples Notebook](https://github.com/SvenSerneels/direpack/blob/master/examples/sudire_example.ipynb)))
 - Robust M-estimators for dimension reduction (`sprm` folder; cf. [SPRM Documentation file](https://github.com/SvenSerneels/direpack/blob/master/docs/sprm.md) and [SPRM Examples Notebook](https://github.com/SvenSerneels/direpack/blob/master/examples/sprm_example.ipynb))
 
 The package also contains a set of tools for pre- and postprocessing: 
 - The `preprocessing` folder provides classical and robust centring and scaling, as well as spatial sign transforms \[4\]
-- The `dicomo` folder contains a versatile class to access a wide variety of moment and co-moment statistics, and statistics derived from those. Check out the [dicomo Examples Notebook](https://github.com/SvenSerneels/direpack/blob/master/examples/dicomo_example.ipynb).
+- The `dicomo` folder contains a versatile class to access a wide variety of moment and co-moment statistics, and statistics derived from those. Check out the [dicomo Documentation file](https://github.com/SvenSerneels/direpack/blob/master/docs/dicomo.md) and the [dicomo Examples Notebook](https://github.com/SvenSerneels/direpack/blob/master/examples/dicomo_example.ipynb).
 - Plotting utilities in the `plot` folder 
 - Cross-validation utilities in the `cross-validation` folder  
 
@@ -34,6 +35,17 @@ published for RCR as well \[6\]. Moreover, `ppdire` is also a great gateway to c
 The code is orghanized in 
 - `ppdire.py` - the main PP dimension reduction class 
 - `capi.py` - the co-moment analysis projection index.      
+
+Methods in the `sudire` folder
+------------------------------
+The `sudire` folder gives access to an extensive set of methods that resort under the umbrella of sufficient dimension reduction. 
+These range from meanwhile long-standing, well-accepted approaches, such as sliced inverse regression (SIR) and the closely related SAVE \[8,9\], 
+through methods such as directional regression \[10\] and principal Hessian directions \[11\], and more. However, the package also contains some 
+of the most recently developed, state-of-the-art sufficient dimension reduction techniques, that require no distributional assumptions. 
+The options provided in this category are based on energy statistics (distance covariance \[12\] or martingale difference divergence \[13\]) and 
+ball statistics (ball covariance) \[14\]. All of these options can be called by setting the corresponding parameters in the `sudire` class, cf. [the docs](https://github.com/SvenSerneels/direpack/blob/master/docs/sudire.md). 
+Note: the ball covariance option will require some lines to be uncommented as indicated. We decided not to make that option generally available, 
+since it depends on the `Ball` package that seems to be difficult to install on certain architectures. 
 
 How to install
 --------------
@@ -60,6 +72,15 @@ References
 5. [Robust Continuum Regression](https://www.sciencedirect.com/science/article/abs/pii/S0169743904002667), Sven Serneels, Peter Filzmoser, Christophe Croux, Pierre J. Van Espen, Chemometrics and Intelligent Laboratory Systems, 76 (2005), 197-204.
 6. [Robust Multivariate Methods: The Projection Pursuit Approach](https://link.springer.com/chapter/10.1007/3-540-31314-1_32), Peter Filzmoser, Sven Serneels, Christophe Croux and Pierre J. Van Espen, in: From Data and Information Analysis to Knowledge Engineering, Spiliopoulou, M., Kruse, R., Borgelt, C., Nuernberger, A. and Gaul, W., eds., Springer Verlag, Berlin, Germany, 2006, pages 270--277.
 7. [Projection pursuit based generalized betas accounting for higher order co-moment effects in financial market analysis](https://arxiv.org/pdf/1908.00141.pdf), Sven Serneels, in: JSM Proceedings, Business and Economic Statistics Section. Alexandria, VA: American Statistical Association, 2019, 3009-3035.
+8. [Sliced Inverse Regression for Dimension Reduction](https://www.tandfonline.com/doi/abs/10.1080/01621459.1991.10475035) Li K-C,  Journal of the American Statistical Association (1991), 86, 316-327.
+9. [Sliced Inverse Regression for Dimension Reduction: Comment](https://www.jstor.org/stable/2290564?seq=1#metadata_info_tab_contents),  R.D. Cook, and Sanford Weisberg, Journal of the American Statistical Association (1991), 86, 328-332.
+10. [On directional regression for dimension reduction](https://doi.org/10.1198/016214507000000536) ,  B. Li and S.Wang, Journal of the American Statistical Association (2007), 102:997–1008.
+11. [On principal hessian directions for data visualization and dimension reduction:Another application of stein’s lemma](https://www.tandfonline.com/doi/abs/10.1080/01621459.1992.10476258), K.-C. Li. , Journal of the American Statistical Association(1992)., 87,1025–1039.
+12. [Sufficient Dimension Reduction via Distance Covariance](https://doi.org/10.1080/10618600.2015.1026601), Wenhui Sheng and Xiangrong Yin in: Journal of Computational and Graphical Statistics (2016),  25, issue 1, pages 91-104.
+13. [A martingale-difference-divergence-based estimation of central mean subspace](https://dx.doi.org/10.4310/19-SII562), Yu Zhang, Jicai Liu, Yuesong Wu and Xiangzhong Fang, in: Statistics and Its Interface (2019),  12, number 3, pages 489-501.
+14. [Robust Sufficient Dimension Reduction Via Ball Covariance](https://www.sciencedirect.com/science/article/pii/S0167947319301380) Jia Zhang and Xin Chen, Computational Statistics and Data Analysis 140 (2019) 144–154 
+ 
+ 
         
 [Release Notes](https://github.com/SvenSerneels/direpack/blob/master/direpack_Release_Notes.md) can be checked out in the repository.  
 
