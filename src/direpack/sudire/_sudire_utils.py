@@ -18,6 +18,19 @@ from ..utils.utils import MyException
 # uncomment this line if you want to use     
 
 def mdd_trim(beta, *args):
+    """
+    This is the objective function to be optimised when using MDD-SDR
+    args is expected to be a tuple With the following elements : 
+        X : input Data as matrix
+        Y : input Data as 1d matrix 
+        h, int: Dimension of the central subspace
+        N2 : inverse of square root of the covariance matrix of X 
+        is_distance_matrix, bool : if true, X and Y represent distance matrices
+        trimming, float : trimming fraction to be applied for MDD
+        center, bool :  if true, X and Y will be centered when computing MDD
+        dmetric : 'the distance metric to be used in the computation of MDD
+        biascorr, bool : if True, an unbiased estimator of MDD is computed.
+    """
     X= args[0]
     Y= args[1]
     h=args[2]
@@ -41,6 +54,18 @@ def mdd_trim(beta, *args):
 
     
 def dcov_trim(beta, *args):
+    """
+    This is the objective function to be optimised when using DCOV-SDR
+    args is expected to be a tuple With the following elements : 
+        X : input Data as matrix
+        Y : input Data as 1d matrix 
+        h : Dimension of the central subspace
+        N2 : inverse of square root of the covariance matrix of X 
+        is_distance_matrix, bool : if true, X and Y represent distance matrices
+        center, bool :  if true, X and Y will be centered when computing MDD
+        dmetric : 'the distance metric to be used in the computation of MDD
+        biascorr, bool : if True, an unbiased estimator of MDD is computed.
+    """
     X= args[0]
     Y= args[1]
     h=args[2]
@@ -107,11 +132,13 @@ def difference_divergence(X,Y,**kwargs):
     
     
     """
+    This function computes the (U)Martingale Difference Divergence of Y given X.
+    
     input :
     
         X : A  matrix or data frame, where rows represent samples, and columns represent variables.
         Y : The response variable or matrix.
-        biascorr : if True, uses U centering to produce an unbiased estimator of MDD
+        biascorr, bool : if True, uses U centering to produce an unbiased estimator of MDD
         
     output:
         returns the squared martingale difference divergence of Y given X.
@@ -153,7 +180,8 @@ def difference_divergence(X,Y,**kwargs):
 def U_inner(X,Y,trimming=0):
     
     """
-        Computes the inner product in the space of U centered matrices, between matrices X and Y. The matrices are square matrices.
+        Computes the inner product in the space of U centered matrices, between matrices X and Y.
+        The matrices have to be  square matrices.
     
     """
         
@@ -179,7 +207,8 @@ def U_inner(X,Y,trimming=0):
 def D_inner(X,Y,trimming=0):
     
     """
-    Computes the inner product in the space of D centered matrices, between Double centered matrices X and Y. The               matrices are square matrices.
+    Computes the inner product in the space of D centered matrices, between Double centered matrices X and Y.
+    The matrices have to be square matrices.
     
     """
         
@@ -203,6 +232,9 @@ def D_inner(X,Y,trimming=0):
     
     
 def matpower(A, alpha):
+    """
+    computes the A to the power alpha using the eigen decomposition of A.
+    """
     A= (A+ A.T)/2
     eig_vals, eig_vecs = np.linalg.eigh(A)
     res = np.matmul(np.matmul(eig_vecs,np.diag(eig_vals**alpha)),eig_vecs.T)
@@ -210,6 +242,16 @@ def matpower(A, alpha):
     
 
 def discretize(y,h):    
+    """
+    This function is used to discretize a continuous variable y into h classes
+    that are ordered.
+    input :
+        y : input data as vector or 1D matrix.
+        h : the number of classes 
+        
+    output : 
+         vector containing the class to which each element of y belongs. 
+    """
     n = len(y)
     m = np.floor(n/h)
     yord = np.sort(y)
@@ -225,6 +267,25 @@ def discretize(y,h):
     
 
 def SIR(x,y,n_slices,d,ytype='continuous', center_data=True, scale_data=True):
+    """
+    computes  the Sliced Inverse Regression  estimator of the central subspace.
+    The algortihm is inspired from :
+    "Bing, Li .(2018). Sufficient Dimension Reduction: Methods and Applications with R.
+    Chapman & Hall/CRC Monographs on Statistics and Applied Probability."
+    
+    Input : 
+        X : input Data as Matrix 
+        Y : input data as vector or 1d matrix.
+        n_slices, int : number of slices 
+        d, int : dimension of the central subspace.
+        ytype, str : either discrete or continuous
+        center_data, bool, if true, the data is centered before SIR
+        scale_data, bool, if true, the data is sclaed before SIR
+        
+    Output :
+         The estimated basis of the central subspace.
+        
+    """
     y = np.asarray(y).flatten()
     n = x.shape[0]## zxception if d> p or x.shape[0] != y.shape[0]
     signsqrt = matpower(np.cov(x, rowvar=0 ), -0.5)
@@ -236,7 +297,7 @@ def SIR(x,y,n_slices,d,ytype='continuous', center_data=True, scale_data=True):
     if(scale_data):
         x= np.matmul(x,signsqrt)
     xstd = x
-    if(ytype== 'continuous') : 
+    if(ytype == 'continuous') : 
         ydis= discretize(y,n_slices)
     else:
         ydis = y
@@ -269,6 +330,25 @@ def SIR(x,y,n_slices,d,ytype='continuous', center_data=True, scale_data=True):
         
 
 def SAVE(x,y,n_slices,d,ytype='continuous',center_data=True, scale_data=True):
+    """
+    computes  the Sliced Average Variance Estimator of the central subspace.
+    The algortihm is inspired from :
+    "Bing, Li .(2018). Sufficient Dimension Reduction: Methods and Applications with R.
+    Chapman & Hall/CRC Monographs on Statistics and Applied Probability."
+    
+    Input : 
+        X : input Data as Matrix 
+        Y : input data as vector or 1d matrix.
+        n_slices, int : number of slices 
+        d, int : dimension of the central subspace.
+        ytype, str : either discrete or continuous
+        center_data, bool, if true, the data is centered before SIR
+        scale_data, bool, if true, the data is sclaed before SIR
+        
+    Output :
+         The estimated basis of the central subspace.
+        
+    """
     y = np.asarray(y).flatten()
     p=x.shape[1]
     n = x.shape[0]## zxception if d> p or x.shape[0] != y.shape[0]
@@ -317,6 +397,25 @@ def SAVE(x,y,n_slices,d,ytype='continuous',center_data=True, scale_data=True):
         
 
 def DR(x,y,n_slices,d,ytype='continuous', center_data=True, scale_data=True):
+    """
+    computes  the Directional Regression Estimator of the central subspace.
+    The algortihm is inspired from :
+    "Bing, Li .(2018). Sufficient Dimension Reduction: Methods and Applications with R.
+    Chapman & Hall/CRC Monographs on Statistics and Applied Probability."
+    
+    Input : 
+        X : input Data as Matrix 
+        Y : input data as vector or 1d matrix.
+        n_slices, int : number of slices 
+        d, int : dimension of the central subspace.
+        ytype, str : either discrete or continuous
+        center_data, bool, if true, the data is centered before SIR
+        scale_data, bool, if true, the data is sclaed before SIR
+        
+    Output :
+         The estimated basis of the central subspace.
+        
+    """
     y = np.asarray(y).flatten()
     p=x.shape[1]
     n = x.shape[0]## zxception if d> p or x.shape[0] != y.shape[0]
@@ -372,6 +471,24 @@ def DR(x,y,n_slices,d,ytype='continuous', center_data=True, scale_data=True):
     
    
 def PHD(x, y,d, center_data=True, scale_data=True):
+    
+    """
+    computes  the Principal Hessian Dimension estimator of the central subspace.
+    The algortihm is inspired from :
+    "Bing, Li .(2018). Sufficient Dimension Reduction: Methods and Applications with R.
+    Chapman & Hall/CRC Monographs on Statistics and Applied Probability."
+    
+    Input : 
+        X : input Data as Matrix 
+        Y : input data as vector or 1d matrix.
+        d, int : dimension of the central subspace.
+        center_data, bool, if true, the data is centered before SIR
+        scale_data, bool, if true, the data is sclaed before SIR
+        
+    Output :
+         The estimated basis of the central subspace.
+    
+    """
     n = x.shape[0]
     if(len(y.shape)<2):
         y=y.reshape((-1,1))
@@ -395,6 +512,23 @@ def PHD(x, y,d, center_data=True, scale_data=True):
     
 
 def IHT(x,y,d,center_data=True, scale_data=True):
+    """
+    computes  the Iterative Hessian Transformation estimator of the central subspace.
+    The algortihm is inspired from :
+    "Bing, Li .(2018). Sufficient Dimension Reduction: Methods and Applications with R.
+    Chapman & Hall/CRC Monographs on Statistics and Applied Probability."
+    
+    Input : 
+        X : input Data as Matrix 
+        Y : input data as vector or 1d matrix.
+        d, int : dimension of the central subspace.
+        center_data, bool, if true, the data is centered before SIR
+        scale_data, bool, if true, the data is sclaed before SIR
+        
+    Output :
+         The estimated basis of the central subspace.
+        
+    """
     
     p=x.shape[1]
        ## zxception if d> p or x.shape[0] != y.shape[0]
@@ -424,10 +558,9 @@ def IHT(x,y,d,center_data=True, scale_data=True):
         return(eig_vecs[:, 0:d])
         
 def ballcov_func(beta, *args):
-    
     """
-    This will only work if Ball is installed 
-    and after uncommenting the import Ball statement above
+     objective function  for BCOV-SDR.
+    will work after uncommenting the import Ball statement above
     """
     
     X= args[0]
