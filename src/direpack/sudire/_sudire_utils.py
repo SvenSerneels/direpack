@@ -559,8 +559,8 @@ def IHT(x,y,d,center_data=True, scale_data=True):
         
 def ballcov_func(beta, *args):
     """
-     objective function  for BCOV-SDR.
-    will work after uncommenting the import Ball statement above
+    Objective function  for BCOV-SDR.
+    Will only work after uncommenting the import Ball statement above
     """
     
     X= args[0]
