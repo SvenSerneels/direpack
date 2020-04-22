@@ -50,7 +50,7 @@ setup(
         'pandas>=0.19.0',
         'statsmodels>=0.8.0',
         'ipopt>=0.1.5',
-        'dcor>=0.3
+        'dcor>=0.3'
     ]
 )
 
