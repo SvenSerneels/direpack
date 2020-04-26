@@ -12,6 +12,17 @@ import numpy as np
 import copy
 
 def trim_mean(x,trimming,axis=0):
+    """
+    computes the trimmed mean of array x according to axis.
+    Input :
+        x : input data as numpy array
+        trimming, float : trimming percentage to be used
+        axis, int or None : Axis along which the trimmed means are computed
+        
+    Output:
+        The trimmed mean of x according to axis.
+    
+    """
     
     if trimming == 0: 
         return(np.mean(x,axis=axis))
@@ -19,70 +30,103 @@ def trim_mean(x,trimming,axis=0):
         return(sps.trim_mean(x,trimming,axis=axis))
 
 def trimvar(x,trimming):
+    
+    """
+    computes the trimmed variance of array x .
+    Input :
+        x : input data as numpy array
+        trimming, float : trimming percentage to be used
+     
+    Output:
+        The trimmed variance of x.
+    
+    """
         # division by n
-        return(sps.trim_mean(np.square(x - sps.trim_mean(x,trimming)),trimming))
+    return(sps.trim_mean(np.square(x - sps.trim_mean(x,trimming)),trimming))
         
 def identity(x): 
     return(x)
         
 def trim_mom(x,y,locest,order,trimming,option,fscorr=True):
+    """
+    computes trimmed comoment   between x and y. order represents the order of 
+    the comoment.
+    input :
+        x : Input data as matrix 
+        y : Input data as matrix or 1d vector
+        order, int : order of the comoment
+        trimming, float : trimming percentage to be used.
+        option, int : option to be used in the computation
+        fscor, bool: if True, a correction is applied to the comoment. 
+    
+    output : 
+        the trimmed comoment between x and y 
+    """
         # division by n
         
-        if order == 0:
-            como = 0
-        elif order == 1: 
-            como = locest(x,trimming)
-        else:
-            if order > 2: 
-                iter_stop_2 = option 
-                iter_stop_1 = order - option
-            else: 
-                iter_stop_1 = 1
-                iter_stop_2 = 1
-            
-            if locest == np.median:
-                trimming = 0
-                factor = 1
-                if (x==y).all():
-                    wrapper = abs
-                    power = 1/order
-                    if power == 0.5:
-                        factor = 1.4826
-                else:
-                    wrapper = identity
-                    power = 1
+    if order == 0:
+        como = 0
+    elif order == 1: 
+        como = locest(x,trimming)
+    else:
+        if order > 2: 
+            iter_stop_2 = option 
+            iter_stop_1 = order - option
+        else: 
+            iter_stop_1 = 1
+            iter_stop_2 = 1
+        
+        if locest == np.median:
+            trimming = 0
+            factor = 1
+            if (x==y).all():
+                wrapper = abs
+                power = 1/order
+                if power == 0.5:
+                    factor = 1.4826
             else:
-                n = len(x)
                 wrapper = identity
                 power = 1
-                if fscorr:
-                    ntrim = round(n * (1-trimming)) 
-                    factor = ntrim
-                    factor /= np.product(ntrim - np.arange(max(1,order-2),order))
-                else:
-                    factor = 1
-        
-            xc = wrapper(x - locest(x,trimming))
-            yc = wrapper(y - locest(y,trimming))
-        
-            factor1 = np.power(xc,iter_stop_1)
-            factor2 = np.power(yc,iter_stop_2)
-        
-            como = locest(np.power(np.multiply(factor1,factor2),power),trimming)*factor
-#        como = sps.trim_mean(np.multiply(x - sps.trim_mean(x,trimming),y - sps.trim_mean(y,trimming)),trimming)*ntrim/(ntrim-1)
-        if len(como.shape)>1: 
-            como = como[0,0]
         else:
-            if type(como) is np.ndarray:
-                como = como[0]
+            n = len(x)
+            wrapper = identity
+            power = 1
+            if fscorr:
+                ntrim = round(n * (1-trimming)) 
+                factor = ntrim
+                factor /= np.product(ntrim - np.arange(max(1,order-2),order))
+            else:
+                factor = 1
+    
+        xc = wrapper(x - locest(x,trimming))
+        yc = wrapper(y - locest(y,trimming))
+    
+        factor1 = np.power(xc,iter_stop_1)
+        factor2 = np.power(yc,iter_stop_2)
+    
+        como = locest(np.power(np.multiply(factor1,factor2),power),trimming)*factor
+#        como = sps.trim_mean(np.multiply(x - sps.trim_mean(x,trimming),y - sps.trim_mean(y,trimming)),trimming)*ntrim/(ntrim-1)
+    if len(como.shape)>1: 
+        como = como[0,0]
+    else:
+        if type(como) is np.ndarray:
+            como = como[0]
             
         
-        return(como)
+    return(como)
 
 def double_center_flex(a, center='mean', **kwargs):
     """
     Double centered function adapted to accommodate for location types different
-    from mean. 
+    from mean.
+    Input : 
+        a : input data as matrix
+        center, str : which location estimate to use for centering. either 'mean or 'median'
+        kwargs :
+            trimming, float : trimming percentage to be used.
+            biascorr, bool : if True, bias correction is applied during double centering.
+    Output : 
+        The double centered version of the matrix a.
 
     """
     
@@ -140,6 +184,18 @@ def double_center_flex(a, center='mean', **kwargs):
 
 
 def distance_matrix_centered(x,**kwargs):
+    """
+    Computes the trimmed double centered distance matrix of x.
+    Input : 
+        x : input data as matrix.
+        kwargs :
+            trimming, float : trimming percentage to be used.
+            biascorr, bool : if True, bias correction is applied during double centering.
+            center, str : which location estimate to use for centering. either 'mean or 'median'
+            dmetric, str : which distance metric to use. Default is euclidean distance.
+    Output :
+        the trimmed double centered distance matrix of x            
+    """
     
     if 'trimming' not in kwargs:
         trimming = 0
@@ -169,6 +225,23 @@ def distance_matrix_centered(x,**kwargs):
 
 
 def distance_moment(dmx,dmy,**kwargs):
+    """
+    Computes the trimmed distance comoment between x and y based on their distance matrices.
+    Input : 
+        dmx : distance matrix of x 
+        dmy : distance matrix of y 
+        
+        kwargs :
+            trimming, float : trimming percentage to be used.
+            biascorr, bool : if True, bias correction is applied during double centering.
+            center, str : which location estimate to use for centering. either 'mean or 'median'
+            dmetric, str : which distance metric to use. Default is euclidean distance.
+            order, int : order  of the comoment to be computed, default is 2 for covariance.
+            option, int : option to be used during the computation. 
+    Output :
+        The trimmed  distance comoment  between x and y
+    
+    """
     
     if 'trimming' not in kwargs:
         trimming = 0
