@@ -113,7 +113,7 @@ def trim_mom(x,y,locest,order,trimming,option,fscorr=True):
             como = como[0]
             
         
-        return(como)
+    return(como)
 
 def double_center_flex(a, center='mean', **kwargs):
     """
