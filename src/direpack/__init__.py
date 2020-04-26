@@ -9,8 +9,8 @@ Created on Sun Jul 22 12:17:17 2018
 __name__ = "direpack"
 __author__ = "Sven Serneels"
 __license__ = "MIT"
-__version__ = "1.0.0"
-__date__ = "2020-20-18"
+__version__ = "1.0.1"
+__date__ = "2020-04-26"
 
 from .preprocessing.robcent import VersatileScaler, versatile_scale
 from .preprocessing.gsspp import GenSpatialSignPrePprocessor, gen_ss_pp, gen_ss_covmat
