@@ -75,6 +75,7 @@ Version 1.0
 - `sudire` joins in
 - `plot` functions adapted 
 - documentation provided for `dicomo` 
+- 1.0.2: link to `direpack` publication added
 
 
 

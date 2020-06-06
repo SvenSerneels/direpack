@@ -1,13 +1,17 @@
 `direpack`: a Python 3 library for state-of-the-art statistical dimension reduction techniques
 ==============================================================================================
 
-This package delivers a `scikit-learn` compatible Python 3 package for some state-of-the art multivariate statistical methods, with 
+This package delivers a `scikit-learn` compatible Python 3 package for sundry state-of-the art multivariate statistical methods, with 
 a focus on dimension reduction. 
 
 The categories of methods delivered in this package, are: 
 - Projection pursuit dimension reduction (`ppdire` folder; cf. [ppdire Documentation file](https://github.com/SvenSerneels/direpack/blob/master/docs/ppdire.md) and [ppdire Examples Notebook](https://github.com/SvenSerneels/direpack/blob/master/examples/ppdire_example.ipynb))
 - Sufficient dimension reduction (`sudire` folder; cf. [sudire Documentation file](https://github.com/SvenSerneels/direpack/blob/master/docs/sudire.md) and [sudire Examples Notebook](https://github.com/SvenSerneels/direpack/blob/master/examples/sudire_example.ipynb)))
 - Robust M-estimators for dimension reduction (`sprm` folder; cf. [SPRM Documentation file](https://github.com/SvenSerneels/direpack/blob/master/docs/sprm.md) and [SPRM Examples Notebook](https://github.com/SvenSerneels/direpack/blob/master/examples/sprm_example.ipynb))
+
+Further documentation can be found in the [`direpack` publication](https://arxiv.org/abs/2006.01635). 
+
+We hope that this package leads to scientific success. If it does so, we kindly ask to cite the `direpack` publication [\0\], as well as the original publication of the corresponding method.  
 
 The package also contains a set of tools for pre- and postprocessing: 
 - The `preprocessing` folder provides classical and robust centring and scaling, as well as spatial sign transforms \[4\]
@@ -65,6 +69,7 @@ Jupyter Notebooks with Examples are provided for each of the classes in the `exa
         
 References
 ==========
+0. [`direpack`: A Python 3 package for state-of-the-art statistical dimension reduction methods](https://arxiv.org/abs/2006.01635)
 1. [Sparse partial robust M regression](https://www.sciencedirect.com/science/article/abs/pii/S0169743915002440), Irene Hoffmann, Sven Serneels, Peter Filzmoser, Christophe Croux, Chemometrics and Intelligent Laboratory Systems, 149 (2015), 50-59.
 2. [Partial robust M regression](https://doi.org/10.1016/j.chemolab.2005.04.007), Sven Serneels, Christophe Croux, Peter Filzmoser, Pierre J. Van Espen, Chemometrics and Intelligent Laboratory Systems, 79 (2005), 55-64.
 3. [Sparse and robust PLS for binary classification](https://onlinelibrary.wiley.com/doi/abs/10.1002/cem.2775), I. Hoffmann, P. Filzmoser, S. Serneels, K. Varmuza, Journal of Chemometrics, 30 (2016), 153-162.
