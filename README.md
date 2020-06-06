@@ -11,7 +11,7 @@ The categories of methods delivered in this package, are:
 
 Further documentation can be found in the [`direpack` publication](https://arxiv.org/abs/2006.01635). 
 
-We hope that this package leads to scientific success. If it does so, we kindly ask to cite the `direpack` publication [\0\], as well as the original publication of the corresponding method.  
+We hope that this package leads to scientific success. If it does so, we kindly ask to cite the `direpack` publication \[0\], as well as the original publication of the corresponding method.  
 
 The package also contains a set of tools for pre- and postprocessing: 
 - The `preprocessing` folder provides classical and robust centring and scaling, as well as spatial sign transforms \[4\]
