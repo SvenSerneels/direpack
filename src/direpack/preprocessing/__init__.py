@@ -9,8 +9,8 @@ Created on Sun Jul 22 12:17:17 2018
 __name__ = "preprocessing"
 __author__ = "Sven Serneels"
 __license__ = "MIT"
-__version__ = "0.7.1"
-__date__ = "2020-04-13"
+__version__ = "0.7.2"
+__date__ = "2020-06-20"
 
 
 

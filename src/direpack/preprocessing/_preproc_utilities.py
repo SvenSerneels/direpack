@@ -140,6 +140,7 @@ def _l1m_jacobian(a,X):
     (n,p) = X.shape
     dX = _diffmat_objective(a,X)
     dists = np.apply_along_axis(_euclidnorm,1,dX)
+    dists = _handle_zeros_in_scale(dists)
     dX /= np.tile(np.matrix(dists).reshape(n,1),(1,p))
     return(-np.sum(dX,axis=0))
 

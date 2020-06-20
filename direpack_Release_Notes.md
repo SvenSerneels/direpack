@@ -76,6 +76,7 @@ Version 1.0
 - `plot` functions adapted 
 - documentation provided for `dicomo` 
 - 1.0.2: link to `direpack` publication added
+- 1.0.3: fixed rare division by zero in `l1median`
 
 
 
