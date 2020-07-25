@@ -37,12 +37,6 @@ class Testsudire(unittest.TestCase):
         self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(
         self.x, self.y, test_size=0.3, random_state=42)
         
-        
-        
-        
-        
-        
-        
     def tearDown(self):
         del self.x
         del self.y
@@ -101,23 +95,27 @@ class Testsudire(unittest.TestCase):
         test_ans = 1.4142135623730894
         np.testing.assert_almost_equal(np.linalg.norm(mod_auto.x_loadings_),test_ans,decimal=14)
         
+# Tests for DCOV and MDD based SDR can be run as below. However, they require IPOPT to be installed 
+# independently of the Python packages, which is hard to ascertain in an online GitHub workflow. 
+# Moreover, the result may slightly differ numberically depending on the solver used internally in 
+# IPOPT.
         
-    def test_dcov(self):  
-        """ Test DCOV based SDR"""
-        
-        mod_auto = sudire('dcov-sdr', center_data= True, scale_data=True,n_components=self.struct_dim)
-        mod_auto.fit(self.x_train.values, self.y_train.values)
-        test_ans = 1.1985000652583924
-        np.testing.assert_almost_equal(np.linalg.norm(mod_auto.x_loadings_),test_ans,decimal=5)
-        
-        
-    def test_mdd(self):
-        
-        """ Test MDD based SDR"""
-        mod_auto = sudire('mdd-sdr', center_data= True, scale_data=True,n_components=self.struct_dim)
-        mod_auto.fit(self.x_train.values, self.y_train.values)
-        test_ans = 0.3793912951554523
-        np.testing.assert_almost_equal(np.linalg.norm(mod_auto.x_loadings_),test_ans,decimal=5)
+#    def test_dcov(self):  
+#        """ Test DCOV based SDR"""
+#        
+#        mod_auto = sudire('dcov-sdr', center_data= True, scale_data=True,n_components=self.struct_dim)
+#        mod_auto.fit(self.x_train.values, self.y_train.values)
+#        test_ans = 1.1985000652583924
+#        np.testing.assert_almost_equal(np.linalg.norm(mod_auto.x_loadings_),test_ans,decimal=5)
+#        
+#        
+#    def test_mdd(self):
+#        
+#        """ Test MDD based SDR"""
+#        mod_auto = sudire('mdd-sdr', center_data= True, scale_data=True,n_components=self.struct_dim)
+#        mod_auto.fit(self.x_train.values, self.y_train.values)
+#        test_ans = 0.3793912951554523
+#        np.testing.assert_almost_equal(np.linalg.norm(mod_auto.x_loadings_),test_ans,decimal=5)
     
         
     
