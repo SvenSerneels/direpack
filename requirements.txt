@@ -6,12 +6,8 @@ numpy
 matplotlib
 scipy
 sklearn
-copy
 pandas
 statsmodels-api
-collections
-inspect
-warnings
 ipopt
 dcor
 
