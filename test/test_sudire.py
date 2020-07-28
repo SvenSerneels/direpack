@@ -8,7 +8,7 @@ Created on Tue Jun 30 13:17:46 2020
 import unittest
 import numpy as np
 import pandas as pd
-from direpack import sudire, estimate_structural_dim
+from ..src.direpack.sudire.sudire import sudire, estimate_structural_dim
 from sklearn.model_selection import train_test_split
 
 class Testsudire(unittest.TestCase):
