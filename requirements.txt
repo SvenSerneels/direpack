@@ -8,6 +8,7 @@ scipy
 sklearn
 pandas
 statsmodels
+Cython
 ipopt
 dcor
 
