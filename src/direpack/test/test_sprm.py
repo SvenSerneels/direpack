@@ -8,9 +8,9 @@ Created on Tue Jun 30 13:17:46 2020
 import unittest
 import pandas as ps
 import numpy as np
-from ..src.direpack.sprm.sprm import sprm
-from ..src.direpack.sprm.snipls import snipls
-from ..src.direpack.sprm.rm import rm
+from ..sprm.sprm import sprm
+from ..sprm.snipls import snipls
+from ..sprm.rm import rm
 
 
 
