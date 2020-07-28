@@ -7,7 +7,7 @@ matplotlib
 scipy
 sklearn
 pandas
-statsmodels-api
+statsmodels
 ipopt
 dcor
 
