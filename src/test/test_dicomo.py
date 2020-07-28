@@ -6,7 +6,7 @@ Created on Tue Jun 30 13:17:46 2020
 """
 
 import unittest
-from ..dicomo.dicomo import dicomo
+from .direpack.dicomo.dicomo import dicomo
 import pandas as ps
 import numpy as np
 import statsmodels.robust as srs

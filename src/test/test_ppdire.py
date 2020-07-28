@@ -8,10 +8,10 @@ Created on Tue Jun 30 13:17:46 2020
 import unittest
 import pandas as ps
 import numpy as np
-from direpack.preprocessing.robcent import VersatileScaler
+from .direpack.preprocessing.robcent import VersatileScaler
 import sklearn.decomposition as skd
-from direpack.dicomo.dicomo import dicomo
-from direpack.ppdire.ppdire import ppdire
+from .direpack.dicomo.dicomo import dicomo
+from .direpack.ppdire.ppdire import ppdire
 import sklearn.cross_decomposition as skc
 
 class Testppdire(unittest.TestCase):
