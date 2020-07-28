@@ -11,6 +11,7 @@ from __future__ import unicode_literals
 
 
 from ..ppdire.ppdire import ppdire
+from ..utils.utils import MyException
 import matplotlib.pyplot as pp 
 import numpy as np
 
