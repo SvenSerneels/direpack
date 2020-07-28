@@ -10,6 +10,7 @@ import scipy.stats as sps
 import scipy.spatial as spp
 import numpy as np
 import copy
+from ..utils.utils import MyException
 
 def trim_mean(x,trimming,axis=0):
     """

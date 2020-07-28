@@ -111,7 +111,7 @@ def gen_ss_pp(X,center='l1median',fun='linear_redescending'):
         p = 1
     n = n[0]
     
-    if center is not 'None':
+    if center != 'None':
         X = versatile_scale(X,center=center,scale='None')
         
     return(_gsspp(X,p,n,fun=fun))
