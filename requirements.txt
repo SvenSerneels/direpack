@@ -12,6 +12,7 @@ statsmodels
 # Cython
 # ipopt
 dcor
+sympy
 
 #
 ###### Requirements with Version Specifiers ######
