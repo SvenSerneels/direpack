@@ -13,6 +13,7 @@ statsmodels
 # ipopt
 dcor
 sympy
+scikit-learn
 
 #
 ###### Requirements with Version Specifiers ######
