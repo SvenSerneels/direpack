@@ -13,7 +13,7 @@ statsmodels
 # ipopt
 dcor
 sympy
-sklearn
+scikit-learn
 pandas
 
 #
