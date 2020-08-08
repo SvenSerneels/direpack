@@ -27,5 +27,7 @@ jobs:
         TWINE_USERNAME: ${{ secrets.PYPIUID }}
         TWINE_PASSWORD: ${{ secrets.PYPIPWD }}
       run: |
+        python -m pip install scikit-learn
+        python -m pip install sklearn
         python setup.py sdist bdist_wheel
         twine upload dist/*
