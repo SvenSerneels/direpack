@@ -77,6 +77,7 @@ Version 1.0
 - documentation provided for `dicomo` 
 - 1.0.2: link to `direpack` publication added
 - 1.0.3: fixed rare division by zero in `l1median`
+- 1.0.4: unit tests included
 
 
 
