@@ -12,6 +12,8 @@ __license__ = "MIT"
 __version__ = "1.0.4"
 __date__ = "2020-08-08"
 
+# The commented lines can be uncommented if IPOPT has been installed independently.  
+
 from .preprocessing.robcent import VersatileScaler, versatile_scale
 from .preprocessing.gsspp import GenSpatialSignPrePprocessor, gen_ss_pp, gen_ss_covmat
 from .sprm.sprm import sprm
@@ -22,7 +24,7 @@ from .ppdire.ppdire import ppdire
 from .ppdire.capi import capi
 from .dicomo.dicomo import dicomo
 # from .sudire.sudire import sudire, estimate_structural_dim
-from .plot.sudire_plot import sudire_plot
+# from .plot.sudire_plot import sudire_plot
 from .plot.ppdire_plot import ppdire_plot
 from .plot.sprm_plot import sprm_plot,sprm_plot_cv
 # from .ipopt_temp.ipopt_wrapper import minimize_ipopt
