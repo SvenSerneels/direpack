@@ -9,8 +9,8 @@ sklearn
 pandas
 statsmodels
 # uncheck these for DCOV-SDR and MDD-SDR options in sudire
-Cython
-ipopt
+# Cython
+# ipopt
 dcor
 sympy
 
