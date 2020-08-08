@@ -4,6 +4,9 @@
 name: Upload Python Package
 
 on:
+  push:
+    tags: github.event_name == 'push' && startsWith(github.ref, 'refs/tags') 
+      run hub release edit -m '' -a ~/website/beta/pkgfiles/${{ steps.package_build.outputs.package }} '${{ github.event.release.tag_name }}'
   release:
     types: [created]
 
