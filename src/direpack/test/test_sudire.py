@@ -8,7 +8,7 @@ Created on Tue Jun 30 13:17:46 2020
 import unittest
 import numpy as np
 import pandas as pd
-from ..sudire.sudire import sudire, estimate_structural_dim
+from direpack.sudire._sudire_utils import *
 from sklearn.model_selection import train_test_split
 
 class Testsudire(unittest.TestCase):
@@ -37,6 +37,13 @@ class Testsudire(unittest.TestCase):
         self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(
         self.x, self.y, test_size=0.3, random_state=42)
         
+        
+        
+        
+        
+        
+        
+        
     def tearDown(self):
         del self.x
         del self.y
@@ -49,56 +56,57 @@ class Testsudire(unittest.TestCase):
         del self.y_train
         del self.y_test
         
-    def test_estimdim(self):
-        """ Tests the estimation of the central subspace via Bootstrap """
-        
-        central_dim, diff_vec = estimate_structural_dim('dr',self.x_train.values,self.y_train.values , B=100, n_slices=4)
-        np.testing.assert_equal(central_dim,6)
+#    def test_estimdim(self):
+#        """ Tests the estimation of the central subspace via Bootstrap """
+#        
+#        central_dim, diff_vec = estimate_structural_dim('dr',self.x_train.values,self.y_train.values , B=100, n_slices=4)
+#        np.testing.assert_equal(central_dim,6)
         
     def test_sir(self):
         """ Tests Sliced Inverse Regression"""
         
-        mod_auto = sudire('sir', center_data= True, scale_data=True,n_components=self.struct_dim)
-        mod_auto.fit(self.x_train.values, self.y_train.values)
+        #mod_auto = sudire('sir', center_data= True, scale_data=True,n_components=self.struct_dim)
+        #mod_auto.fit(self.x_train.values, self.y_train.values)
+        res_sir = SIR(self.x_train.values, self.y_train.values,6,self.struct_dim,'continuous',False,False)
         test_ans = 1.4142135623730947
-        np.testing.assert_almost_equal(np.linalg.norm(mod_auto.x_loadings_),test_ans,decimal=14)
+        np.testing.assert_almost_equal(np.linalg.norm(res_sir),test_ans,decimal=14)
         
     def test_save(self):
         """ Tests Sliced Average Variance Estimation """
         
-        mod_auto = sudire('save', center_data= True, scale_data=True,n_components=self.struct_dim)
-        mod_auto.fit(self.x_train.values, self.y_train.values)
+        #mod_auto = sudire('save', center_data= True, scale_data=True,n_components=self.struct_dim)
+        #mod_auto.fit(self.x_train.values, self.y_train.values)
+        res_save = SAVE(self.x_train.values, self.y_train.values,6,self.struct_dim,'continuous',False,False)
         test_ans = 1.4142135623730943
-        np.testing.assert_almost_equal(np.linalg.norm(mod_auto.x_loadings_),test_ans,decimal=14)
+        np.testing.assert_almost_equal(np.linalg.norm(res_save),test_ans,decimal=14)
         
     def test_dr(self):
         """ Tests Directional Regression """
         
-        mod_auto = sudire('dr', center_data= True, scale_data=True,n_components=self.struct_dim)
-        mod_auto.fit(self.x_train.values, self.y_train.values)
+        #mod_auto = sudire('dr', center_data= True, scale_data=True,n_components=self.struct_dim)
+        #mod_auto.fit(self.x_train.values, self.y_train.values)
+        res_dr = DR(self.x_train.values, self.y_train.values,6,self.struct_dim,'continuous',False,False)
         test_ans = 1.4142135623730934
-        np.testing.assert_almost_equal(np.linalg.norm(mod_auto.x_loadings_),test_ans,decimal=14)
+        np.testing.assert_almost_equal(np.linalg.norm(res_dr),test_ans,decimal=14)
         
     def test_iht(self):
         """ Tests Iterative Hessian Transformations """
         
-        mod_auto = sudire('iht', center_data= True, scale_data=True,n_components=self.struct_dim)
-        mod_auto.fit(self.x_train.values, self.y_train.values)
+        #mod_auto = sudire('iht', center_data= True, scale_data=True,n_components=self.struct_dim)
+        #mod_auto.fit(self.x_train.values, self.y_train.values)
+        res_iht = IHT(self.x_train.values, self.y_train.values,self.struct_dim,False,False)
         test_ans = 1.4142135623730934
-        np.testing.assert_almost_equal(np.linalg.norm(mod_auto.x_loadings_),test_ans,decimal=14)
+        np.testing.assert_almost_equal(np.linalg.norm(res_iht),test_ans,decimal=14)
         
     def test_phd(self):
         """ Tests Principal Hessian Directions """
         
-        mod_auto = sudire('phd', center_data= True, scale_data=True,n_components=self.struct_dim)
-        mod_auto.fit(self.x_train.values, self.y_train.values)
+        #mod_auto = sudire('phd', center_data= True, scale_data=True,n_components=self.struct_dim)
+        #mod_auto.fit(self.x_train.values, self.y_train.values)
+        res_phd = PHD(self.x_train.values, self.y_train.values,self.struct_dim,False,False)
         test_ans = 1.4142135623730894
-        np.testing.assert_almost_equal(np.linalg.norm(mod_auto.x_loadings_),test_ans,decimal=14)
+        np.testing.assert_almost_equal(np.linalg.norm(res_phd),test_ans,decimal=14)
         
-# Tests for DCOV and MDD based SDR can be run as below. However, they require IPOPT to be installed 
-# independently of the Python packages, which is hard to ascertain in an online GitHub workflow. 
-# Moreover, the result may slightly differ numberically depending on the solver used internally in 
-# IPOPT.
         
 #    def test_dcov(self):  
 #        """ Test DCOV based SDR"""
