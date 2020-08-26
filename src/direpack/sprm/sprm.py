@@ -183,6 +183,8 @@ class sprm(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
             if type(self.columns) != bool:
                 self.columns = self.columns[vars_to_keep]
             p = len(vars_to_keep)
+            if (self.n_components > p):
+                raise MyException(f"Upon removal of zero scale variables, the number of components is too large. Please reduce to {p} maximally.")
         
         self.non_zero_scale_vars_ = vars_to_keep
 
