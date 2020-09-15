@@ -122,13 +122,13 @@ class snipls(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
             nth = np.linalg.norm(th,"fro")
             ch = (yi.T * th)/(nth**2)
             ph = (Xi.T * Xi * wh)/(nth**2)
+            Xi = Xi - th * ph.T
+            yi = yi - th*ch
             ph[elimvars] = 0 
-            yi = yi - th*ch 
             W[:,i-1] = np.reshape(wh,p)
             P[:,i-1] = np.reshape(ph,p)
             C[i-1] = ch 
             T[:,i-1] = np.reshape(th,n)
-            Xi = Xi - th * ph.T
             Xev[i-1] = (nth**2*np.linalg.norm(ph,"fro")**2)/np.sum(np.square(X0))*100
             yev[i-1] = np.sum(nth**2*(ch**2))/np.sum(np.power(y0,2))*100
             if type(self.columns)==bool:
@@ -140,8 +140,11 @@ class snipls(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
                       "\n" + str(colret) + ".\n")
         if(len(goodies)>0):
             R = np.matmul(W[:,range(0,i)] , np.linalg.inv(np.matmul(P[:,range(0,i)].T,W[:,range(0,i)])))
-            B = np.matmul(R,C[range(0,i)])
-        else:
+            B = np.matmul(W[:,range(0,i)],np.matmul(
+                    np.linalg.inv(np.matmul(np.matmul(W[:,range(0,i)].T,
+                                np.matmul(X0.T,X0)),W[:,range(0,i)])),
+                    np.matmul(np.matmul(W[:,range(0,i)].T,X0.T),y0)))
+        else:  
             B = np.empty((p,1))
             B.fill(0)
             R = B
