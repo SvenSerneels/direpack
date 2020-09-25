@@ -9,7 +9,7 @@ The categories of methods delivered in this package, are:
 - Sufficient dimension reduction (`sudire` folder; cf. [sudire Documentation file](https://github.com/SvenSerneels/direpack/blob/master/docs/sudire.md) and [sudire Examples Notebook](https://github.com/SvenSerneels/direpack/blob/master/examples/sudire_example.ipynb)))
 - Robust M-estimators for dimension reduction (`sprm` folder; cf. [SPRM Documentation file](https://github.com/SvenSerneels/direpack/blob/master/docs/sprm.md) and [SPRM Examples Notebook](https://github.com/SvenSerneels/direpack/blob/master/examples/sprm_example.ipynb))
 
-Further documentation can be found in the [`direpack` publication](https://arxiv.org/abs/2006.01635). 
+Further documentation can be found in the [`direpack` vignette](https://arxiv.org/abs/2006.01635). 
 
 We hope that this package leads to scientific success. If it does so, we kindly ask to cite the `direpack` publication \[0\], as well as the original publication of the corresponding method.  
 
