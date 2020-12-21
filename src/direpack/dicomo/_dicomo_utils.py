@@ -421,3 +421,45 @@ def D_inner(X,Y,trimming=0):
     n = np.sqrt(len(res))
     return((1/(n*n))*np.sum(res, axis=0))
 
+def MDDM(X,Y): 
+    
+    """Computes the MDDM(Y|X)
+    for more details, see the article by Chung Eun Lee & Xiaofeng Shao;
+    Martingale Difference Divergence Matrix and Its
+    Application to Dimension Reduction for Stationary
+    Multivariate Time Series;                                                 
+    Journal of the American Statistical Association; 2018;521;
+    216--229
+    
+    
+    Input: 
+    X  ---  ndarray of shape (n,p)
+    Y  --- ndarray of shape(n,q)
+    
+    Output: 
+    MDDM(Y|X)
+    """
+    if X.shape[0] != Y.shape[0]:
+        raise(MyException('Please feed x and y data of equal length'))
+    n,q = Y.shape
+    n,p = X.shape
+    MDDM = np.zeros((q,q))
+    Y_mean = np.mean(Y,axis=0).reshape(1,-1)
+    Y_center = Y - np.matmul(np.ones((n,1)),Y_mean)
+    
+    for i in range(n):
+        if(p==1):
+            X_dist = np.abs(X[i]-X)
+            
+        else: 
+            X_diff= (( X.T - np.vstack(X[i,:])).T)**2
+            X_sum = np.sum(X_diff,axis=1)
+            X_dist = np.sqrt(X_sum).reshape(-1,n)
+            
+        
+        MDDM = MDDM + np.matmul(Y_center[i,:].reshape(q,-1), np.matmul(X_dist,Y_center))
+        
+    
+    MDDM = (-MDDM)/(n**2)
+    
+    return(MDDM)
