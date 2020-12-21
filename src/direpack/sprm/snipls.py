@@ -150,7 +150,7 @@ class snipls(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
             R = B
             T = np.empty((n,self.n_components))
             T.fill(0)
-        B_rescaled = np.multiply(np.matrix(sy/sX).T,B)
+        B_rescaled = np.multiply(np.array(sy/sX).reshape((p,1)),B)
         yp_rescaled = np.array(X*B_rescaled)
         if(self.centre == "mean"):
             intercept = np.mean(y - yp_rescaled)
