@@ -59,7 +59,7 @@ class Testsprm(unittest.TestCase):
     def test_sprm(self):
         """ Test the functioning of the sprm object"""
         
-        res_sprm = sprm(2,.8,'Hampel',.95,.975,.999,'kstepLTS','scaleTau2',True,100,.01,'ally','xonly',self.columns,True)
+        res_sprm = sprm(2,.8,'Hampel',.95,.975,.999,'median','mad',True,100,.01,'ally','xonly',self.columns,True)
         res_sprm.fit(self.x0[:2666],self.y0[:2666])
         test_ans = 28.405820126283356
         np.testing.assert_almost_equal(np.linalg.norm(res_sprm.weightnewx(self.x0[2666:])),test_ans,decimal=4)
