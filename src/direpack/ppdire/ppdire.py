@@ -316,6 +316,10 @@ class ppdire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
             del V,S
             Xs = np.matmul(Xs, K)
             Xs *= np.sqrt(p)
+        
+        # Presently, X and y need to be matrices 
+        # Will be changed to use regular np.ndarray
+        Xs = np.matrix(Xs)
 
         # Pre-process y data when available 
         if flag != 'one-block':
@@ -339,7 +343,7 @@ class ppdire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
                 ys = y
                 my = 0
                 sy = 1
-            ys = ys.astype('float64')
+            ys = np.matrix(ys).astype('float64')
         
         else:
             ys = None

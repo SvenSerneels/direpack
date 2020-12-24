@@ -61,7 +61,7 @@ class Testsprm(unittest.TestCase):
         
         res_sprm = sprm(2,.8,'Hampel',.95,.975,.999,'kstepLTS','scaleTau2',True,100,.01,'ally','xonly',self.columns,True)
         res_sprm.fit(self.x0[:2666],self.y0[:2666])
-        test_ans = 28.398244568982427
+        test_ans = 28.40453479240838
         np.testing.assert_almost_equal(np.linalg.norm(res_sprm.weightnewx(self.x0[2666:])),test_ans,decimal=4)
     
         

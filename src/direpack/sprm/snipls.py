@@ -14,8 +14,8 @@ import copy
 import numpy as np
 import pandas as ps
 from ..preprocessing.robcent import VersatileScaler
-from ..utils.utils import MyException
-from ..preprocessing._preproc_utilities import scale_data
+from ..utils.utils import MyException, _predict_check_input, _check_input
+from ..preprocessing._preproc_utilities import scale_data 
 
 class snipls(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
     """
@@ -67,15 +67,18 @@ class snipls(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
         if type(X) == ps.core.frame.DataFrame:
             if type(self.columns) is bool and self.columns:
                 self.columns = X.columns
-            X = np.matrix(X)
-        if type(y) in [ps.core.frame.DataFrame,ps.core.series.Series]:
-            y = np.matrix(y).T
+            X = X.to_numpy()
         (n,p) = X.shape
+        if type(y) in [ps.core.frame.DataFrame,ps.core.series.Series]:
+            y = y.to_numpy()
+        X = _check_input(X)
+        y = _check_input(y)
         ny = y.shape[0]
         if ny != n:
-            raise(MyException("Number of cases in X and y needs to agree"))
-        if len(y.shape) >1:
-            y = np.array(y).reshape(-1)
+            if y.ndim == 2:
+                y = y.T
+            else:
+                raise(MyException("Number of cases in X and y needs to agree"))
         y = y.astype("float64")
         if self.copy:
             X0 = copy.deepcopy(X)
@@ -104,7 +107,7 @@ class snipls(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
         Xi = X0
         yi = y0
         for i in range(1,self.n_components+1):
-            wh =  Xi.T * yi
+            wh =  np.dot(Xi.T,yi)
             wh = wh/np.linalg.norm(wh,"fro")
             # goodies = abs(wh)-llambda/2 lambda definition
             goodies = abs(wh)-self.eta*max(abs(wh))
@@ -118,12 +121,12 @@ class snipls(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
                 break
             elimvars = np.setdiff1d(range(0,p),goodies)
             wh[elimvars] = 0 
-            th = Xi * wh
+            th = np.dot(Xi,wh)
             nth = np.linalg.norm(th,"fro")
-            ch = (yi.T * th)/(nth**2)
-            ph = (Xi.T * Xi * wh)/(nth**2)
-            Xi = Xi - th * ph.T
-            yi = yi - th*ch
+            ch = np.dot(yi.T,th)/(nth**2)
+            ph = np.dot(Xi.T,np.dot(Xi,wh))/(nth**2)
+            Xi = Xi - np.dot(th,ph.T)
+            yi = yi - np.dot(th,ch)
             ph[elimvars] = 0 
             W[:,i-1] = np.reshape(wh,p)
             P[:,i-1] = np.reshape(ph,p)
@@ -151,7 +154,7 @@ class snipls(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
             T = np.empty((n,self.n_components))
             T.fill(0)
         B_rescaled = np.multiply(np.array(sy/sX).reshape((p,1)),B)
-        yp_rescaled = np.array(X*B_rescaled)
+        yp_rescaled = np.dot(X,B_rescaled)
         if(self.centre == "mean"):
             intercept = np.mean(y - yp_rescaled)
         else:
@@ -181,17 +184,13 @@ class snipls(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
         
     
     def predict(self,Xn):
-        (n,p) = Xn.shape
-        if type(Xn) == ps.core.frame.DataFrame:
-            Xn = np.matrix(Xn)
+        n,p,Xn = _predict_check_input(Xn)
         if p!= self.X.shape[1]:
-            raise(ValueError('New data must have seame number of columns as the ones the model has been trained with'))
+            raise(ValueError('New data must have same number of columns as the ones the model has been trained with'))
         return(np.matmul(Xn,self.coef_) + self.intercept_)
         
     def transform(self,Xn):
-        (n,p) = Xn.shape
-        if type(Xn) == ps.core.frame.DataFrame:
-            Xn = np.matrix(Xn)
+        n,p,Xn = _predict_check_input(Xn)
         if p!= self.X.shape[1]:
             raise(ValueError('New data must have seame number of columns as the ones the model has been trained with'))
         Xnc = scale_data(Xn,self.x_loc_,self.x_sca_)

@@ -12,7 +12,9 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.validation import check_is_fitted
 from .robcent import VersatileScaler, versatile_scale
 from ._preproc_utilities import *
+from ..utils.utils import _check_input
 from ._gsspp_utils import *
+from ._gsspp_utils import _norms, _gsspp
 
     
 class GenSpatialSignPrePprocessor(TransformerMixin,BaseEstimator):

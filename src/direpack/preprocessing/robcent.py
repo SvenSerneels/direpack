@@ -82,9 +82,9 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.metaestimators import _BaseComposition
 from sklearn.utils.validation import check_is_fitted
 import numpy as np
-from ..utils.utils import MyException, convert_X_input, convert_y_input
+from ..utils.utils import MyException, convert_X_input, convert_y_input, _check_input
 from ._preproc_utilities import *
-from ._preproc_utilities import _check_trimming, _check_input
+from ._preproc_utilities import _check_trimming
 
 __all__ = ['VersatileScaler','robcent','versatile_scale']
 
