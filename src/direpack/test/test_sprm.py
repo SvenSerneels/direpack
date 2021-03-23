@@ -61,7 +61,7 @@ class Testsprm(unittest.TestCase):
         
         res_sprm = sprm(2,.8,'Hampel',.95,.975,.999,'kstepLTS','scaleTau2',True,100,.01,'ally','xonly',self.columns,True)
         res_sprm.fit(self.x0[:2666],self.y0[:2666])
-        test_ans = 28.405820126283356
+        test_ans = 28.40453479240838
         np.testing.assert_almost_equal(np.linalg.norm(res_sprm.weightnewx(self.x0[2666:])),test_ans,decimal=4)
     
         
@@ -73,7 +73,7 @@ class Testsprm(unittest.TestCase):
         """ Test the functioning of the snipls object"""
         res_snipls = snipls(n_components=4, eta=.5)
         res_snipls.fit(self.x0[:2666],self.y0[:2666])
-        test_ans = 39.408502615465245
+        test_ans = 38.6183244001568
         np.testing.assert_almost_equal(np.linalg.norm(res_snipls.predict(self.x0[2666:])),test_ans,decimal=4)
         
         

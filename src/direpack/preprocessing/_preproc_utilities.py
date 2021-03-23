@@ -38,23 +38,6 @@ def _check_trimming(t):
     if ((t > .99) or (t < 0)): 
         raise(ValueError("Trimming fraction must be in [0,1)"))
     
-def _check_input(X): 
-    
-    if(type(X) in (np.ndarray,ps.core.frame.DataFrame,ps.core.series.Series)): 
-        X = np.matrix(X)
-        
-    if (X.dtype == np.dtype('O')):
-        X = X.astype('float64')
-    
-    n,p = X.shape 
-    
-    if n==1:
-        if p > 2: 
-            X = X.reshape((-1,1))
-        else: 
-            raise(ValueError("Statistics not meaningful with fewer than 3 cases"))
-    return(X)
-    
 
 def mad(X,c=0.6744897501960817,**kwargs):
         
@@ -141,7 +124,7 @@ def _l1m_jacobian(a,X):
     dX = _diffmat_objective(a,X)
     dists = np.apply_along_axis(_euclidnorm,1,dX)
     dists = _handle_zeros_in_scale(dists)
-    dX /= np.tile(np.matrix(dists).reshape(n,1),(1,p))
+    dX /= np.tile(np.array(dists).reshape(n,1),(1,p))
     return(-np.sum(dX,axis=0))
 
 def _l1median(X,x0, method='SLSQP',tol=1e-8,options={'maxiter':2000},**kwargs): 
@@ -200,7 +183,7 @@ def kstepLTS(X, maxit = 5, tol = 1e-10,**kwargs):
     unconverged = True
     while(unconverged and (iteration < maxit)):
         dists = np.sum(np.square(X-m1),axis=1)
-        cutdist = np.sort(dists,axis=0)[int(np.floor((n + 1) / 2))-1,0]
+        cutdist = np.sort(dists,axis=0)[int(np.floor((n + 1) / 2))-1]
         hsubset = np.where(dists <= cutdist)[0]
         m2 = np.array(np.mean(X[hsubset,:],axis=0)).reshape((p,))
         unconverged = (max(abs(m1 - m2)) > tol)
@@ -270,8 +253,8 @@ def scale_data(X,m,s):
             Xm = X - float(m)
             Xs = Xm / s
         else:
-            Xm = X - np.matrix([m for i in range(1,n+1)])
-            Xs = Xm / np.matrix([s for i in range(1,n+1)])
+            Xm = X - np.array([m for i in range(1,n+1)])
+            Xs = Xm / np.array([s for i in range(1,n+1)])
         return(Xs)       
 
         

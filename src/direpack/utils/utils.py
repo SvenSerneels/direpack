@@ -44,3 +44,31 @@ def const_zscale(beta, *args):
     covx = np.identity(X.shape[1])
     ans = np.matmul(np.matmul(beta.T,covx), beta) - np.identity(h)
     return(ans[i,j])
+
+def _predict_check_input(Xn):
+    if type(Xn) == ps.core.series.Series:
+        Xn = Xn.to_numpy()
+    if Xn.ndim==1:
+        Xn = Xn.reshape((1,-1))
+    if type(Xn) == ps.core.frame.DataFrame:
+        Xn = Xn.to_numpy()
+    n,p = Xn.shape
+    return (n,p,Xn)
+
+def _check_input(X): 
+    
+    if(type(X) in (np.matrix,ps.core.frame.DataFrame,ps.core.series.Series)): 
+        X = np.array(X)
+        
+    if (X.dtype == np.dtype('O')):
+        X = X.astype('float64')
+    
+    if X.ndim == 1: 
+        X = X.reshape((1,-1))
+    
+    n,p = X.shape 
+    
+    if n==1:
+        if p >= 2: 
+            X = X.reshape((-1,1))
+    return(X)
