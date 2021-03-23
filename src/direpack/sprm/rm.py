@@ -23,6 +23,7 @@ import numpy as np
 import pandas as ps
 from scipy.stats import norm, chi2
 from ..preprocessing.robcent import VersatileScaler
+from ..utils.utils import MyException,_predict_check_input, _check_input
 from ._m_support_functions import *
 
 class rm(_BaseComposition,BaseEstimator,RegressorMixin):
@@ -90,19 +91,18 @@ class rm(_BaseComposition,BaseEstimator,RegressorMixin):
         if (self.fun == "Hampel"):
             if (not((self.probp1 < self.probp2) & (self.probp2 < self.probp3) & (self.probp3 <= 1))):
                 raise MyException("Wrong choise of parameters for Hampel function. Use 0<probp1<hampelp2<hampelp3<=1")
-        ny = y.shape[0]
-        if len(y.shape) >1:
-            y = np.array(y).reshape(-1)
-        if ny != n:
-            raise MyException("Number of cases in y and X must be identical.")
-        
-        if len(y.shape) >1:
-            y = np.array(y).reshape(-1).astype('float64')
             
         if type(X) == ps.core.frame.DataFrame:
             X = X.to_numpy()
         if type(y) in [ps.core.frame.DataFrame,ps.core.series.Series]:
-            y = y.to_numpy().T.astype('float64')
+            y = y.to_numpy().astype('float64')
+        X = _check_input(X)
+        y = _check_input(y)
+        if len(y.shape) >1:
+            y = np.array(y).reshape(-1).astype('float64')
+        ny = y.shape[0]
+        if ny != n:
+            raise MyException("Number of cases in y and X must be identical.")
         
         scaling = VersatileScaler(center=self.centre, scale=self.scale)
         Xs = scaling.fit_transform(X).astype('float64')
@@ -159,8 +159,8 @@ class rm(_BaseComposition,BaseEstimator,RegressorMixin):
         
         while ((difference > self.tol) & (loops < self.maxit)):
             b = np.linalg.lstsq(Xw,yw,rcond=None)
-            b = np.matrix(b[0]).T
-            yp = np.array(Xs*b).reshape(-1)
+            b = np.array(b[0]).reshape(-1,1)
+            yp = np.dot(Xs,b).reshape(-1)
             r = ys - yp
             if (len(r)/2 > np.sum(r == 0)):
                 r = abs(r)/(1.4826 * np.median(abs(r)))
@@ -203,7 +203,7 @@ class rm(_BaseComposition,BaseEstimator,RegressorMixin):
         scaling.set_params(scale='None')
         Xrw = scaling.fit_transform(Xrw) 
         b_rescaled = np.multiply(np.reshape(sy/sX,(p,1)),b)
-        yp_rescaled = np.array(X*b_rescaled).reshape(-1)
+        yp_rescaled = np.matmul(X,b_rescaled).reshape(-1)
         if(self.centre == "mean"):
             intercept = np.mean(y - yp_rescaled)
         else:
@@ -241,9 +241,7 @@ class rm(_BaseComposition,BaseEstimator,RegressorMixin):
     
         
     def predict(self,Xn):
-        (n,p) = Xn.shape
-        if type(Xn) == ps.core.frame.DataFrame:
-            Xn = np.matrix(Xn)
+        n,p,Xn = _predict_check_input(Xn)
         if p!= self.X.shape[1]:
             raise(ValueError('New data must have seame number of columns as the ones the model has been trained with'))
         return(np.matmul(Xn,self.coef_) + self.intercept_)

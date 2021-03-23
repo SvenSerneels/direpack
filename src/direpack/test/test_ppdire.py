@@ -68,7 +68,7 @@ class Testppdire(unittest.TestCase):
         skpls.fit(self.Xs,(self.y-np.mean(self.y))/np.std(self.y))
         pppls = ppdire(projection_index = dicomo, pi_arguments = {'mode' : 'cov'}, n_components=4, square_pi=True, optimizer='SLSQP', optimizer_options={'maxiter':500})
         pppls.fit(self.x,self.y)
-        np.testing.assert_almost_equal(np.abs(self.Xs*skpls.coef_*np.std(self.y) + np.mean(self.y)),np.abs(pppls.fitted_),decimal=3)
+        np.testing.assert_almost_equal(np.abs(np.matmul(self.Xs,skpls.coef_)*np.std(self.y) + np.mean(self.y)),np.abs(pppls.fitted_),decimal=3)
         
 #    def test_robust(self):
 #        lcpca = ppdire(projection_index = dicomo, pi_arguments = {'mode' : 'var', 'center': 'median'}, n_components=4, optimizer='grid',optimizer_options={'ndir':1000,'maxiter':10})

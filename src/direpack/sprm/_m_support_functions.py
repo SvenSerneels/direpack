@@ -9,6 +9,7 @@ Functions called internally in M-estimation
 """
 
 import numpy as np
+import pandas as ps
 
 def Fair(x,probct,*args):
     return((1/(1 + abs(x/(probct * 2)))**2)) 
@@ -39,6 +40,7 @@ def brokenstick(n_components):
     q = np.matmul(q,1/r)
     q /= n_components
     return q
+
 
 
 
