@@ -439,8 +439,7 @@ def MDDM(X,Y):
     Output: 
     MDDM(Y|X)
     """
-    if X.shape[0] != Y.shape[0]:
-        raise(MyException('Please feed x and y data of equal length'))
+
     n,q = Y.shape
     n,p = X.shape
     MDDM = np.zeros((q,q))

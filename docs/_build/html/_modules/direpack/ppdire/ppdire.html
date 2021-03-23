@@ -1,0 +1,986 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>direpack.ppdire.ppdire &mdash; direpack 1.0.10 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> direpack
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../ppdire.html">ppdire</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sudire.html">sudire</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sprm.html">sprm</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Other information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../Article.html">Article</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Contacts.html">Contacts</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">direpack</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>direpack.ppdire.ppdire</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for direpack.ppdire.ppdire</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Created on Sun Dec 30 12:02:12 2018</span>
+
+<span class="sd">ppdire - Projection pursuit dimension reduction</span>
+
+<span class="sd">@author: Sven Serneels (Ponalytics)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="c1">#from .dicomo import dicomo</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">statsmodels.regression.quantile_regression</span> <span class="kn">import</span> <span class="n">QuantReg</span>
+<span class="kn">import</span> <span class="nn">statsmodels.robust</span> <span class="k">as</span> <span class="nn">srs</span>
+<span class="kn">import</span> <span class="nn">scipy.stats</span> <span class="k">as</span> <span class="nn">sps</span>
+<span class="kn">from</span> <span class="nn">scipy.linalg</span> <span class="kn">import</span> <span class="n">pinv2</span>
+<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">minimize</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">from</span> <span class="nn">sklearn.utils.metaestimators</span> <span class="kn">import</span> <span class="n">_BaseComposition</span>
+<span class="kn">from</span> <span class="nn">sklearn.base</span> <span class="kn">import</span> <span class="n">RegressorMixin</span><span class="p">,</span><span class="n">BaseEstimator</span><span class="p">,</span><span class="n">TransformerMixin</span><span class="p">,</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">sklearn.utils.extmath</span> <span class="kn">import</span> <span class="n">svd_flip</span>
+<span class="kn">from</span> <span class="nn">..sprm.rm</span> <span class="kn">import</span> <span class="n">rm</span> 
+<span class="kn">from</span> <span class="nn">..preprocessing.robcent</span> <span class="kn">import</span> <span class="n">VersatileScaler</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">..dicomo.dicomo</span> <span class="kn">import</span> <span class="n">dicomo</span> 
+<span class="kn">from</span> <span class="nn">..dicomo._dicomo_utils</span> <span class="kn">import</span> <span class="o">*</span> 
+<span class="kn">from</span> <span class="nn">.capi</span> <span class="kn">import</span> <span class="n">capi</span>
+<span class="kn">from</span> <span class="nn">._ppdire_utils</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">..preprocessing._preproc_utilities</span> <span class="kn">import</span> <span class="n">scale_data</span>
+<span class="kn">from</span> <span class="nn">..utils.utils</span> <span class="kn">import</span> <span class="n">MyException</span><span class="p">,</span> <span class="n">convert_X_input</span><span class="p">,</span> <span class="n">convert_y_input</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+
+<div class="viewcode-block" id="ppdire"><a class="viewcode-back" href="../../../ppdire.html#direpack.ppdire.ppdire.ppdire">[docs]</a><span class="k">class</span> <span class="nc">ppdire</span><span class="p">(</span><span class="n">_BaseComposition</span><span class="p">,</span><span class="n">BaseEstimator</span><span class="p">,</span><span class="n">TransformerMixin</span><span class="p">,</span><span class="n">RegressorMixin</span><span class="p">):</span>
+    
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    PPDIRE Projection Pursuit Dimension Reduction</span>
+<span class="sd">    </span>
+<span class="sd">    The class allows for calculation of the projection pursuit optimization</span>
+<span class="sd">    either through `scipy.optimize` or through the grid algorithm, native to this</span>
+<span class="sd">    package. The class provides a very flexible way to access optimization of </span>
+<span class="sd">    projection indices that can lead to either classical or robust dimension</span>
+<span class="sd">    reduction. Optimization through scipy.optimize is much more efficient, yet </span>
+<span class="sd">    it will only provide correct results for classical projection indices. The</span>
+<span class="sd">    native grid algorithm should be used when the projection index involves </span>
+<span class="sd">    order statistics of any kind, such as ranks, trimming, winsorizing, or </span>
+<span class="sd">    empirical quantiles.  </span>
+<span class="sd">        </span>
+<span class="sd">    Input parameters to class: </span>
+<span class="sd">        projection_index: function or class. dicomo and capi supplied in this</span>
+<span class="sd">            package can both be used, but user defined projection indices can </span>
+<span class="sd">            be processed </span>
+<span class="sd">        pi_arguments: dict of arguments to be passed on to projection index </span>
+<span class="sd">        n_components: int </span>
+<span class="sd">        trimming: float, trimming percentage to be entered as pct/100 </span>
+<span class="sd">        alpha: float. Continuum coefficient. Only relevant if ppdire is used to </span>
+<span class="sd">            estimate (classical or robust) continuum regression </span>
+<span class="sd">        optimizer: str. Presently: either &#39;grid&#39; (native optimizer) or </span>
+<span class="sd">            any of the options in scipy-optimize (e.g. &#39;SLSQP&#39;)</span>
+<span class="sd">        optimizer_options: dict with options to pass on to the optimizer. </span>
+<span class="sd">            If optimizer == &#39;grid&#39;,</span>
+<span class="sd">            ndir: int: Number of directions to calculate per iteration.</span>
+<span class="sd">            maxiter: int. Maximal number of iterations.</span>
+<span class="sd">        optimizer_constraints: dict or list of dicts, further constraints to be</span>
+<span class="sd">            passed on to the optimizer function.</span>
+<span class="sd">        regopt: str. regression option for regression step y~T. Can be set</span>
+<span class="sd">                to &#39;OLS&#39; (default), &#39;robust&#39; (will run sprm.rm) or &#39;quantile&#39; </span>
+<span class="sd">                (statsmodels.regression.quantreg). </span>
+<span class="sd">        center: str, how to center the data. options accepted are options from</span>
+<span class="sd">            sprm.preprocessing </span>
+<span class="sd">        center_data: bool </span>
+<span class="sd">        scale_data: bool. Note: if set to False, convergence to correct optimum </span>
+<span class="sd">            is not a given. Will throw a warning. </span>
+<span class="sd">        whiten_data: bool. Typically used for ICA (kurtosis as PI)</span>
+<span class="sd">        square_pi: bool. Whether to square the projection index upon evaluation.</span>
+<span class="sd">        compression: bool. Use internal data compresion step for flat data. </span>
+<span class="sd">        copy: bool. Whether to make a deep copy of the input data or not. </span>
+<span class="sd">        verbose: bool. Set to True prints the iteration number. </span>
+<span class="sd">        return_scaling_object: bool. </span>
+<span class="sd">        </span>
+<span class="sd">    The grid optimization algorithm for projection pursuit implemented here, </span>
+<span class="sd">    was outlined in: </span>
+<span class="sd">        </span>
+<span class="sd">        Filzmoser, P., Serneels, S., Croux, C. and Van Espen, P.J., </span>
+<span class="sd">        Robust multivariate methods: The projection pursuit approach,</span>
+<span class="sd">        in: From Data and Information Analysis to Knowledge Engineering,</span>
+<span class="sd">        Spiliopoulou, M., Kruse, R., Borgelt, C., Nuernberger, A. and Gaul, W., eds., </span>
+<span class="sd">        Springer Verlag, Berlin, Germany,</span>
+<span class="sd">        2006, pages 270--277.</span>
+<span class="sd">        </span>
+<span class="sd">    The &#39;fit&#39; function will take a set of optional input arguments. </span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">projection_index</span><span class="p">,</span> 
+                 <span class="n">pi_arguments</span> <span class="o">=</span> <span class="p">{},</span> 
+                 <span class="n">n_components</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> 
+                 <span class="n">trimming</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+                 <span class="n">alpha</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+                 <span class="n">optimizer</span> <span class="o">=</span> <span class="s1">&#39;SLSQP&#39;</span><span class="p">,</span>
+                 <span class="n">optimizer_options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;maxiter&#39;</span><span class="p">:</span> <span class="mi">100000</span><span class="p">},</span> 
+                 <span class="n">optimizer_constraints</span> <span class="o">=</span> <span class="p">{},</span>
+                 <span class="n">regopt</span> <span class="o">=</span> <span class="s1">&#39;OLS&#39;</span><span class="p">,</span>
+                 <span class="n">center</span> <span class="o">=</span> <span class="s1">&#39;mean&#39;</span><span class="p">,</span>
+                 <span class="n">center_data</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">scale_data</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">whiten_data</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">square_pi</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                 <span class="n">compression</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                 <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
+                 <span class="n">return_scaling_object</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="c1"># Called arguments</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">projection_index</span> <span class="o">=</span> <span class="n">projection_index</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pi_arguments</span> <span class="o">=</span> <span class="n">pi_arguments</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_components</span> <span class="o">=</span> <span class="n">n_components</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trimming</span> <span class="o">=</span> <span class="n">trimming</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="n">alpha</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">optimizer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_options</span> <span class="o">=</span> <span class="n">optimizer_options</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_constraints</span> <span class="o">=</span> <span class="n">optimizer_constraints</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">regopt</span> <span class="o">=</span> <span class="n">regopt</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">center</span> <span class="o">=</span> <span class="n">center</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">center_data</span> <span class="o">=</span> <span class="n">center_data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_data</span> <span class="o">=</span> <span class="n">scale_data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">whiten_data</span> <span class="o">=</span> <span class="n">whiten_data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">square_pi</span> <span class="o">=</span> <span class="n">square_pi</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compression</span> <span class="o">=</span> <span class="n">compression</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">copy</span> <span class="o">=</span> <span class="n">copy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">return_scaling_object</span> <span class="o">=</span> <span class="n">return_scaling_object</span>
+        
+        <span class="c1"># Other global parameters </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">constraint</span> <span class="o">=</span> <span class="s1">&#39;norm&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optrange</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">licenter</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span><span class="s1">&#39;median&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">center</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">licenter</span><span class="p">):</span>
+            <span class="k">raise</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Only location estimator classes allowed are: &quot;mean&quot;, &quot;median&quot;&#39;</span><span class="p">))</span>
+    
+
+<div class="viewcode-block" id="ppdire.fit"><a class="viewcode-back" href="../../../ppdire.html#direpack.ppdire.ppdire.ppdire.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">X</span><span class="p">,</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fit a projection pursuit dimension reduction model. </span>
+<span class="sd">        </span>
+<span class="sd">        Required input argument: X data as matrix or data frame </span>
+<span class="sd">        </span>
+<span class="sd">        Optinal input arguments: </span>
+<span class="sd">            </span>
+<span class="sd">            arg or kwarg:</span>
+<span class="sd">            y data as vector or 1D matrix</span>
+<span class="sd">            </span>
+<span class="sd">            kwargs: </span>
+<span class="sd">            h, int: option to overrule class&#39;s n_components parameter in fit. </span>
+<span class="sd">                Convenient command line, yet should not be used in automated </span>
+<span class="sd">                loops, e.g. cross-validation.</span>
+<span class="sd">                </span>
+<span class="sd">            dmetric, str: distance metric used internally. Defaults to &#39;euclidean&#39;</span>
+<span class="sd">            </span>
+<span class="sd">            mixing, bool: to estimate mixing matrix (only relevant for ICA)</span>
+<span class="sd">            </span>
+<span class="sd">            Further parameters to the regression methods can be passed on </span>
+<span class="sd">            here as well as kwargs, e.g. quantile=0.8 for quantile regression. </span>
+<span class="sd">            </span>
+<span class="sd">            kwargs only relevant if y specified: </span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Collect optional fit arguments</span>
+        <span class="n">biascorr</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;biascorr&#39;</span><span class="p">,</span><span class="kc">False</span><span class="p">)</span>
+            
+        <span class="k">if</span> <span class="s1">&#39;h&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_components</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">h</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;h&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">n_components</span> <span class="o">=</span> <span class="n">h</span>
+            
+        <span class="k">if</span> <span class="s1">&#39;dmetric&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">dmetric</span> <span class="o">=</span> <span class="s1">&#39;euclidean&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dmetric</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;dmetric&#39;</span><span class="p">)</span>
+            
+        <span class="k">if</span> <span class="s1">&#39;mixing&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">mixing</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">mixing</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;mixing&#39;</span><span class="p">)</span>
+            
+        <span class="k">if</span> <span class="s1">&#39;y&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">na</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">na</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span> <span class="c1">#Use of *args makes it sklearn consistent</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="s1">&#39;two-block&#39;</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="s1">&#39;one-block&#39;</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># to allow calls with &#39;y=y&#39; in spit of no real y argument present</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">flag</span> <span class="o">=</span> <span class="s1">&#39;two-block&#39;</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">)</span>
+                            
+            <span class="k">if</span> <span class="s1">&#39;quantile&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                <span class="n">quantile</span> <span class="o">=</span> <span class="o">.</span><span class="mi">5</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">quantile</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;quantile&#39;</span><span class="p">)</span>
+                
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">regopt</span> <span class="o">==</span> <span class="s1">&#39;robust&#39;</span><span class="p">:</span>
+            
+                <span class="k">if</span> <span class="s1">&#39;fun&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                    <span class="n">fun</span> <span class="o">=</span> <span class="s1">&#39;Hampel&#39;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">fun</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;fun&#39;</span><span class="p">)</span>
+                
+                <span class="k">if</span> <span class="s1">&#39;probp1&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                    <span class="n">probp1</span> <span class="o">=</span> <span class="mf">0.95</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">probp1</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;probp1&#39;</span><span class="p">)</span>
+                
+                <span class="k">if</span> <span class="s1">&#39;probp2&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                    <span class="n">probp2</span> <span class="o">=</span> <span class="mf">0.975</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">probp2</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;probp2&#39;</span><span class="p">)</span>
+                
+                <span class="k">if</span> <span class="s1">&#39;probp3&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                    <span class="n">probp3</span> <span class="o">=</span> <span class="mf">0.99</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">probp3</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;probp3&#39;</span><span class="p">)</span>
+
+            
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">projection_index</span> <span class="o">==</span> <span class="n">dicomo</span><span class="p">:</span>
+            
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pi_arguments</span><span class="p">[</span><span class="s1">&#39;mode&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;M3&#39;</span><span class="p">,</span><span class="s1">&#39;cos&#39;</span><span class="p">,</span><span class="s1">&#39;cok&#39;</span><span class="p">):</span>
+            
+                <span class="k">if</span> <span class="s1">&#39;option&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                    <span class="n">option</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">option</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;option&#39;</span><span class="p">)</span>
+                
+                <span class="k">if</span> <span class="n">option</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Option value &gt;3 will compute results, but meaning may be questionable&#39;</span><span class="p">)</span>
+                
+        <span class="c1"># Initiate projection index    </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">most</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">projection_index</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">pi_arguments</span><span class="p">)</span>         
+        
+        <span class="c1"># Initiate some parameters and data frames</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">:</span>
+            <span class="n">X0</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">X0</span> <span class="o">=</span> <span class="n">X0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">X0</span> <span class="o">=</span> <span class="n">X</span>        
+        <span class="n">X</span> <span class="o">=</span> <span class="n">convert_X_input</span><span class="p">(</span><span class="n">X0</span><span class="p">)</span>    
+        <span class="n">n</span><span class="p">,</span><span class="n">p</span> <span class="o">=</span> <span class="n">X0</span><span class="o">.</span><span class="n">shape</span> 
+        <span class="n">trimming</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trimming</span>
+        
+        <span class="c1"># Check dimensions </span>
+        <span class="k">if</span> <span class="n">h</span> <span class="o">&gt;</span> <span class="nb">min</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">p</span><span class="p">):</span>
+            <span class="k">raise</span><span class="p">(</span><span class="n">MyException</span><span class="p">(</span><span class="s1">&#39;number of components cannot exceed number of samples&#39;</span><span class="p">))</span>
+            
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">projection_index</span> <span class="o">==</span> <span class="n">dicomo</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">pi_arguments</span><span class="p">[</span><span class="s1">&#39;mode&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;kurt&#39;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">whiten_data</span><span class="o">==</span><span class="kc">False</span><span class="p">):</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Whitening step is recommended for ICA&#39;</span><span class="p">)</span>
+            
+        <span class="c1"># Pre-processing adjustment if whitening</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">whiten_data</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">center_data</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scale_data</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">compression</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;All results produced are for whitened data&#39;</span><span class="p">)</span>
+        
+        <span class="c1"># Centring and scaling</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_data</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">center</span><span class="o">==</span><span class="s1">&#39;mean&#39;</span><span class="p">:</span>
+                <span class="n">scale</span> <span class="o">=</span> <span class="s1">&#39;std&#39;</span>
+            <span class="k">elif</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">center</span><span class="o">==</span><span class="s1">&#39;median&#39;</span><span class="p">)</span><span class="o">|</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">center</span><span class="o">==</span><span class="s1">&#39;l1median&#39;</span><span class="p">)):</span>
+                <span class="n">scale</span> <span class="o">=</span> <span class="s1">&#39;mad&#39;</span> 
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">scale</span> <span class="o">=</span> <span class="s1">&#39;None&#39;</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Without scaling, convergence to optima is not given&#39;</span><span class="p">)</span>
+            
+         <span class="c1"># Data Compression for flat tables if required                </span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">p</span><span class="o">&gt;</span><span class="n">n</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">compression</span><span class="p">):</span>
+            <span class="n">V</span><span class="p">,</span><span class="n">S</span><span class="p">,</span><span class="n">U</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="n">full_matrices</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">U</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">S</span><span class="p">))</span>
+            <span class="n">n</span><span class="p">,</span><span class="n">p</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span>
+            
+            <span class="k">if</span> <span class="p">(</span><span class="n">srs</span><span class="o">.</span><span class="n">mad</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span> 
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Due to low scales in data, compression would induce zero scales.&#39;</span> 
+                              <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="s1">&#39;Proceeding without compression.&#39;</span><span class="p">)</span>
+                <span class="n">dimensions</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">if</span> <span class="n">copy</span><span class="p">:</span>
+                    <span class="n">X</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">X0</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">X</span> <span class="o">=</span> <span class="n">X0</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">dimensions</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dimensions</span> <span class="o">=</span> <span class="kc">False</span>
+        
+        <span class="c1"># Initiate centring object and scale X data </span>
+        <span class="n">centring</span> <span class="o">=</span> <span class="n">VersatileScaler</span><span class="p">(</span><span class="n">center</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">center</span><span class="p">,</span><span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">,</span><span class="n">trimming</span><span class="o">=</span><span class="n">trimming</span><span class="p">)</span>      
+  
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">center_data</span><span class="p">:</span>
+            <span class="n">Xs</span> <span class="o">=</span> <span class="n">centring</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+            <span class="n">mX</span> <span class="o">=</span> <span class="n">centring</span><span class="o">.</span><span class="n">col_loc_</span>
+            <span class="n">sX</span> <span class="o">=</span> <span class="n">centring</span><span class="o">.</span><span class="n">col_sca_</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">Xs</span> <span class="o">=</span> <span class="n">X</span>
+            <span class="n">mX</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span><span class="n">p</span><span class="p">))</span>
+            <span class="n">sX</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span><span class="n">p</span><span class="p">))</span>
+
+        <span class="n">fit_arguments</span> <span class="o">=</span> <span class="p">{}</span>
+            
+        <span class="c1"># Data whitening (best practice for ICA)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">whiten_data</span><span class="p">:</span>
+            <span class="n">V</span><span class="p">,</span><span class="n">S</span><span class="p">,</span><span class="n">U</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">Xs</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="n">full_matrices</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">del</span> <span class="n">U</span>
+            <span class="n">K</span> <span class="o">=</span> <span class="p">(</span><span class="n">V</span><span class="o">/</span><span class="n">S</span><span class="p">)[:,:</span><span class="n">p</span><span class="p">]</span>
+            <span class="k">del</span> <span class="n">V</span><span class="p">,</span><span class="n">S</span>
+            <span class="n">Xs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">K</span><span class="p">)</span>
+            <span class="n">Xs</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+        <span class="c1"># Pre-process y data when available </span>
+        <span class="k">if</span> <span class="n">flag</span> <span class="o">!=</span> <span class="s1">&#39;one-block&#39;</span><span class="p">:</span>
+            
+            <span class="n">ny</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">convert_y_input</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">ny</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+<span class="c1">#            py = y.shape[1]</span>
+            <span class="k">if</span> <span class="n">ny</span> <span class="o">!=</span> <span class="n">n</span><span class="p">:</span>
+                <span class="k">raise</span><span class="p">(</span><span class="n">MyException</span><span class="p">(</span><span class="s1">&#39;X and y number of rows must agree&#39;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">:</span>
+                <span class="n">y0</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">y0</span> <span class="o">=</span> <span class="n">y0</span>
+                
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">center_data</span><span class="p">:</span>
+                <span class="n">ys</span> <span class="o">=</span> <span class="n">centring</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+                <span class="n">my</span> <span class="o">=</span> <span class="n">centring</span><span class="o">.</span><span class="n">col_loc_</span>
+                <span class="n">sy</span> <span class="o">=</span> <span class="n">centring</span><span class="o">.</span><span class="n">col_sca_</span> 
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ys</span> <span class="o">=</span> <span class="n">y</span>
+                <span class="n">my</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">sy</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">ys</span> <span class="o">=</span> <span class="n">ys</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">)</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ys</span> <span class="o">=</span> <span class="kc">None</span>
+                
+
+        <span class="c1"># Initializing output matrices</span>
+        <span class="n">W</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">p</span><span class="p">,</span><span class="n">h</span><span class="p">))</span>
+        <span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n</span><span class="p">,</span><span class="n">h</span><span class="p">))</span>
+        <span class="n">P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">p</span><span class="p">,</span><span class="n">h</span><span class="p">))</span>
+        <span class="n">B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">p</span><span class="p">,</span><span class="n">h</span><span class="p">))</span>
+        <span class="n">R</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">p</span><span class="p">,</span><span class="n">h</span><span class="p">))</span>
+        <span class="n">B_scaled</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">p</span><span class="p">,</span><span class="n">h</span><span class="p">))</span>
+        <span class="n">C</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">h</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">Xev</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">h</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">assovec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">h</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">Maxobjf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">h</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+
+        <span class="c1"># Initialize deflation matrices </span>
+        <span class="n">E</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">Xs</span><span class="p">)</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">ys</span>
+
+        <span class="n">bi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">p</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+        
+        <span class="n">opt_args</span> <span class="o">=</span> <span class="p">{</span> 
+                    <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">,</span>
+                    <span class="s1">&#39;trimming&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">trimming</span><span class="p">,</span>
+                    <span class="s1">&#39;biascorr&#39;</span><span class="p">:</span> <span class="n">biascorr</span><span class="p">,</span> 
+                    <span class="s1">&#39;dmetric&#39;</span> <span class="p">:</span> <span class="s1">&#39;euclidean&#39;</span><span class="p">,</span>
+                    <span class="p">}</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="o">==</span><span class="s1">&#39;grid&#39;</span><span class="p">:</span>
+            <span class="c1"># Define grid optimization ranges</span>
+            <span class="k">if</span> <span class="s1">&#39;ndir&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_options</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_options</span><span class="p">[</span><span class="s1">&#39;ndir&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1000</span>
+            <span class="n">optrange</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optrange</span><span class="p">)</span>
+            <span class="n">optmax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optrange</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">stop0s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arcsin</span><span class="p">(</span><span class="n">optrange</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">stop1s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arcsin</span><span class="p">(</span><span class="n">optrange</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">stop1c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="n">optrange</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">stop0c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="n">optrange</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">anglestart</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">stop0c</span><span class="p">,</span><span class="n">stop0s</span><span class="p">)</span>
+            <span class="n">anglestop</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">stop1c</span><span class="p">,</span><span class="n">stop1s</span><span class="p">)</span>
+            <span class="n">nangle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">anglestart</span><span class="p">,</span><span class="n">anglestop</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">optimizer_options</span><span class="p">[</span><span class="s1">&#39;ndir&#39;</span><span class="p">],</span><span class="n">endpoint</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>            
+            <span class="n">alphamat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">nangle</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">nangle</span><span class="p">)])</span>
+            <span class="n">opt_args</span><span class="p">[</span><span class="s1">&#39;_stop0c&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">stop0c</span>
+            <span class="n">opt_args</span><span class="p">[</span><span class="s1">&#39;_stop0s&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">stop0s</span>
+            <span class="n">opt_args</span><span class="p">[</span><span class="s1">&#39;_stop1c&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">stop1c</span>
+            <span class="n">opt_args</span><span class="p">[</span><span class="s1">&#39;_stop1s&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">stop1s</span>
+            <span class="n">opt_args</span><span class="p">[</span><span class="s1">&#39;optmax&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">optmax</span>
+            <span class="n">opt_args</span><span class="p">[</span><span class="s1">&#39;optrange&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optrange</span>
+            <span class="n">opt_args</span><span class="p">[</span><span class="s1">&#39;square_pi&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">square_pi</span>
+            <span class="k">if</span> <span class="n">optmax</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">alphamat</span> <span class="o">*=</span> <span class="n">optmax</span>
+        
+            <span class="k">if</span> <span class="n">p</span><span class="o">&gt;</span><span class="mi">2</span><span class="p">:</span>
+                <span class="n">anglestart</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">opt_args</span><span class="p">[</span><span class="s1">&#39;_stop0c&#39;</span><span class="p">],</span><span class="n">opt_args</span><span class="p">[</span><span class="s1">&#39;_stop0s&#39;</span><span class="p">])</span>
+                <span class="n">anglestop</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">opt_args</span><span class="p">[</span><span class="s1">&#39;_stop1c&#39;</span><span class="p">],</span><span class="n">opt_args</span><span class="p">[</span><span class="s1">&#39;_stop1s&#39;</span><span class="p">])</span>
+                <span class="n">nangle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">anglestart</span><span class="p">,</span><span class="n">anglestop</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">optimizer_options</span><span class="p">[</span><span class="s1">&#39;ndir&#39;</span><span class="p">],</span><span class="n">endpoint</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">alphamat2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">nangle</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">nangle</span><span class="p">)])</span>
+                <span class="k">if</span> <span class="n">optmax</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">alphamat2</span> <span class="o">*=</span> <span class="n">opt_args</span><span class="p">[</span><span class="s1">&#39;optmax&#39;</span><span class="p">]</span>
+                
+            <span class="c1"># Arguments for grid plane</span>
+            <span class="n">opt_args</span><span class="p">[</span><span class="s1">&#39;alphamat&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">alphamat</span><span class="p">,</span>
+            <span class="n">opt_args</span><span class="p">[</span><span class="s1">&#39;ndir&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_options</span><span class="p">[</span><span class="s1">&#39;ndir&#39;</span><span class="p">],</span>
+            <span class="n">opt_args</span><span class="p">[</span><span class="s1">&#39;maxiter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_options</span><span class="p">[</span><span class="s1">&#39;maxiter&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">opt_args</span><span class="p">[</span><span class="s1">&#39;ndir&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="nb">tuple</span><span class="p">):</span> 
+                <span class="n">opt_args</span><span class="p">[</span><span class="s1">&#39;ndir&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">opt_args</span><span class="p">[</span><span class="s1">&#39;ndir&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            
+            <span class="c1"># Arguments for grid plane #2</span>
+            <span class="n">grid_args_2</span> <span class="o">=</span> <span class="p">{</span> 
+                     <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">,</span>
+                     <span class="s1">&#39;alphamat&#39;</span><span class="p">:</span> <span class="n">alphamat2</span><span class="p">,</span>
+                     <span class="s1">&#39;ndir&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_options</span><span class="p">[</span><span class="s1">&#39;ndir&#39;</span><span class="p">],</span>
+                     <span class="s1">&#39;trimming&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">trimming</span><span class="p">,</span>
+                     <span class="s1">&#39;biascorr&#39;</span><span class="p">:</span> <span class="n">biascorr</span><span class="p">,</span> 
+                     <span class="s1">&#39;dmetric&#39;</span> <span class="p">:</span> <span class="s1">&#39;euclidean&#39;</span><span class="p">,</span>
+                     <span class="s1">&#39;_stop0c&#39;</span> <span class="p">:</span> <span class="n">stop0c</span><span class="p">,</span>
+                     <span class="s1">&#39;_stop0s&#39;</span> <span class="p">:</span> <span class="n">stop0s</span><span class="p">,</span>
+                     <span class="s1">&#39;_stop1c&#39;</span> <span class="p">:</span> <span class="n">stop1c</span><span class="p">,</span>
+                     <span class="s1">&#39;_stop1s&#39;</span> <span class="p">:</span> <span class="n">stop1s</span><span class="p">,</span>
+                     <span class="s1">&#39;optmax&#39;</span> <span class="p">:</span> <span class="n">optmax</span><span class="p">,</span>
+                     <span class="s1">&#39;optrange&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">optrange</span><span class="p">,</span>
+                     <span class="s1">&#39;square_pi&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">square_pi</span>
+                     <span class="p">}</span>
+            <span class="k">if</span> <span class="n">flag</span><span class="o">==</span><span class="s1">&#39;two-block&#39;</span><span class="p">:</span>
+                <span class="n">grid_args_2</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span>
+        
+        <span class="k">if</span> <span class="n">flag</span><span class="o">==</span><span class="s1">&#39;two-block&#39;</span><span class="p">:</span>
+            <span class="n">opt_args</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span>
+            
+
+        <span class="c1"># Itertive coefficient estimation</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">h</span><span class="p">):</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="o">==</span><span class="s1">&#39;grid&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">p</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
+                    <span class="n">wi</span><span class="p">,</span><span class="n">maximo</span> <span class="o">=</span> <span class="n">gridplane</span><span class="p">(</span><span class="n">E</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">most</span><span class="p">,</span>
+                                          <span class="n">pi_arguments</span><span class="o">=</span><span class="n">opt_args</span>
+                                          <span class="p">)</span>
+           
+                <span class="k">elif</span> <span class="n">p</span><span class="o">&gt;</span><span class="mi">2</span><span class="p">:</span>
+                
+                    <span class="n">afin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">p</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span> <span class="c1"># final parameters for linear combinations</span>
+                    <span class="n">Z</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">E</span><span class="p">)</span>
+                    <span class="c1"># sort variables according to criterion</span>
+                    <span class="n">meas</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">most</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">E</span><span class="p">[:,</span><span class="n">k</span><span class="p">],</span>
+                            <span class="o">**</span><span class="n">opt_args</span><span class="p">)</span> 
+                            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">p</span><span class="p">)]</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">square_pi</span><span class="p">:</span>
+                        <span class="n">meas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">meas</span><span class="p">)</span>
+                    <span class="n">wi</span><span class="p">,</span><span class="n">maximo</span> <span class="o">=</span> <span class="n">gridplane</span><span class="p">(</span><span class="n">Z</span><span class="p">[:,</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">most</span><span class="p">,</span><span class="n">opt_args</span><span class="p">)</span>
+                    <span class="n">Zopt</span> <span class="o">=</span> <span class="n">Z</span><span class="p">[:,</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">wi</span> 
+                    <span class="n">afin</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span><span class="o">=</span><span class="n">wi</span>
+                    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">p</span><span class="p">):</span>
+                        <span class="n">projmat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">Zopt</span><span class="p">[:,</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span>
+                                         <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">Z</span><span class="p">[:,</span><span class="n">j</span><span class="p">])</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)])</span><span class="o">.</span><span class="n">T</span>
+                        <span class="n">wi</span><span class="p">,</span><span class="n">maximo</span> <span class="o">=</span> <span class="n">gridplane</span><span class="p">(</span><span class="n">projmat</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">most</span><span class="p">,</span>
+                                              <span class="n">opt_args</span>
+                                              <span class="p">)</span>
+                        <span class="n">Zopt</span> <span class="o">=</span> <span class="n">Zopt</span><span class="o">*</span><span class="nb">float</span><span class="p">(</span><span class="n">wi</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="n">Z</span><span class="p">[:,</span><span class="n">j</span><span class="p">]</span><span class="o">*</span><span class="nb">float</span><span class="p">(</span><span class="n">wi</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                        <span class="n">afin</span><span class="p">[</span><span class="mi">0</span><span class="p">:(</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="n">afin</span><span class="p">[</span><span class="mi">0</span><span class="p">:(</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">)]</span><span class="o">*</span><span class="nb">float</span><span class="p">(</span><span class="n">wi</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                        <span class="n">afin</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">wi</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+                    <span class="n">tj</span> <span class="o">=</span> <span class="n">Z</span><span class="o">*</span><span class="n">afin</span>
+                    <span class="n">objf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">most</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">tj</span><span class="p">,</span>
+                                     <span class="o">**</span><span class="p">{</span><span class="o">**</span><span class="n">fit_arguments</span><span class="p">,</span><span class="o">**</span><span class="n">opt_args</span><span class="p">}</span>
+                                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">square_pi</span><span class="p">:</span>
+                        <span class="n">objf</span> <span class="o">*=</span> <span class="n">objf</span>
+    
+
+                    <span class="c1"># outer loop to run until convergence</span>
+                    <span class="n">objfold</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">objf</span><span class="p">)</span>
+                    <span class="n">objf</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1000</span>
+                    <span class="n">afinbest</span> <span class="o">=</span> <span class="n">afin</span>
+                    <span class="n">ii</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="n">maxiter_2j</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="nb">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optimizer_options</span><span class="p">[</span><span class="s1">&#39;maxiter&#39;</span><span class="p">]))</span> 
+                
+                    <span class="k">while</span> <span class="p">((</span><span class="n">ii</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_options</span><span class="p">[</span><span class="s1">&#39;maxiter&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">objfold</span> <span class="o">-</span> <span class="n">objf</span><span class="p">)</span><span class="o">/</span><span class="nb">abs</span><span class="p">(</span><span class="n">objf</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1e-4</span><span class="p">)):</span>
+                        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">p</span><span class="p">):</span>
+                            <span class="n">projmat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">Zopt</span><span class="p">[:,</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span>
+                                         <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">Z</span><span class="p">[:,</span><span class="n">j</span><span class="p">])</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)])</span><span class="o">.</span><span class="n">T</span>
+                            <span class="k">if</span> <span class="n">j</span> <span class="o">&gt;</span> <span class="mi">16</span><span class="p">:</span>
+                                <span class="n">divv</span> <span class="o">=</span> <span class="n">maxiter_2j</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">divv</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">j</span><span class="p">,</span><span class="n">maxiter_2j</span><span class="p">)</span>
+                        
+                            <span class="n">wi</span><span class="p">,</span><span class="n">maximo</span> <span class="o">=</span> <span class="n">gridplane_2</span><span class="p">(</span><span class="n">projmat</span><span class="p">,</span>
+                                                    <span class="bp">self</span><span class="o">.</span><span class="n">most</span><span class="p">,</span>
+                                                    <span class="n">q</span><span class="o">=</span><span class="n">afin</span><span class="p">[</span><span class="n">j</span><span class="p">],</span>
+                                                    <span class="n">div</span><span class="o">=</span><span class="n">divv</span><span class="p">,</span>
+                                                    <span class="n">pi_arguments</span><span class="o">=</span><span class="n">grid_args_2</span>
+                                                    <span class="p">)</span>
+                            <span class="n">Zopt</span> <span class="o">=</span> <span class="n">Zopt</span><span class="o">*</span><span class="nb">float</span><span class="p">(</span><span class="n">wi</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="n">Z</span><span class="p">[:,</span><span class="n">j</span><span class="p">]</span><span class="o">*</span><span class="nb">float</span><span class="p">(</span><span class="n">wi</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+                            <span class="n">afin</span> <span class="o">*=</span> <span class="nb">float</span><span class="p">(</span><span class="n">wi</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+                            <span class="n">afin</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">float</span><span class="p">(</span><span class="n">wi</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+                        
+                        <span class="c1"># % evaluate the objective function:</span>
+                        <span class="n">tj</span> <span class="o">=</span> <span class="n">Z</span><span class="o">*</span><span class="n">afin</span>
+                    
+                        <span class="n">objfold</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">objf</span><span class="p">)</span>
+                        <span class="n">objf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">most</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">tj</span><span class="p">,</span>
+                                         <span class="n">q</span><span class="o">=</span><span class="n">afin</span><span class="p">,</span>
+                                         <span class="o">**</span><span class="n">opt_args</span>
+                                         <span class="p">)</span>
+                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">square_pi</span><span class="p">:</span>
+                            <span class="n">objf</span> <span class="o">*=</span> <span class="n">objf</span>
+                    
+                        <span class="k">if</span>  <span class="n">objf</span><span class="o">!=</span><span class="n">objfold</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraint</span> <span class="o">==</span> <span class="s1">&#39;norm&#39;</span><span class="p">:</span>
+                                <span class="n">afinbest</span> <span class="o">=</span> <span class="n">afin</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">afin</span><span class="p">)))</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">afinbest</span> <span class="o">=</span> <span class="n">afin</span>
+                            
+                        <span class="n">ii</span> <span class="o">+=</span><span class="mi">1</span>
+                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+                            <span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">ii</span><span class="p">))</span>
+                    <span class="c1">#endwhile</span>
+                
+                    <span class="n">afinbest</span> <span class="o">=</span> <span class="n">afin</span>
+                    <span class="n">wi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">p</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+                    <span class="n">wi</span> <span class="o">=</span> <span class="n">afinbest</span>
+                    <span class="n">Maxobjf</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">objf</span>
+                <span class="c1"># endif;%if p&gt;2;</span>
+            <span class="k">else</span><span class="p">:</span> <span class="c1"># do not optimize by the grid algorithm</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">trimming</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span> 
+                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Optimization that involves a trimmed objective is not a quadratic program. The scipy-optimize result will be off!!&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="s1">&#39;center&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pi_arguments</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pi_arguments</span><span class="p">[</span><span class="s1">&#39;center&#39;</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;median&#39;</span><span class="p">):</span> 
+                        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Optimization that involves a median in the objective is not a quadratic program. The scipy-optimize result will be off!!&#39;</span><span class="p">)</span>   
+                <span class="n">constraint</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;eq&#39;</span><span class="p">,</span>
+                              <span class="s1">&#39;fun&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+                              <span class="p">}</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optimizer_constraints</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span> 
+                    <span class="n">constraint</span> <span class="o">=</span> <span class="p">[</span><span class="n">constraint</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">optimizer_constraints</span><span class="p">]</span>
+                <span class="n">wi</span> <span class="o">=</span> <span class="n">minimize</span><span class="p">(</span><span class="n">pp_objective</span><span class="p">,</span>
+                              <span class="n">E</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span><span class="o">.</span><span class="n">transpose</span><span class="p">(),</span>
+                              <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">most</span><span class="p">,</span><span class="n">E</span><span class="p">,</span><span class="n">opt_args</span><span class="p">),</span>
+                              <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="p">,</span>
+                              <span class="n">constraints</span><span class="o">=</span><span class="n">constraint</span><span class="p">,</span>
+                              <span class="n">options</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">optimizer_options</span><span class="p">)</span><span class="o">.</span><span class="n">x</span>
+                <span class="n">wi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="n">wi</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">p</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+                <span class="n">wi</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">wi</span><span class="p">)))</span>
+                
+                
+            <span class="c1"># Computing projection weights and scores</span>
+            <span class="n">ti</span> <span class="o">=</span> <span class="n">E</span><span class="o">*</span><span class="n">wi</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span> <span class="o">!=</span> <span class="s1">&#39;grid&#39;</span><span class="p">:</span>
+                <span class="n">Maxobjf</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">most</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">E</span><span class="o">*</span><span class="n">wi</span><span class="p">,</span><span class="o">**</span><span class="n">opt_args</span><span class="p">)</span>
+            <span class="n">nti</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">ti</span><span class="p">)</span>
+            <span class="n">pi</span> <span class="o">=</span> <span class="n">E</span><span class="o">.</span><span class="n">T</span><span class="o">*</span><span class="n">ti</span> <span class="o">/</span> <span class="p">(</span><span class="n">nti</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">whiten_data</span><span class="p">:</span>
+                <span class="n">wi</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">wi</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+                <span class="n">wi</span> <span class="o">=</span> <span class="n">K</span><span class="o">*</span><span class="n">wi</span>
+            <span class="n">wi0</span> <span class="o">=</span> <span class="n">wi</span>
+            <span class="n">wi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">wi</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">W</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">wi</span> <span class="o">=</span> <span class="n">wi</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">W</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">wi</span>
+            <span class="n">T</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ti</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">P</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pi</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="n">flag</span> <span class="o">!=</span> <span class="s1">&#39;one-block&#39;</span><span class="p">:</span>
+                <span class="n">criteval</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">most</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">E</span><span class="o">*</span><span class="n">wi0</span><span class="p">,</span>
+                                         <span class="o">**</span><span class="n">opt_args</span>
+                                         <span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">square_pi</span><span class="p">:</span>
+                    <span class="n">criteval</span> <span class="o">*=</span> <span class="n">criteval</span>
+                    
+                <span class="n">assovec</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">criteval</span>
+                
+
+            <span class="c1"># Deflation of the datamatrix guaranteeing orthogonality restrictions</span>
+            <span class="n">E</span> <span class="o">-=</span> <span class="n">ti</span><span class="o">*</span><span class="n">pi</span><span class="o">.</span><span class="n">T</span>
+ 
+            <span class="c1"># Calculate R-Weights</span>
+            <span class="n">R</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">W</span><span class="p">[:,</span><span class="mi">0</span><span class="p">:(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)],</span><span class="n">pinv2</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">P</span><span class="p">[:,</span><span class="mi">0</span><span class="p">:(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="n">W</span><span class="p">[:,</span><span class="mi">0</span><span class="p">:(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)]),</span><span class="n">check_finite</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+        
+            <span class="c1"># Execute regression y~T if y is present. Generate regression estimates.</span>
+            <span class="k">if</span> <span class="n">flag</span> <span class="o">!=</span> <span class="s1">&#39;one-block&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">regopt</span><span class="o">==</span><span class="s1">&#39;OLS&#39;</span><span class="p">:</span>
+                    <span class="n">ci</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">ti</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="n">ys</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">nti</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">regopt</span> <span class="o">==</span> <span class="s1">&#39;robust&#39;</span><span class="p">:</span>
+                    <span class="n">linfit</span> <span class="o">=</span> <span class="n">rm</span><span class="p">(</span><span class="n">fun</span><span class="o">=</span><span class="n">fun</span><span class="p">,</span><span class="n">probp1</span><span class="o">=</span><span class="n">probp1</span><span class="p">,</span><span class="n">probp2</span><span class="o">=</span><span class="n">probp2</span><span class="p">,</span><span class="n">probp3</span><span class="o">=</span><span class="n">probp3</span><span class="p">,</span>
+                                <span class="n">centre</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">center</span><span class="p">,</span><span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">,</span>
+                                <span class="n">start_cutoff_mode</span><span class="o">=</span><span class="s1">&#39;specific&#39;</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+                    <span class="n">linfit</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">ti</span><span class="p">,</span><span class="n">ys</span><span class="p">)</span>
+                    <span class="n">ci</span> <span class="o">=</span> <span class="n">linfit</span><span class="o">.</span><span class="n">coef_</span>
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">regopt</span> <span class="o">==</span> <span class="s1">&#39;quantile&#39;</span><span class="p">:</span>
+                    <span class="n">linfit</span> <span class="o">=</span> <span class="n">QuantReg</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">ti</span><span class="p">)</span>
+                    <span class="n">model</span> <span class="o">=</span> <span class="n">linfit</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">q</span><span class="o">=</span><span class="n">quantile</span><span class="p">)</span>
+                    <span class="n">ci</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">params</span>
+                <span class="c1"># end regression if</span>
+                
+                <span class="n">C</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">ci</span>
+                <span class="n">bi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">R</span><span class="p">,</span><span class="n">C</span><span class="p">[</span><span class="mi">0</span><span class="p">:(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)])</span>
+                <span class="n">bi_scaled</span> <span class="o">=</span> <span class="n">bi</span>
+                <span class="n">bi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">sy</span><span class="o">/</span><span class="n">sX</span><span class="p">,(</span><span class="n">p</span><span class="p">,</span><span class="mi">1</span><span class="p">)),</span><span class="n">bi</span><span class="p">)</span>
+                <span class="n">B</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">bi</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">B_scaled</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">bi_scaled</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># endfor; Loop for latent dimensions</span>
+
+        <span class="c1"># Re-adjust estimates to original dimensions if data have been compressed </span>
+        <span class="k">if</span> <span class="n">dimensions</span><span class="p">:</span>
+            <span class="n">B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">V</span><span class="p">[:,</span><span class="mi">0</span><span class="p">:</span><span class="n">p</span><span class="p">],</span><span class="n">B</span><span class="p">)</span>
+            <span class="n">B_scaled</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">V</span><span class="p">[:,</span><span class="mi">0</span><span class="p">:</span><span class="n">p</span><span class="p">],</span><span class="n">B_scaled</span><span class="p">)</span>
+            <span class="n">R</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">V</span><span class="p">[:,</span><span class="mi">0</span><span class="p">:</span><span class="n">p</span><span class="p">],</span><span class="n">R</span><span class="p">)</span>
+            <span class="n">W</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">V</span><span class="p">[:,</span><span class="mi">0</span><span class="p">:</span><span class="n">p</span><span class="p">],</span><span class="n">W</span><span class="p">)</span>
+            <span class="n">P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">V</span><span class="p">[:,</span><span class="mi">0</span><span class="p">:</span><span class="n">p</span><span class="p">],</span><span class="n">P</span><span class="p">)</span>
+            <span class="n">bi</span> <span class="o">=</span> <span class="n">B</span><span class="p">[:,</span><span class="n">h</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">center_data</span><span class="p">:</span>
+                <span class="n">Xs</span> <span class="o">=</span> <span class="n">centring</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X0</span><span class="p">)</span>
+                <span class="n">mX</span> <span class="o">=</span> <span class="n">centring</span><span class="o">.</span><span class="n">col_loc_</span>
+                <span class="n">sX</span> <span class="o">=</span> <span class="n">centring</span><span class="o">.</span><span class="n">col_sca_</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">Xs</span> <span class="o">=</span> <span class="n">X0</span>
+                <span class="n">mX</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span><span class="n">p</span><span class="p">))</span>
+                <span class="n">sX</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span><span class="n">p</span><span class="p">))</span>
+        
+        <span class="n">bi</span> <span class="o">=</span> <span class="n">bi</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float64&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">flag</span> <span class="o">!=</span> <span class="s1">&#39;one-block&#39;</span><span class="p">:</span>            
+            <span class="c1"># Calculate scaled and unscaled intercepts</span>
+            <span class="k">if</span> <span class="n">dimensions</span><span class="p">:</span>
+                <span class="n">X</span> <span class="o">=</span> <span class="n">convert_X_input</span><span class="p">(</span><span class="n">X0</span><span class="p">)</span>
+            <span class="k">if</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">center</span> <span class="o">==</span> <span class="s2">&quot;mean&quot;</span><span class="p">):</span>
+                <span class="n">intercept</span> <span class="o">=</span> <span class="n">sps</span><span class="o">.</span><span class="n">trim_mean</span><span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">bi</span><span class="p">),</span><span class="n">trimming</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">intercept</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">bi</span><span class="p">),(</span><span class="o">-</span><span class="mi">1</span><span class="p">)))</span>
+            <span class="n">yfit</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">bi</span><span class="p">)</span> <span class="o">+</span> <span class="n">intercept</span>
+            <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">scale</span> <span class="o">==</span> <span class="s1">&#39;None&#39;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">center</span> <span class="o">==</span> <span class="s2">&quot;mean&quot;</span><span class="p">):</span>
+                    <span class="n">b0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">ys</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">Xs</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float64&quot;</span><span class="p">),</span><span class="n">bi</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">b0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ys</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float64&quot;</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">Xs</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float64&quot;</span><span class="p">),</span><span class="n">bi</span><span class="p">)))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">b0</span> <span class="o">=</span> <span class="n">intercept</span>
+            
+            <span class="c1"># Calculate fit values and residuals </span>
+            <span class="n">yfit</span> <span class="o">=</span> <span class="n">yfit</span>    
+            <span class="n">r</span> <span class="o">=</span> <span class="n">y</span> <span class="o">-</span> <span class="n">yfit</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s2">&quot;coef_&quot;</span><span class="p">,</span><span class="n">B</span><span class="p">)</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s2">&quot;intercept_&quot;</span><span class="p">,</span><span class="n">intercept</span><span class="p">)</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s2">&quot;coef_scaled_&quot;</span><span class="p">,</span><span class="n">B_scaled</span><span class="p">)</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s2">&quot;intercept_scaled_&quot;</span><span class="p">,</span><span class="n">b0</span><span class="p">)</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s2">&quot;residuals_&quot;</span><span class="p">,</span><span class="n">r</span><span class="p">)</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s2">&quot;fitted_&quot;</span><span class="p">,</span><span class="n">yfit</span><span class="p">)</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s2">&quot;y_loadings_&quot;</span><span class="p">,</span><span class="n">C</span><span class="p">)</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s2">&quot;y_loc_&quot;</span><span class="p">,</span><span class="n">my</span><span class="p">)</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s2">&quot;y_sca_&quot;</span><span class="p">,</span><span class="n">sy</span><span class="p">)</span>
+                
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s2">&quot;x_weights_&quot;</span><span class="p">,</span><span class="n">W</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s2">&quot;x_loadings_&quot;</span><span class="p">,</span><span class="n">P</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s2">&quot;x_rotations_&quot;</span><span class="p">,</span><span class="n">R</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s2">&quot;x_scores_&quot;</span><span class="p">,</span><span class="n">T</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s2">&quot;x_ev_&quot;</span><span class="p">,</span><span class="n">Xev</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s2">&quot;crit_values_&quot;</span><span class="p">,</span><span class="n">assovec</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s2">&quot;Maxobjf_&quot;</span><span class="p">,</span><span class="n">Maxobjf</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">whiten_data</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s2">&quot;whitening_&quot;</span><span class="p">,</span><span class="n">K</span><span class="p">)</span>
+
+        
+        <span class="k">if</span> <span class="n">mixing</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s2">&quot;mixing_&quot;</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span><span class="n">W</span><span class="p">))</span>
+        
+        
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s2">&quot;x_loc_&quot;</span><span class="p">,</span><span class="n">mX</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s2">&quot;x_sca_&quot;</span><span class="p">,</span><span class="n">sX</span><span class="p">)</span>
+
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s1">&#39;scaling&#39;</span><span class="p">,</span><span class="n">scale</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">return_scaling_object</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s1">&#39;scaling_object_&#39;</span><span class="p">,</span><span class="n">centring</span><span class="p">)</span>
+        
+        <span class="k">return</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>   </div>
+
+
+<div class="viewcode-block" id="ppdire.predict"><a class="viewcode-back" href="../../../ppdire.html#direpack.ppdire.ppdire.ppdire.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">Xn</span><span class="p">):</span>
+        <span class="n">Xn</span> <span class="o">=</span> <span class="n">convert_X_input</span><span class="p">(</span><span class="n">Xn</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">p</span><span class="p">)</span> <span class="o">=</span> <span class="n">Xn</span><span class="o">.</span><span class="n">shape</span>
+        <span class="p">(</span><span class="n">q</span><span class="p">,</span><span class="n">h</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coef_</span><span class="o">.</span><span class="n">shape</span>
+        <span class="k">if</span> <span class="n">p</span><span class="o">!=</span><span class="n">q</span><span class="p">:</span>
+            <span class="k">raise</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;New data must have seame number of columns as the ones the model has been trained with&#39;</span><span class="p">))</span>
+        <span class="k">return</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">Xn</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">coef_</span><span class="p">[:,</span><span class="n">h</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">intercept_</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span></div>
+        
+<div class="viewcode-block" id="ppdire.transform"><a class="viewcode-back" href="../../../ppdire.html#direpack.ppdire.ppdire.ppdire.transform">[docs]</a>    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">Xn</span><span class="p">):</span>
+        <span class="n">Xn</span> <span class="o">=</span> <span class="n">convert_X_input</span><span class="p">(</span><span class="n">Xn</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">p</span><span class="p">)</span> <span class="o">=</span> <span class="n">Xn</span><span class="o">.</span><span class="n">shape</span>
+        <span class="k">if</span> <span class="n">p</span><span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coef_</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="k">raise</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;New data must have seame number of columns as the ones the model has been trained with&#39;</span><span class="p">))</span>
+        <span class="n">Xnc</span> <span class="o">=</span> <span class="n">scale_data</span><span class="p">(</span><span class="n">Xn</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">x_loc_</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">x_sca_</span><span class="p">)</span>
+        <span class="k">return</span><span class="p">(</span><span class="n">Xnc</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">x_rotations_</span><span class="p">)</span></div>
+        
+    <span class="nd">@classmethod</span>   
+    <span class="k">def</span> <span class="nf">_get_param_names</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get parameter names for the estimator&quot;&quot;&quot;</span>
+        <span class="c1"># fetch the constructor or the original constructor before</span>
+        <span class="c1"># deprecation wrapping if any</span>
+        <span class="n">init</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="fm">__init__</span><span class="p">,</span> <span class="s1">&#39;deprecated_original&#39;</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="fm">__init__</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">init</span> <span class="ow">is</span> <span class="nb">object</span><span class="o">.</span><span class="fm">__init__</span><span class="p">:</span>
+            <span class="c1"># No explicit constructor to introspect</span>
+            <span class="k">return</span> <span class="p">[]</span>
+    
+        <span class="c1"># introspect the constructor arguments to find the model parameters</span>
+        <span class="c1"># to represent</span>
+        <span class="n">init_signature</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">init</span><span class="p">)</span>
+        <span class="c1"># Consider the constructor parameters excluding &#39;self&#39;</span>
+        <span class="n">parameters</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">init_signature</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+                      <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="s1">&#39;self&#39;</span> <span class="ow">and</span> <span class="n">p</span><span class="o">.</span><span class="n">kind</span> <span class="o">!=</span> <span class="n">p</span><span class="o">.</span><span class="n">VAR_KEYWORD</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">p</span><span class="o">.</span><span class="n">VAR_POSITIONAL</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;scikit-learn estimators should always &quot;</span>
+                                   <span class="s2">&quot;specify their parameters in the signature&quot;</span>
+                                   <span class="s2">&quot; of their __init__ (no varargs).&quot;</span>
+                                   <span class="s2">&quot; </span><span class="si">%s</span><span class="s2"> with constructor </span><span class="si">%s</span><span class="s2"> doesn&#39;t &quot;</span>
+                                   <span class="s2">&quot; follow this convention.&quot;</span>
+                                   <span class="o">%</span> <span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">init_signature</span><span class="p">))</span>
+        <span class="c1"># Extract and sort argument names excluding &#39;self&#39;</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">p</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">])</span>
+    
+<div class="viewcode-block" id="ppdire.get_params"><a class="viewcode-back" href="../../../ppdire.html#direpack.ppdire.ppdire.ppdire.get_params">[docs]</a>    <span class="k">def</span> <span class="nf">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deep</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get parameters for this estimator.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        deep : boolean, optional</span>
+<span class="sd">            If True, will return the parameters for this estimator and</span>
+<span class="sd">            contained subobjects that are estimators.</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        params : mapping of string to any</span>
+<span class="sd">            Parameter names mapped to their values.</span>
+<span class="sd">        ------</span>
+<span class="sd">        Copied from ScikitLlearn instead of imported to avoid &#39;deep=True&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_param_names</span><span class="p">():</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">deep</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s1">&#39;get_params&#39;</span><span class="p">):</span>
+                <span class="n">deep_items</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">get_params</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                <span class="n">out</span><span class="o">.</span><span class="n">update</span><span class="p">((</span><span class="n">key</span> <span class="o">+</span> <span class="s1">&#39;__&#39;</span> <span class="o">+</span> <span class="n">k</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">deep_items</span><span class="p">)</span>
+            <span class="n">out</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="n">out</span></div>
+        
+    <span class="k">def</span> <span class="nf">set_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the parameters of this estimator.</span>
+<span class="sd">        Copied from ScikitLearn, adapted to avoid calling &#39;deep=True&#39;</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        self</span>
+<span class="sd">        ------</span>
+<span class="sd">        Copied from ScikitLlearn instead of imported to avoid &#39;deep=True&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="p">:</span>
+            <span class="c1"># Simple optimization to gain speed (inspect is slow)</span>
+            <span class="k">return</span> <span class="bp">self</span>
+        <span class="n">valid_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_params</span><span class="p">()</span>
+    
+        <span class="n">nested_params</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>  <span class="c1"># grouped by prefix</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">key</span><span class="p">,</span> <span class="n">delim</span><span class="p">,</span> <span class="n">sub_key</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s1">&#39;__&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid_params</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid parameter </span><span class="si">%s</span><span class="s1"> for estimator </span><span class="si">%s</span><span class="s1">. &#39;</span>
+                                 <span class="s1">&#39;Check the list of available parameters &#39;</span>
+                                 <span class="s1">&#39;with `estimator.get_params().keys()`.&#39;</span> <span class="o">%</span>
+                                 <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="bp">self</span><span class="p">))</span>
+    
+            <span class="k">if</span> <span class="n">delim</span><span class="p">:</span>
+                <span class="n">nested_params</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">sub_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+                <span class="n">valid_params</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+    
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">sub_params</span> <span class="ow">in</span> <span class="n">nested_params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">valid_params</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="n">sub_params</span><span class="p">)</span>
+    
+        <span class="k">return</span> <span class="bp">self</span></div>
+        
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Sven Serneels and Emmanuel Jordy Menvouta.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

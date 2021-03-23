@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sat Apr 11 15:53:12 2020
-
-@author: Emmanuel Jordy Menvouta
 """
 
 import numpy as np
@@ -25,75 +22,96 @@ from ..utils.utils import *
 
 class sudire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
     
-    """
-    SUDIRE Sufficient Dimension Reduction 
+    """SUDIRE Sufficient Dimension Reduction 
     
-    The class allows for Sufficient Dimension Reduction using a vaiety of 
+    The class allows for Sufficient Dimension Reduction using a variety of 
     methods. If the method requires optimization of a function, 
     This optimization is done through the Interior Point Optimizer (IPOPT)
     algorithm. 
         
-    Input parameters to class: 
-        sudiremeth: function or class. sudiremeth in this
-            package can also be used, but user defined functions  can 
-            be processed. Built in options are : 
+    Parameters
+    ----------
+        sudiremeth: function or class. sudiremeth in this package can also be used, but user defined functions  can be processed. Built in options are : 
+
             save : Sliced Average Variance Estimation
+
             sir  : Slices Inverse Regression
+
             dr   : Directional Regression 
+
+            iht  : Iterative Hessian Transformations
+
             dcov-sdr : SDR via Distance Covariance 
+            
             mdd-sdr : SDR via Martingale Difference Divergence.
             
-        n_components: int, dimension of the central subspace.
+        n_components : int 
+                      dimension of the central subspace.
             
-        trimming: float, trimming percentage to be entered as pct/100 
+        trimming : float
+                 trimming percentage to be entered as pct/100 
         
-        optimizer_options: dict with options to pass on to the optimizer.Includes: 
-            max_iter: int. Maximal number of iterations.
-            tol: int. relative convergence tolerance
-            constr_viol_tol : Desired threshold for the constraint violation.
+        optimizer_options : dict 
+                            with options to pass on to the optimizer.Includes: 
+
+        max_iter : int
+                     Maximal number of iterations.
+
+        tol: float
+             relative convergence tolerance
+
+        constr_viol_tol : float
+                        Desired threshold for the constraint violation.
             
-        optimizer_constraints: dict or list of dicts, further constraints to be
-            passed on to the optimizer function.
+        optimizer_constraints : dict or list of dicts
+                                 further constraints to be passed on to the optimizer function.
             
-        optimizer_arguments: dict, extra arguments to be passed to the sudiremeth
-        function furing optimization.
+        optimizer_arguments: dict
+                             extra arguments to be passed to the sudiremeth function during optimization.
         
-        optimizer_start : numpy array, starting value for the optimization.
+        optimizer_start : numpy array
+                         starting value for the optimization.
         
-        center: str, how to center the data. options accepted are options from
-            sprm.preprocessing 
+        center : str
+             how to center the data. options accepted are options from sprm.preprocessing 
             
-        center_data: bool  
+        center_data : bool 
+                    If True, the data will be centered before the dimension reduction   
         
-        scale_data: bool. Note: if set to False, convergence to correct optimum 
-            is not a given. Will throw a warning. 
+        scale_data : bool
+                    if set to False, convergence to correct optimum  is not a given. Will throw a warning. 
             
-        compression: bool. Use internal data compresion step for flat data. 
+        compression : bool
+                     Use internal data compresion step for flat data. 
         
-        n_slices, int: The number of slices for SAVE, SIR, DR
-        
-        is_distance_mat, bool : if the inputed matrices for x and y are distance matrices.
+        n_slices :  int
+                    The number of slices for SAVE, SIR, DR
+    
+        is_distance_mat : bool 
+                         if the inputed matrices for x and y are distance matrices.
             
-        dmetric, str: distance metric used internally. Defaults to 'euclidean'
+        dmetric :  str
+                 distance metric used internally. Defaults to 'euclidean'
         
-        fit_ols, bool : if True, an OLS model is fitted after the dimension reduction.
+        fit_ols :  bool 
+                 if True, an OLS model is fitted after the dimension reduction.
         
-        copy: bool. Whether to make a deep copy of the input data or not. 
+        copy : bool
+              Whether to make a deep copy of the input data or not. 
         
-        verbose: bool. Set to True prints the iteration number. 
+        verbose : bool
+                 Set to True prints the iteration number. 
         
         return_scaling_object: bool. 
+                                If True, the scaling object will be return after the dimension reduction. 
         
     
         
-        
-        
-    The 'fit' function will take a set of optional input arguments. 
     
     """
 
     def __init__(self,
-                 sudiremeth = 'bcov-sdr', 
+                 sudiremeth = 'dcov-sdr', 
                  n_components = 2, 
                  trimming = 0,
                  optimizer_options = {'max_iter': 1000}, 
@@ -147,12 +165,21 @@ class sudire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
         """
         Fit a Sufficient Dimension Reduction Model. 
         
-        Required input argument :
-                 X: data as matrix or data frame 
-                 y: data as vector or 1D matrix
-            arg or kwarg:
-          
-            Further parameters to user defined sufdiremeth can be passed here  
+        Parameters
+        ----------
+                X : matrix or data frame 
+                    Input data of predictors  
+
+                y :  vector or 1D matrix
+                    Response data
+                
+                args or kwargs : 
+                                Further parameters to user defined sudiremeth can be passed here  
+        Returns
+        -------
+            self
+        
+        -------
         """
 
         # Collect optional fit arguments
@@ -457,7 +484,24 @@ class sudire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
     
     def transform(self,Xn, distance_mat=False):
         """
-            computes the dimension reduction of the data Xn based on the fitted sudire model.
+        Computes the dimension reduction of the data Xn based on the fitted sudire model.
+
+        Parameters
+        ----------
+                Xn : matrix or data frame
+                     Input data to be transformed 
+
+                distance_mat : numpy array 
+                                 distance matrix to represent similarity between observations. 
+                
+                args or kwargs: 
+                                Further parameters to user defined sufdiremeth can be passed here  
+        Returns
+        -------
+        transformed_data : numpy array
+                             the dimension reduced data 
+
+         -------
         """
         Xn = convert_X_input(Xn)
         (n,p) = Xn.shape
@@ -470,6 +514,20 @@ class sudire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
     def predict(self,Xn, is_distance_mat=False):
         """
         predicts the response  on new data Xn
+
+        Parameters
+        ----------
+                Xn : matrix or data frame
+                     Input data to be transformed 
+
+                is_distance_mat : bool 
+                                 if True, Xn is treated as a distance matrix 
+                
+        Returns
+        -------
+        predictions : numpy array 
+                      The predictions from the dimension reduction model
+        -------
         """
         Xn = convert_X_input(Xn)
         (n,p) = Xn.shape
@@ -535,6 +593,7 @@ def get_params(self, deep=False):
 def set_params(self, **params):
     """Set the parameters of this estimator.
     Copied from ScikitLearn, adapted to avoid calling 'deep=True'
+    
     Returns
     -------
     self
@@ -566,24 +625,43 @@ def set_params(self, **params):
 
     return self
 
-def estimate_structural_dim(sufdirmeth, Xn, y, B, *args,**kwargs):
-    """"
-    estimates the dimension of the central subspace using 
-    the sufirmeth. 
+def estimate_structural_dim(sudiremeth, Xn, y, B, *args,**kwargs):
+    """
+    Estimates the dimension of the central subspace using 
+    the sudiremeth.  This approach is based on the bootstrap method of Sheng and Yin (2016)
     
-    input arguments:
-        sufdirmeth : the SDR method to use in the estimation.
-        X          : Input X data as a numpy array or dataframe 
-        Y          : Input Y data as vector or 1d matrix
-        B          : Number of bootstrap replications
+    Parameters
+    ----------
+
+        sudiermeth : str
+                    the SDR method to use in the estimation.
+
+        X :  numpy array or dataframe
+            Input X data
+
+        Y : vector or 1d matrix
+            Input Y data as 
+
+        B : int 
+            Number of bootstrap replications
+
         kwargs:
-            n_slices   : number of slices for SIR/SAVE/DR
+
+            n_slices: number of slices for SIR/SAVE/DR
+
             center_data, bool : if the data  should be centered 
+
             scale_data, bool :  if the data should be scaled
+
             center, string :   which centering('mean', 'median')
             
-            
-        
+    Returns
+    ----------     
+
+    h : int 
+        representing the dimension of the central subspace
+
+    ----------
     """
     if 'n_slices' not in kwargs:
         n_slices = 6
