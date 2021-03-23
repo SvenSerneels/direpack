@@ -10,6 +10,8 @@ R code by Jakob Raymaekers
 
 """
 
+import numpy as np
+
 def quad(dd, p, n): 
     """
     Computes the quadratic radial function

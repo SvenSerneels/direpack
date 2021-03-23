@@ -12,7 +12,9 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.validation import check_is_fitted
 from .robcent import VersatileScaler, versatile_scale
 from ._preproc_utilities import *
+from ..utils.utils import _check_input
 from ._gsspp_utils import *
+from ._gsspp_utils import _norms, _gsspp
 
     
 class GenSpatialSignPrePprocessor(TransformerMixin,BaseEstimator):
@@ -111,7 +113,7 @@ def gen_ss_pp(X,center='l1median',fun='linear_redescending'):
         p = 1
     n = n[0]
     
-    if center is not 'None':
+    if center != 'None':
         X = versatile_scale(X,center=center,scale='None')
         
     return(_gsspp(X,p,n,fun=fun))

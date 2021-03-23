@@ -13,7 +13,6 @@ from sklearn.utils.metaestimators import _BaseComposition
 from statsmodels import robust as srs
 from ._dicomo_utils import *
 import dcor as dc
-from ..sudire._sudire_utils import difference_divergence, D_inner, U_inner
 # Optional: if Ballcov required, import Ball 
 # import Ball
 

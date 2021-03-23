@@ -75,6 +75,11 @@ Version 1.0
 - `sudire` joins in
 - `plot` functions adapted 
 - documentation provided for `dicomo` 
+- 1.0.2: link to `direpack` publication added
+- 1.0.3: fixed rare division by zero in `l1median`
+- 1.0.4: unit tests included
+- 1.0.5: `sudire` notebook adapted
+- 1.0.9: function to calculate the martingale difference divergence matrix (MDDM) added in `_dicomo_utils.py` 
 
 
 
