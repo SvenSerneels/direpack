@@ -87,11 +87,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../ppdire.html">ppdire</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../sudire.html">sudire</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../sprm.html">sprm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Pre-processing.html">Pre-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Cross-validation and plotting.html">Cross-validation and plotting</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Other information</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../Article.html">Article</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../Contacts.html">Contacts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Contributing.html">Contributing</a></li>
 </ul>
 
             
@@ -160,9 +161,6 @@
   <h1>Source code for direpack.sudire.sudire</h1><div class="highlight"><pre>
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Created on Sat Apr 11 15:53:12 2020</span>
-
-<span class="sd">@author: Emmanuel Jordy Menvouta</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -185,75 +183,98 @@
 
 <div class="viewcode-block" id="sudire"><a class="viewcode-back" href="../../../sudire.html#direpack.sudire.sudire.sudire">[docs]</a><span class="k">class</span> <span class="nc">sudire</span><span class="p">(</span><span class="n">_BaseComposition</span><span class="p">,</span><span class="n">BaseEstimator</span><span class="p">,</span><span class="n">TransformerMixin</span><span class="p">,</span><span class="n">RegressorMixin</span><span class="p">):</span>
     
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    SUDIRE Sufficient Dimension Reduction </span>
+    <span class="sd">&quot;&quot;&quot;SUDIRE Sufficient Dimension Reduction </span>
 <span class="sd">    </span>
-<span class="sd">    The class allows for Sufficient Dimension Reduction using a vaiety of </span>
+<span class="sd">    The class allows for Sufficient Dimension Reduction using a variety of </span>
 <span class="sd">    methods. If the method requires optimization of a function, </span>
 <span class="sd">    This optimization is done through the Interior Point Optimizer (IPOPT)</span>
 <span class="sd">    algorithm. </span>
 <span class="sd">        </span>
-<span class="sd">    Input parameters to class: </span>
-<span class="sd">        sudiremeth: function or class. sudiremeth in this</span>
-<span class="sd">            package can also be used, but user defined functions  can </span>
-<span class="sd">            be processed. Built in options are : </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">        sudiremeth: function or class. sudiremeth in this package can also be used, but user defined functions  can be processed. Built in options are : </span>
+
 <span class="sd">            save : Sliced Average Variance Estimation</span>
+
 <span class="sd">            sir  : Slices Inverse Regression</span>
+
 <span class="sd">            dr   : Directional Regression </span>
+
+<span class="sd">            iht  : Iterative Hessian Transformations</span>
+
 <span class="sd">            dcov-sdr : SDR via Distance Covariance </span>
+<span class="sd">            </span>
 <span class="sd">            mdd-sdr : SDR via Martingale Difference Divergence.</span>
+
+<span class="sd">            bcov-sdr : SDR via ball covariance</span>
 <span class="sd">            </span>
-<span class="sd">        n_components: int, dimension of the central subspace.</span>
+<span class="sd">        n_components : int </span>
+<span class="sd">                      dimension of the central subspace.</span>
 <span class="sd">            </span>
-<span class="sd">        trimming: float, trimming percentage to be entered as pct/100 </span>
+<span class="sd">        trimming : float</span>
+<span class="sd">                 trimming percentage to be entered as pct/100 </span>
 <span class="sd">        </span>
-<span class="sd">        optimizer_options: dict with options to pass on to the optimizer.Includes: </span>
-<span class="sd">            max_iter: int. Maximal number of iterations.</span>
-<span class="sd">            tol: int. relative convergence tolerance</span>
-<span class="sd">            constr_viol_tol : Desired threshold for the constraint violation.</span>
+<span class="sd">        optimizer_options : dict </span>
+<span class="sd">                            with options to pass on to the optimizer.Includes: </span>
+
+<span class="sd">        max_iter : int</span>
+<span class="sd">                     Maximal number of iterations.</span>
+
+<span class="sd">        tol: float</span>
+<span class="sd">             relative convergence tolerance</span>
+
+<span class="sd">        constr_viol_tol : float</span>
+<span class="sd">                        Desired threshold for the constraint violation.</span>
 <span class="sd">            </span>
-<span class="sd">        optimizer_constraints: dict or list of dicts, further constraints to be</span>
-<span class="sd">            passed on to the optimizer function.</span>
+<span class="sd">        optimizer_constraints : dict or list of dicts</span>
+<span class="sd">                                 further constraints to be passed on to the optimizer function.</span>
 <span class="sd">            </span>
-<span class="sd">        optimizer_arguments: dict, extra arguments to be passed to the sudiremeth</span>
-<span class="sd">        function furing optimization.</span>
+<span class="sd">        optimizer_arguments: dict</span>
+<span class="sd">                             extra arguments to be passed to the sudiremeth function during optimization.</span>
 <span class="sd">        </span>
-<span class="sd">        optimizer_start : numpy array, starting value for the optimization.</span>
+<span class="sd">        optimizer_start : numpy array</span>
+<span class="sd">                         starting value for the optimization.</span>
 <span class="sd">        </span>
-<span class="sd">        center: str, how to center the data. options accepted are options from</span>
-<span class="sd">            sprm.preprocessing </span>
+<span class="sd">        center : str</span>
+<span class="sd">             how to center the data. options accepted are options from sprm.preprocessing </span>
 <span class="sd">            </span>
-<span class="sd">        center_data: bool  </span>
+<span class="sd">        center_data : bool </span>
+<span class="sd">                    If True, the data will be centered before the dimension reduction   </span>
 <span class="sd">        </span>
-<span class="sd">        scale_data: bool. Note: if set to False, convergence to correct optimum </span>
-<span class="sd">            is not a given. Will throw a warning. </span>
+<span class="sd">        scale_data : bool</span>
+<span class="sd">                    if set to False, convergence to correct optimum  is not a given. Will throw a warning. </span>
 <span class="sd">            </span>
-<span class="sd">        compression: bool. Use internal data compresion step for flat data. </span>
+<span class="sd">        compression : bool</span>
+<span class="sd">                     Use internal data compresion step for flat data. </span>
 <span class="sd">        </span>
-<span class="sd">        n_slices, int: The number of slices for SAVE, SIR, DR</span>
-<span class="sd">        </span>
-<span class="sd">        is_distance_mat, bool : if the inputed matrices for x and y are distance matrices.</span>
+<span class="sd">        n_slices :  int</span>
+<span class="sd">                    The number of slices for SAVE, SIR, DR</span>
+<span class="sd">    </span>
+<span class="sd">        is_distance_mat : bool </span>
+<span class="sd">                         if the inputed matrices for x and y are distance matrices.</span>
 <span class="sd">            </span>
-<span class="sd">        dmetric, str: distance metric used internally. Defaults to &#39;euclidean&#39;</span>
+<span class="sd">        dmetric :  str</span>
+<span class="sd">                 distance metric used internally. Defaults to &#39;euclidean&#39;</span>
 <span class="sd">        </span>
-<span class="sd">        fit_ols, bool : if True, an OLS model is fitted after the dimension reduction.</span>
+<span class="sd">        fit_ols :  bool </span>
+<span class="sd">                 if True, an OLS model is fitted after the dimension reduction.</span>
 <span class="sd">        </span>
-<span class="sd">        copy: bool. Whether to make a deep copy of the input data or not. </span>
+<span class="sd">        copy : bool</span>
+<span class="sd">              Whether to make a deep copy of the input data or not. </span>
 <span class="sd">        </span>
-<span class="sd">        verbose: bool. Set to True prints the iteration number. </span>
+<span class="sd">        verbose : bool</span>
+<span class="sd">                 Set to True prints the iteration number. </span>
 <span class="sd">        </span>
 <span class="sd">        return_scaling_object: bool. </span>
+<span class="sd">                                If True, the scaling object will be return after the dimension reduction. </span>
 <span class="sd">        </span>
 <span class="sd">    </span>
 <span class="sd">        </span>
-<span class="sd">        </span>
-<span class="sd">        </span>
-<span class="sd">    The &#39;fit&#39; function will take a set of optional input arguments. </span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                 <span class="n">sudiremeth</span> <span class="o">=</span> <span class="s1">&#39;bcov-sdr&#39;</span><span class="p">,</span> 
+                 <span class="n">sudiremeth</span> <span class="o">=</span> <span class="s1">&#39;dcov-sdr&#39;</span><span class="p">,</span> 
                  <span class="n">n_components</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> 
                  <span class="n">trimming</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
                  <span class="n">optimizer_options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;max_iter&#39;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">},</span> 
@@ -307,12 +328,21 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Fit a Sufficient Dimension Reduction Model. </span>
 <span class="sd">        </span>
-<span class="sd">        Required input argument :</span>
-<span class="sd">                 X: data as matrix or data frame </span>
-<span class="sd">                 y: data as vector or 1D matrix</span>
-<span class="sd">            arg or kwarg:</span>
-<span class="sd">          </span>
-<span class="sd">            Further parameters to user defined sufdiremeth can be passed here  </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">                X : matrix or data frame </span>
+<span class="sd">                    Input data of predictors  </span>
+
+<span class="sd">                y :  vector or 1D matrix</span>
+<span class="sd">                    Response data</span>
+<span class="sd">                </span>
+<span class="sd">                args or kwargs : </span>
+<span class="sd">                                Further parameters to user defined sudiremeth can be passed here  </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">            self</span>
+<span class="sd">        </span>
+<span class="sd">        -------</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># Collect optional fit arguments</span>
@@ -617,7 +647,24 @@
     
 <div class="viewcode-block" id="sudire.transform"><a class="viewcode-back" href="../../../sudire.html#direpack.sudire.sudire.sudire.transform">[docs]</a>    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">Xn</span><span class="p">,</span> <span class="n">distance_mat</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            computes the dimension reduction of the data Xn based on the fitted sudire model.</span>
+<span class="sd">        Computes the dimension reduction of the data Xn based on the fitted sudire model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">                Xn : matrix or data frame</span>
+<span class="sd">                     Input data to be transformed </span>
+
+<span class="sd">                distance_mat : numpy array </span>
+<span class="sd">                                 distance matrix to represent similarity between observations. </span>
+<span class="sd">                </span>
+<span class="sd">                args or kwargs: </span>
+<span class="sd">                                Further parameters to user defined sufdiremeth can be passed here  </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        transformed_data : numpy array</span>
+<span class="sd">                             the dimension reduced data </span>
+
+<span class="sd">         -------</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">Xn</span> <span class="o">=</span> <span class="n">convert_X_input</span><span class="p">(</span><span class="n">Xn</span><span class="p">)</span>
         <span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">p</span><span class="p">)</span> <span class="o">=</span> <span class="n">Xn</span><span class="o">.</span><span class="n">shape</span>
@@ -630,6 +677,20 @@
 <div class="viewcode-block" id="sudire.predict"><a class="viewcode-back" href="../../../sudire.html#direpack.sudire.sudire.sudire.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">Xn</span><span class="p">,</span> <span class="n">is_distance_mat</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        predicts the response  on new data Xn</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">                Xn : matrix or data frame</span>
+<span class="sd">                     Input data to be transformed </span>
+
+<span class="sd">                is_distance_mat : bool </span>
+<span class="sd">                                 if True, Xn is treated as a distance matrix </span>
+<span class="sd">                </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        predictions : numpy array </span>
+<span class="sd">                      The predictions from the dimension reduction model</span>
+<span class="sd">        -------</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">Xn</span> <span class="o">=</span> <span class="n">convert_X_input</span><span class="p">(</span><span class="n">Xn</span><span class="p">)</span>
         <span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">p</span><span class="p">)</span> <span class="o">=</span> <span class="n">Xn</span><span class="o">.</span><span class="n">shape</span>
@@ -695,6 +756,7 @@
 <span class="k">def</span> <span class="nf">set_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Set the parameters of this estimator.</span>
 <span class="sd">    Copied from ScikitLearn, adapted to avoid calling &#39;deep=True&#39;</span>
+<span class="sd">    </span>
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    self</span>
@@ -726,24 +788,43 @@
 
     <span class="k">return</span> <span class="bp">self</span>
 
-<div class="viewcode-block" id="estimate_structural_dim"><a class="viewcode-back" href="../../../sudire.html#direpack.sudire.sudire.estimate_structural_dim">[docs]</a><span class="k">def</span> <span class="nf">estimate_structural_dim</span><span class="p">(</span><span class="n">sufdirmeth</span><span class="p">,</span> <span class="n">Xn</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;&quot;</span>
-<span class="sd">    estimates the dimension of the central subspace using </span>
-<span class="sd">    the sufirmeth. </span>
+<div class="viewcode-block" id="estimate_structural_dim"><a class="viewcode-back" href="../../../sudire.html#direpack.sudire.sudire.estimate_structural_dim">[docs]</a><span class="k">def</span> <span class="nf">estimate_structural_dim</span><span class="p">(</span><span class="n">sudiremeth</span><span class="p">,</span> <span class="n">Xn</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Estimates the dimension of the central subspace using </span>
+<span class="sd">    the sudiremeth.  This approach is based on the bootstrap method of Sheng and Yin (2016)</span>
 <span class="sd">    </span>
-<span class="sd">    input arguments:</span>
-<span class="sd">        sufdirmeth : the SDR method to use in the estimation.</span>
-<span class="sd">        X          : Input X data as a numpy array or dataframe </span>
-<span class="sd">        Y          : Input Y data as vector or 1d matrix</span>
-<span class="sd">        B          : Number of bootstrap replications</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">        sudiermeth : str</span>
+<span class="sd">                    the SDR method to use in the estimation.</span>
+
+<span class="sd">        X :  numpy array or dataframe</span>
+<span class="sd">            Input X data</span>
+
+<span class="sd">        Y : vector or 1d matrix</span>
+<span class="sd">            Input Y data as </span>
+
+<span class="sd">        B : int </span>
+<span class="sd">            Number of bootstrap replications</span>
+
 <span class="sd">        kwargs:</span>
-<span class="sd">            n_slices   : number of slices for SIR/SAVE/DR</span>
+
+<span class="sd">            n_slices: number of slices for SIR/SAVE/DR</span>
+
 <span class="sd">            center_data, bool : if the data  should be centered </span>
+
 <span class="sd">            scale_data, bool :  if the data should be scaled</span>
+
 <span class="sd">            center, string :   which centering(&#39;mean&#39;, &#39;median&#39;)</span>
 <span class="sd">            </span>
-<span class="sd">            </span>
-<span class="sd">        </span>
+<span class="sd">    Returns</span>
+<span class="sd">    ----------     </span>
+
+<span class="sd">    h : int </span>
+<span class="sd">        representing the dimension of the central subspace</span>
+
+<span class="sd">    ----------</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="s1">&#39;n_slices&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
         <span class="n">n_slices</span> <span class="o">=</span> <span class="mi">6</span>

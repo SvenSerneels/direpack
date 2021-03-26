@@ -3,8 +3,8 @@
 """
 #Created on Sun Dec 30 12:02:12 2018
 
-#ppdire - Projection pursuit dimension reduction
-hahahaha
+#ppdire - pursuit dimension reduction part of direpack
+
 #@author: Sven Serneels (Ponalytics)
 """
 
@@ -50,7 +50,7 @@ class ppdire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
     ------------ 
 
         projection_index : function or class. 
-                            dicomo and capi supplied in this package can both be used, but user defined projection indices can be processed 
+                            dicomo and capi supplied in this package can both be used, but user defined projection indices can be processed ball covariance can be used. 
             
         pi_arguments : dict 
                         arguments to be passed on to projection index 
@@ -104,7 +104,9 @@ class ppdire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
         verbose : bool. 
                     Set to True prints the iteration number. 
 
-        return_scaling_object: bool. 
+        return_scaling_object : bool.
+                                If Trure, the rescaling object will be returned.  
+
         
     The grid optimization algorithm for projection pursuit implemented here, 
     was outlined in: 

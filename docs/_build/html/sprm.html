@@ -39,7 +39,7 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Article" href="Article.html" />
+    <link rel="next" title="Pre-processing" href="Pre-processing.html" />
     <link rel="prev" title="sudire" href="sudire.html" /> 
 </head>
 
@@ -88,12 +88,21 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="ppdire.html">ppdire</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sudire.html">sudire</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">sprm</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">sprm</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#robust-m-regression">Robust M regression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sparse-nipals">Sparse NIPALS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sparse-partial-robust-m">Sparse partial robust M</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-direpack.sprm.sprm">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dependencies">Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#references">References</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Pre-processing.html">Pre-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Cross-validation and plotting.html">Cross-validation and plotting</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Other information</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="Article.html">Article</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Contacts.html">Contacts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Contributing.html">Contributing</a></li>
 </ul>
 
             
@@ -163,6 +172,243 @@
             
   <div class="section" id="sprm">
 <span id="id1"></span><h1>sprm<a class="headerlink" href="#sprm" title="Permalink to this headline">¶</a></h1>
+<p>Sparse partial robust M regression (SPRM) is a sparse and robust alternative to PLS that can be calculated efficiently (Hoffmann, Serneels, Filzmoser,and Croux 2015).
+The subpackage is organized slightly differently from the other two mainsubpackages.  Because SPRM combines the virtues of robust regression with sparse dimension reduction,
+besides  the  SPRM  estimators  itself,  each  of  these  building  blocks  are  provided themselves as class objects that can be deployed in sklearn pipelines.
+The class objects rm, snipls and sprm are sourced by default when importing direpack.</p>
+<div class="section" id="robust-m-regression">
+<h2>Robust M regression<a class="headerlink" href="#robust-m-regression" title="Permalink to this headline">¶</a></h2>
+<p>M regression is a generalization of least squares regression in the sense that it minimizes a more general objective that allows to tune the estimator’s robustness.
+In M regression, the vector of regression coefficients is defined as:</p>
+<div class="math" id="equation-optim-rm">
+<p><span class="eqno">(1)<a class="headerlink" href="#equation-optim-rm" title="Permalink to this equation">¶</a></span><img src="_images/math/3a9fd604545ae783161e250e61a8c5a476e6d4a3.png" alt="\begin{equation*}
+ \hat{\boldsymbol{\beta}} = \mathop{\mbox{argmin}}_{\boldsymbol{\beta}}\sum_i \rho\left(\frac{r_i(\boldsymbol{\beta})}{\hat{\sigma}}\right)
+ \end{equation*}"/></p>
+</div><p>where <img class="math" src="_images/math/f711040cfbc3a085ed7b3389b8025d8e7165e747.png" alt="r_i"/> are the casewise regression residuals and <img class="math" src="_images/math/19df139c5740a9e6db4cf6886d647776e1c4e6e3.png" alt="\hat{\sigma}"/> is a robust scale estimator thereof. The <img class="math" src="_images/math/cf4efa6bcb451e94730768ca5cfef1bb50a4233e.png" alt="\rho"/> function defines the properties of the estimator.
+Identity to the least squares estimator is obtained if <img class="math" src="_images/math/c0fcfd417f3db830d03f288f93e289da9cfe6328.png" alt="\rho(r) = r^2"/>, but robustness can be introduced by taking a different function,
+for instance a function that is approximately quadratic for small (absolute) <img class="math" src="_images/math/9edfb5a4d788f27c74851455de37fce2af7f8cba.png" alt="r"/>, but increases more slowly than <img class="math" src="_images/math/cb4adbd46f83c7c49d966b9c539a3031ddd46628.png" alt="r^2"/> for larger values of <img class="math" src="_images/math/9edfb5a4d788f27c74851455de37fce2af7f8cba.png" alt="r"/>.
+Objective <a class="reference internal" href="#equation-optim-rm">(1)</a> can be solved numerically, but it is well known that its solution can equivalently be obtained through an iteratively reweighting least squares (IRLS),
+which is how it is implemented in sprm. In the package, the Fair, Huber or Hampel reweighting functions can be picked, which will lead to different robustness properties.</p>
+</div>
+<div class="section" id="sparse-nipals">
+<h2>Sparse NIPALS<a class="headerlink" href="#sparse-nipals" title="Permalink to this headline">¶</a></h2>
+<p>A second building block in the package is the SNIPLS algorithm. It is a sparse version of the NIPALS algorithm for PLS and as such, essentially a computationally efficient implementation of univariate sparse PLS.
+Again, the SNIPLS components are linear combinations of the original variables through a set of weighting vectors <img class="math" src="_images/math/f3d7da7db17748a18c487791596d7c3dd8984c0f.png" alt="\mathbf{w}_i"/> that maximize:</p>
+<div class="math" id="equation-optim-snipls">
+<p><span class="eqno">(2)<a class="headerlink" href="#equation-optim-snipls" title="Permalink to this equation">¶</a></span><img src="_images/math/362619d8eb52d7f0de7c273e53d94cb1181348d5.png" alt="\begin{equation*}
+ \begin{aligned}
+ &amp;   \mathbf{w}_i &amp;= \argmax_{\mathbf{a}} \mathop{\mbox{cov}^2}\left(\mathbf{a}^T\mathbf{X},\mathbf{y}\right) + \lambda \parallel\mathbf{a}\parallel_1 \\
+ &amp; \text{subject to} &amp; \mathbf{w}_i^T\mathbf{X}^T\mathbf{X}\mathbf{w}_j = 0 \mbox{ and } \parallel \mathbf{w}_i\parallel_2 = 1\\
+ \end{aligned}
+ \end{equation*}"/></p>
+</div><p>which in sparse PLS is typically maximized through a surrogate formulation.  However,  in this  case,  the  exact  solution  to  Criterion  <a class="reference internal" href="#equation-optim-snipls">(2)</a>  can  be  obtained,
+which  is  what  the  SNIPLS algorithm  builds  upon.   For  details  on  the  algorithm,  the  reader  is  referred  to  Hoffmann, Filzmoser, Serneels, and Varmuza (2016).
+At this point, remark that the SNIPLS algorithm has also become a key building block to analyze outlyingness (Debruyne, Höppner, Serneels,and Verdonck 2019).</p>
+</div>
+<div class="section" id="sparse-partial-robust-m">
+<h2>Sparse partial robust M<a class="headerlink" href="#sparse-partial-robust-m" title="Permalink to this headline">¶</a></h2>
+<p>Sparse  partial  robust  M  dimension  reduction  unites  the  benefits  of  SNIPLS  and  robust  M estimation:  it yields an efficient sparse PLS dimension reduction, while at the same time,
+it is robust against both leverage points and virtual outliers through robust M estimation. It is defined similarly as in <a class="reference internal" href="#equation-optim-snipls">(2)</a> but instead maximizing a weighted covariance, with case weights that depend on the data.
+Consistent with robust M estimation, it can be calculated through iteratively reweighting SNIPLS. SPRM improves upon the original reweighted PLS proposal by (i) yielding a sparse estimate, (ii) having a reweighting scheme as well as starting values that weight both in the score and residual spaces and (iii) by allowing different weight functions, the most tuneable one being the Hampel function.</p>
+</div>
+<div class="section" id="module-direpack.sprm.sprm">
+<span id="usage"></span><h2>Usage<a class="headerlink" href="#module-direpack.sprm.sprm" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="direpack.sprm.sprm.sprm">
+<em class="property">class </em><code class="sig-prename descclassname">direpack.sprm.sprm.</code><code class="sig-name descname">sprm</code><span class="sig-paren">(</span><em class="sig-param">n_components=1</em>, <em class="sig-param">eta=0.5</em>, <em class="sig-param">fun='Hampel'</em>, <em class="sig-param">probp1=0.95</em>, <em class="sig-param">probp2=0.975</em>, <em class="sig-param">probp3=0.999</em>, <em class="sig-param">centre='median'</em>, <em class="sig-param">scale='mad'</em>, <em class="sig-param">verbose=True</em>, <em class="sig-param">maxit=100</em>, <em class="sig-param">tol=0.01</em>, <em class="sig-param">start_cutoff_mode='specific'</em>, <em class="sig-param">start_X_init='pcapp'</em>, <em class="sig-param">columns=False</em>, <em class="sig-param">copy=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/direpack/sprm/sprm.html#sprm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#direpack.sprm.sprm.sprm" title="Permalink to this definition">¶</a></dt>
+<dd><p>SPRM Sparse Partial Robust M Regression</p>
+<blockquote>
+<div><p>Algorithm first outlined in:
+Sparse partial robust M regression,
+Irene Hoffmann, Sven Serneels, Peter Filzmoser, Christophe Croux,
+Chemometrics and Intelligent Laboratory Systems, 149 (2015), 50-59.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>eta</strong> (<em>float.</em>) – Sparsity parameter in [0,1)</p></li>
+<li><p><strong>n_components</strong> (<em>int</em>) – min 1. Note that if applied on data, n_components shall take a value &lt;= min(x_data.shape)</p></li>
+<li><p><strong>fun</strong> (<em>str</em>) – downweighting function. ‘Hampel’ (recommended), ‘Fair’ or  ‘Huber’</p></li>
+<li><p><strong>probp1</strong> (<em>float</em>) – probability cutoff for start of downweighting (e.g. 0.95)</p></li>
+<li><p><strong>probp2</strong> (<em>float</em>) – probability cutoff for start of steep downweighting (e.g. 0.975, only relevant if fun=’Hampel’)</p></li>
+<li><p><strong>probp3</strong> (<em>float</em>) – probability cutoff for start of outlier omission (e.g. 0.999, only relevant if fun=’Hampel’)</p></li>
+<li><p><strong>centre</strong> (<em>str</em>) – type of centring (<cite>‘mean’</cite>, <cite>‘median’</cite>, <cite>‘l1median’</cite>, or <cite>‘kstepLTS’</cite>,
+the latter recommended statistically, if too slow, switch to <cite>‘median’</cite>)</p></li>
+<li><p><strong>scale</strong> (<em>str</em>) – type of scaling (‘std’,’mad’, ‘scaleTau2’ [recommended] or ‘None’)</p></li>
+<li><p><strong>verbose</strong> (<em>booleans</em>) – specifying verbose mode</p></li>
+<li><p><strong>maxit</strong> (<em>int</em>) – maximal number of iterations in M algorithm</p></li>
+<li><p><strong>tol</strong> (<em>float</em>) – tolerance for convergence in M algorithm</p></li>
+<li><p><strong>start_cutoff_mode</strong> (<em>str</em><em>,</em>) – <dl class="simple">
+<dt>values:’specific’ will set starting value cutoffs specific to X and y (preferred);</dt><dd><p>any other value will set X and y stating cutoffs identically.
+The latter yields identical results to the SPRM R implementation available from
+CRAN.</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>start_X_init</strong> (<em>str</em><em>,</em>) – <dl class="simple">
+<dt>values:</dt><dd><dl class="simple">
+<dt>’pcapp’ will include a PCA/broken stick projection to</dt><dd><p>calculate the staring weights, else just based on X;</p>
+</dd>
+<dt>any other value will calculate the X starting values based on the X</dt><dd><p>matrix itself. This is less stable for very flat data (p &gt;&gt; n),
+yet yields identical results to the SPRM R implementation
+available from CRAN.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>colums</strong> (<em>(</em><em>def false</em><em>) </em><em>Either boolean</em><em>, </em><em>list</em><em>, </em><em>numpy array</em><em> or </em><em>pandas Index</em>) – <p>if False, no column names supplied
+if True,</p>
+<blockquote>
+<div><dl class="simple">
+<dt>if X data are supplied as a pandas data frame, will extract column</dt><dd><p>names from the frane</p>
+</dd>
+</dl>
+<p>throws an error for other data input types</p>
+</div></blockquote>
+<dl class="simple">
+<dt>if a list, array or Index (will only take length x_data.shape[1]),</dt><dd><p>the column names of the x_data supplied in this list,
+will be printed in verbose mode</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>copy</strong> (<em>(</em><em>def True</em><em>) </em><em>boolean</em><em>, </em><em>whether to copy data</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="direpack.sprm.sprm.sprm.fit">
+<code class="sig-name descname">fit</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">y</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/direpack/sprm/sprm.html#sprm.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#direpack.sprm.sprm.sprm.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit a  SPRM model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>numpy array</em>) – Input data.</p></li>
+<li><p><strong>y</strong> (<em>vector</em><em> or </em><em>1D matrix</em>) – Response data</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="direpack.sprm.sprm.sprm.transform">
+<code class="sig-name descname">transform</code><span class="sig-paren">(</span><em class="sig-param">Xn</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/direpack/sprm/sprm.html#sprm.transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#direpack.sprm.sprm.sprm.transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform input data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>Xn</strong> (<em>numpy array</em><em> or </em><em>data frame</em>) – Input data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="direpack.sprm.sprm.sprm.predict">
+<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param">Xn</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/direpack/sprm/sprm.html#sprm.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#direpack.sprm.sprm.sprm.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict using a  SPRM model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>Xn</strong> (<em>numpy array</em><em> or </em><em>data frame</em>) – Input data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-direpack.sprm.snipls"></span><dl class="class">
+<dt id="direpack.sprm.snipls.snipls">
+<em class="property">class </em><code class="sig-prename descclassname">direpack.sprm.snipls.</code><code class="sig-name descname">snipls</code><span class="sig-paren">(</span><em class="sig-param">eta=0.5</em>, <em class="sig-param">n_components=1</em>, <em class="sig-param">verbose=True</em>, <em class="sig-param">columns=False</em>, <em class="sig-param">centre='mean'</em>, <em class="sig-param">scale='None'</em>, <em class="sig-param">copy=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/direpack/sprm/snipls.html#snipls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#direpack.sprm.snipls.snipls" title="Permalink to this definition">¶</a></dt>
+<dd><p>SNIPLS Sparse Nipals Algorithm</p>
+<dl class="simple">
+<dt>Algorithm first outlined in:</dt><dd><p>Sparse and robust PLS for binary classification,
+I. Hoffmann, P. Filzmoser, S. Serneels, K. Varmuza,
+Journal of Chemometrics, 30 (2016), 153-162.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>eta</strong> (<em>float.</em>) – Sparsity parameter in [0,1)</p></li>
+<li><p><strong>n_components</strong> (<em>int</em><em>,</em>) – min 1. Note that if applied on data, n_components shall take a value &lt;= min(x_data.shape)</p></li>
+<li><p><strong>verbose</strong> (<em>Boolean</em><em> (</em><em>def true</em><em>)</em>) – to print intermediate set of columns retained</p></li>
+<li><p><strong>columns</strong> (<em>Either boolean</em><em>, </em><em>list</em><em>, </em><em>numpy array</em><em> or </em><em>pandas Index</em>) – <p>(def false)
+if False, no column names supplied
+if True,</p>
+<blockquote>
+<div><dl class="simple">
+<dt>if X data are supplied as a pandas data frame, will extract column</dt><dd><p>names from the frane</p>
+</dd>
+</dl>
+<p>throws an error for other data input types</p>
+</div></blockquote>
+<dl class="simple">
+<dt>if a list, array or Index (will only take length x_data.shape[1]),</dt><dd><p>the column names of the x_data supplied in this list,
+will be printed in verbose mode</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>centre</strong> (<em>str</em><em>,</em>) – type of centring (<cite>‘mean’</cite> [recommended], <cite>‘median’</cite> or <cite>‘l1median’</cite>),</p></li>
+<li><p><strong>scale</strong> (<em>str</em><em>,</em>) – type of scaling (‘std’,’mad’ or ‘None’)</p></li>
+<li><p><strong>copy</strong> (<em>(</em><em>def True</em><em>)</em><em>: boolean</em><em>,</em>) – whether to copy data.  Note : copy not yet aligned with sklearn def  - we always copy</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="direpack.sprm.snipls.snipls.fit">
+<code class="sig-name descname">fit</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">y</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/direpack/sprm/snipls.html#snipls.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#direpack.sprm.snipls.snipls.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit a  SNIPLS model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>numpy array</em>) – Input data.</p></li>
+<li><p><strong>y</strong> (<em>vector</em><em> or </em><em>1D matrix</em>) – Response data</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="direpack.sprm.snipls.snipls.transform">
+<code class="sig-name descname">transform</code><span class="sig-paren">(</span><em class="sig-param">Xn</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/direpack/sprm/snipls.html#snipls.transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#direpack.sprm.snipls.snipls.transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform input data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>Xn</strong> (<em>numpy array</em><em> or </em><em>data frame</em>) – Input data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="direpack.sprm.snipls.snipls.predict">
+<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param">Xn</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/direpack/sprm/snipls.html#snipls.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#direpack.sprm.snipls.snipls.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict using a  SNIPLS model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>Xn</strong> (<em>numpy array</em><em> or </em><em>data frame</em>) – Input data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="dependencies">
+<h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><cite>pandas</cite></p></li>
+<li><p><cite>numpy</cite></p></li>
+<li><p><cite>matplotlib.pyplot</cite></p></li>
+<li><p>for plotting cross-validation results: <cite>sklearn.model_selection.GridSearchCV</cite></p></li>
+</ul>
+</div>
+<div class="section" id="references">
+<h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li><p>Irene Hoffmann, Sven Serneels, Peter Filzmoser, Christophe Croux, Sparse partial robust M regression, Chemometrics and Intelligent Laboratory Systems, 149 (2015), 50-59.</p></li>
+<li><p>Sven Serneels, Christophe Croux, Peter Filzmoser, Pierre J. Van Espen, Partial robust M regression,  Chemometrics and Intelligent Laboratory Systems, 79 (2005), 55-64.</p></li>
+<li><p>Hoffmann I., P. Filzmoser, S. Serneels, K. Varmuza, Sparse and robust PLS for binary classification,  Journal of Chemometrics, 30 (2016), 153-162.</p></li>
+<li><p>Filzmoser P, Höppner S, Ortner I, Serneels S, Verdonck T. Cellwise robust M regression.  Computational Statistics and Data Analysis,147 (2020).</p></li>
+</ol>
+</div>
 </div>
 
 
@@ -171,7 +417,7 @@
           </div>
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="Article.html" class="btn btn-neutral float-right" title="Article" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="Pre-processing.html" class="btn btn-neutral float-right" title="Pre-processing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
         <a href="sudire.html" class="btn btn-neutral float-left" title="sudire" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 

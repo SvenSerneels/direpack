@@ -94,11 +94,12 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="sprm.html">sprm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Pre-processing.html">Pre-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Cross-validation and plotting.html">Cross-validation and plotting</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Other information</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="Article.html">Article</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Contacts.html">Contacts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Contributing.html">Contributing</a></li>
 </ul>
 
             
@@ -191,81 +192,80 @@ which share the following advantages: they do not require conditions of linearit
 covariance, nor do they need distributional assumptions, yet they may be computationally
 more demanding. This third group of SDR algorithms estimates a basis of the central subspace as:</p>
 <div class="math">
-<p><img src="_images/math/beda22a6d4eee5d82a28899759773634d4daaea2.png" alt="\begin{equation*}
+<p><img src="_images/math/21c2a18986467997d897beb56fececc16af8f742.png" alt="\begin{equation*}
  \begin{aligned}
- &amp; \underset{\mathbf{B}}{\text{maximise}} &amp; &amp; \mathfrak{P}^2\left(\mathbf{X}\mathbf{B},\mathbf{Y}\right)  \\
+ &amp; \mathbf{W}_h = \argmax_{\mathbf{B}} &amp; &amp; \mathfrak{P}^2\left(\mathbf{X}\mathbf{B},\mathbf{Y}\right)  \\
  &amp; \text{subject to} &amp; &amp; \mathbf{B}^T\mathbf{X}^T\mathbf{X}\mathbf{B} = \mathbf{I}_h,\\
  \end{aligned}
  \end{equation*}"/></p>
 </div><p>where <img class="math" src="_images/math/5f641c2a24b3a816cd2d2528ea8231f2eb41e128.png" alt="\mathbf{B}"/> is an arbitrary <img class="math" src="_images/math/d6343f6088957398c262916c29f3d3586004b4b6.png" alt="p \times h"/> matrix, <img class="math" src="_images/math/4580aa8c9a9591da82091f453e0f2a5d36009cb8.png" alt="h \in [1,\min(n,p)]"/>. Here, <img class="math" src="_images/math/60e10a0129155204df4efed41c9bbc8d99d955f0.png" alt="\mathfrak{P}"/> can be any statistic, that estimate a subspace whose complement
-is independent of <img class="math" src="_images/math/54682016191965e049a6cc08e955f5ca78bca29b.png" alt="\mathbf{Y}"/>. Currently implemented <img class="math" src="_images/math/60e10a0129155204df4efed41c9bbc8d99d955f0.png" alt="\mathfrak{P}"/> statistics are  squared distance covariance, squared martingale difference divergence, and squared ball covariance.</p>
+is independent of <img class="math" src="_images/math/54682016191965e049a6cc08e955f5ca78bca29b.png" alt="\mathbf{Y}"/>. Currently implemented <img class="math" src="_images/math/60e10a0129155204df4efed41c9bbc8d99d955f0.png" alt="\mathfrak{P}"/> statistics are :</p>
+<ul class="simple">
+<li><p>distance  covariance  (Székely,  Rizzo,  and  Bakirov  2007),  leading  to  option dcov-sdr (Sheng and Yin 2016);</p></li>
+<li><p>martingale  difference  divergence  (Shao  and  Zhang  2014),  leading  to  option mdd-sdr (Zhang, Liu, Wu, and Fang 2019);</p></li>
+<li><p>ball covariance (Pan, Wang, Xiao, and Zhu 2019), leading to option bcov-sdr (Zhang and Chen 2019)</p></li>
+</ul>
 <div class="section" id="module-direpack.sudire.sudire">
 <span id="usage"></span><h2>Usage<a class="headerlink" href="#module-direpack.sudire.sudire" title="Permalink to this headline">¶</a></h2>
-<p>Created on Sat Apr 11 15:53:12 2020</p>
-<p>&#64;author: Emmanuel Jordy Menvouta</p>
 <dl class="class">
 <dt id="direpack.sudire.sudire.sudire">
-<em class="property">class </em><code class="sig-prename descclassname">direpack.sudire.sudire.</code><code class="sig-name descname">sudire</code><span class="sig-paren">(</span><em class="sig-param">sudiremeth='bcov-sdr'</em>, <em class="sig-param">n_components=2</em>, <em class="sig-param">trimming=0</em>, <em class="sig-param">optimizer_options={'max_iter': 1000}</em>, <em class="sig-param">optimizer_constraints=None</em>, <em class="sig-param">optimizer_arguments=None</em>, <em class="sig-param">optimizer_start=None</em>, <em class="sig-param">center_data=True</em>, <em class="sig-param">center='mean'</em>, <em class="sig-param">scale_data=True</em>, <em class="sig-param">whiten_data=False</em>, <em class="sig-param">compression=False</em>, <em class="sig-param">n_slices=6</em>, <em class="sig-param">dmetric='euclidean'</em>, <em class="sig-param">fit_ols=True</em>, <em class="sig-param">copy=True</em>, <em class="sig-param">verbose=True</em>, <em class="sig-param">return_scaling_object=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/direpack/sudire/sudire.html#sudire"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#direpack.sudire.sudire.sudire" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">direpack.sudire.sudire.</code><code class="sig-name descname">sudire</code><span class="sig-paren">(</span><em class="sig-param">sudiremeth='dcov-sdr'</em>, <em class="sig-param">n_components=2</em>, <em class="sig-param">trimming=0</em>, <em class="sig-param">optimizer_options={'max_iter': 1000}</em>, <em class="sig-param">optimizer_constraints=None</em>, <em class="sig-param">optimizer_arguments=None</em>, <em class="sig-param">optimizer_start=None</em>, <em class="sig-param">center_data=True</em>, <em class="sig-param">center='mean'</em>, <em class="sig-param">scale_data=True</em>, <em class="sig-param">whiten_data=False</em>, <em class="sig-param">compression=False</em>, <em class="sig-param">n_slices=6</em>, <em class="sig-param">dmetric='euclidean'</em>, <em class="sig-param">fit_ols=True</em>, <em class="sig-param">copy=True</em>, <em class="sig-param">verbose=True</em>, <em class="sig-param">return_scaling_object=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/direpack/sudire/sudire.html#sudire"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#direpack.sudire.sudire.sudire" title="Permalink to this definition">¶</a></dt>
 <dd><p>SUDIRE Sufficient Dimension Reduction</p>
-<p>The class allows for Sufficient Dimension Reduction using a vaiety of
+<p>The class allows for Sufficient Dimension Reduction using a variety of
 methods. If the method requires optimization of a function,
 This optimization is done through the Interior Point Optimizer (IPOPT)
 algorithm.</p>
-<dl>
-<dt>Input parameters to class:</dt><dd><dl class="simple">
-<dt>sudiremeth: function or class. sudiremeth in this</dt><dd><p>package can also be used, but user defined functions  can
-be processed. Built in options are :
-save : Sliced Average Variance Estimation
-sir  : Slices Inverse Regression
-dr   : Directional Regression
-dcov-sdr : SDR via Distance Covariance
-mdd-sdr : SDR via Martingale Difference Divergence.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sudiremeth</strong> (<em>function</em><em> or </em><em>class. sudiremeth in this package can also be used</em><em>, </em><em>but user defined functions  can be processed. Built in options are :</em>) – <p>save : Sliced Average Variance Estimation</p>
+<p>sir  : Slices Inverse Regression</p>
+<p>dr   : Directional Regression</p>
+<p>iht  : Iterative Hessian Transformations</p>
+<p>dcov-sdr : SDR via Distance Covariance</p>
+<p>mdd-sdr : SDR via Martingale Difference Divergence.</p>
+<p>bcov-sdr : SDR via ball covariance</p>
+</p></li>
+<li><p><strong>n_components</strong> (<em>int</em>) – dimension of the central subspace.</p></li>
+<li><p><strong>trimming</strong> (<em>float</em>) – trimming percentage to be entered as pct/100</p></li>
+<li><p><strong>optimizer_options</strong> (<em>dict</em>) – with options to pass on to the optimizer.Includes:</p></li>
+<li><p><strong>max_iter</strong> (<em>int</em>) – Maximal number of iterations.</p></li>
+<li><p><strong>tol</strong> (<em>float</em>) – relative convergence tolerance</p></li>
+<li><p><strong>constr_viol_tol</strong> (<em>float</em>) – Desired threshold for the constraint violation.</p></li>
+<li><p><strong>optimizer_constraints</strong> (<em>dict</em><em> or </em><em>list of dicts</em>) – further constraints to be passed on to the optimizer function.</p></li>
+<li><p><strong>optimizer_arguments</strong> (<em>dict</em>) – extra arguments to be passed to the sudiremeth function during optimization.</p></li>
+<li><p><strong>optimizer_start</strong> (<em>numpy array</em>) – starting value for the optimization.</p></li>
+<li><p><strong>center</strong> (<em>str</em>) – how to center the data. options accepted are options from sprm.preprocessing</p></li>
+<li><p><strong>center_data</strong> (<em>bool</em>) – If True, the data will be centered before the dimension reduction</p></li>
+<li><p><strong>scale_data</strong> (<em>bool</em>) – if set to False, convergence to correct optimum  is not a given. Will throw a warning.</p></li>
+<li><p><strong>compression</strong> (<em>bool</em>) – Use internal data compresion step for flat data.</p></li>
+<li><p><strong>n_slices</strong> (<em>int</em>) – The number of slices for SAVE, SIR, DR</p></li>
+<li><p><strong>is_distance_mat</strong> (<em>bool</em>) – if the inputed matrices for x and y are distance matrices.</p></li>
+<li><p><strong>dmetric</strong> (<em>str</em>) – distance metric used internally. Defaults to ‘euclidean’</p></li>
+<li><p><strong>fit_ols</strong> (<em>bool</em>) – if True, an OLS model is fitted after the dimension reduction.</p></li>
+<li><p><strong>copy</strong> (<em>bool</em>) – Whether to make a deep copy of the input data or not.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – Set to True prints the iteration number.</p></li>
+<li><p><strong>return_scaling_object</strong> (<em>bool.</em>) – If True, the scaling object will be return after the dimension reduction.</p></li>
+</ul>
 </dd>
 </dl>
-<p>n_components: int, dimension of the central subspace.</p>
-<p>trimming: float, trimming percentage to be entered as pct/100</p>
-<dl class="simple">
-<dt>optimizer_options: dict with options to pass on to the optimizer.Includes:</dt><dd><p>max_iter: int. Maximal number of iterations.
-tol: int. relative convergence tolerance
-constr_viol_tol : Desired threshold for the constraint violation.</p>
-</dd>
-<dt>optimizer_constraints: dict or list of dicts, further constraints to be</dt><dd><p>passed on to the optimizer function.</p>
-</dd>
-</dl>
-<p>optimizer_arguments: dict, extra arguments to be passed to the sudiremeth
-function furing optimization.</p>
-<p>optimizer_start : numpy array, starting value for the optimization.</p>
-<dl class="simple">
-<dt>center: str, how to center the data. options accepted are options from</dt><dd><p>sprm.preprocessing</p>
-</dd>
-</dl>
-<p>center_data: bool</p>
-<dl class="simple">
-<dt>scale_data: bool. Note: if set to False, convergence to correct optimum</dt><dd><p>is not a given. Will throw a warning.</p>
-</dd>
-</dl>
-<p>compression: bool. Use internal data compresion step for flat data.</p>
-<p>n_slices, int: The number of slices for SAVE, SIR, DR</p>
-<p>is_distance_mat, bool : if the inputed matrices for x and y are distance matrices.</p>
-<p>dmetric, str: distance metric used internally. Defaults to ‘euclidean’</p>
-<p>fit_ols, bool : if True, an OLS model is fitted after the dimension reduction.</p>
-<p>copy: bool. Whether to make a deep copy of the input data or not.</p>
-<p>verbose: bool. Set to True prints the iteration number.</p>
-<p>return_scaling_object: bool.</p>
-</dd>
-</dl>
-<p>The ‘fit’ function will take a set of optional input arguments.</p>
 <dl class="method">
 <dt id="direpack.sudire.sudire.sudire.fit">
 <code class="sig-name descname">fit</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">y</em>, <em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/direpack/sudire/sudire.html#sudire.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#direpack.sudire.sudire.sudire.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit a Sufficient Dimension Reduction Model.</p>
-<dl>
-<dt>Required input argument :</dt><dd><blockquote>
-<div><p>X: data as matrix or data frame
-y: data as vector or 1D matrix</p>
-</div></blockquote>
-<p>arg or kwarg:</p>
-<p>Further parameters to user defined sufdiremeth can be passed here</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>matrix</em><em> or </em><em>data frame</em>) – Input data of predictors</p></li>
+<li><p><strong>y</strong> (<em>vector</em><em> or </em><em>1D matrix</em>) – Response data</p></li>
+<li><p><strong>or kwargs</strong> (<em>args</em>) – Further parameters to user defined sudiremeth can be passed here</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>self</p>
 </dd>
 </dl>
 </dd></dl>
@@ -291,35 +291,72 @@ contained subobjects that are estimators.</p>
 <dl class="method">
 <dt id="direpack.sudire.sudire.sudire.transform">
 <code class="sig-name descname">transform</code><span class="sig-paren">(</span><em class="sig-param">Xn</em>, <em class="sig-param">distance_mat=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/direpack/sudire/sudire.html#sudire.transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#direpack.sudire.sudire.sudire.transform" title="Permalink to this definition">¶</a></dt>
-<dd><p>computes the dimension reduction of the data Xn based on the fitted sudire model.</p>
+<dd><p>Computes the dimension reduction of the data Xn based on the fitted sudire model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Xn</strong> (<em>matrix</em><em> or </em><em>data frame</em>) – Input data to be transformed</p></li>
+<li><p><strong>distance_mat</strong> (<em>numpy array</em>) – distance matrix to represent similarity between observations.</p></li>
+<li><p><strong>or kwargs</strong> (<em>args</em>) – Further parameters to user defined sufdiremeth can be passed here</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>transformed_data</strong> –                     the dimension reduced data</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy array</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="direpack.sudire.sudire.sudire.predict">
 <code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param">Xn</em>, <em class="sig-param">is_distance_mat=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/direpack/sudire/sudire.html#sudire.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#direpack.sudire.sudire.sudire.predict" title="Permalink to this definition">¶</a></dt>
 <dd><p>predicts the response  on new data Xn</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Xn</strong> (<em>matrix</em><em> or </em><em>data frame</em>) – Input data to be transformed</p></li>
+<li><p><strong>is_distance_mat</strong> (<em>bool</em>) – if True, Xn is treated as a distance matrix</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>predictions</strong> (<em>numpy array</em>) – The predictions from the dimension reduction model</p></li>
+<li><p><em>——-</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="function">
 <dt id="direpack.sudire.sudire.estimate_structural_dim">
-<code class="sig-prename descclassname">direpack.sudire.sudire.</code><code class="sig-name descname">estimate_structural_dim</code><span class="sig-paren">(</span><em class="sig-param">sufdirmeth</em>, <em class="sig-param">Xn</em>, <em class="sig-param">y</em>, <em class="sig-param">B</em>, <em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/direpack/sudire/sudire.html#estimate_structural_dim"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#direpack.sudire.sudire.estimate_structural_dim" title="Permalink to this definition">¶</a></dt>
-<dd><p>”
-estimates the dimension of the central subspace using
-the sufirmeth.</p>
-<dl>
-<dt>input arguments:</dt><dd><p>sufdirmeth : the SDR method to use in the estimation.
-X          : Input X data as a numpy array or dataframe
-Y          : Input Y data as vector or 1d matrix
-B          : Number of bootstrap replications
-kwargs:</p>
-<blockquote>
-<div><p>n_slices   : number of slices for SIR/SAVE/DR
-center_data, bool : if the data  should be centered
-scale_data, bool :  if the data should be scaled
-center, string :   which centering(‘mean’, ‘median’)</p>
-</div></blockquote>
+<code class="sig-prename descclassname">direpack.sudire.sudire.</code><code class="sig-name descname">estimate_structural_dim</code><span class="sig-paren">(</span><em class="sig-param">sudiremeth</em>, <em class="sig-param">Xn</em>, <em class="sig-param">y</em>, <em class="sig-param">B</em>, <em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/direpack/sudire/sudire.html#estimate_structural_dim"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#direpack.sudire.sudire.estimate_structural_dim" title="Permalink to this definition">¶</a></dt>
+<dd><p>Estimates the dimension of the central subspace using
+the sudiremeth.  This approach is based on the bootstrap method of Sheng and Yin (2016)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sudiermeth</strong> (<em>str</em>) – the SDR method to use in the estimation.</p></li>
+<li><p><strong>X</strong> (<em>numpy array</em><em> or </em><em>dataframe</em>) – Input X data</p></li>
+<li><p><strong>Y</strong> (<em>vector</em><em> or </em><em>1d matrix</em>) – Input Y data as</p></li>
+<li><p><strong>B</strong> (<em>int</em>) – Number of bootstrap replications</p></li>
+<li><p><strong>kwargs</strong> – <p>n_slices: number of slices for SIR/SAVE/DR</p>
+<p>center_data, bool : if the data  should be centered</p>
+<p>scale_data, bool :  if the data should be scaled</p>
+<p>center, string :   which centering(‘mean’, ‘median’)</p>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>h</strong> (<em>int</em>) – representing the dimension of the central subspace</p></li>
+<li><p><em>———-</em></p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
@@ -343,15 +380,24 @@ center, string :   which centering(‘mean’, ‘median’)</p>
 <div class="section" id="references">
 <h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
 <ol class="arabic simple">
-<li><p>Sufficient Dimension Reduction via Distance Covariance, Wenhui Sheng and Xiangrong Yin in: Journal of Computational and Graphical Statistics (2016),  25, issue 1, pages 91-104.</p></li>
-<li><p>A martingale-difference-divergence-based estimation of central mean subspace, Yu Zhang, Jicai Liu, Yuesong Wu and Xiangzhong Fang, in: Statistics and Its Interface (2019),  12, number 3, pages 489-501.</p></li>
-<li><p>Sliced Inverse Regression for Dimension Reduction, Li K-C,  Journal of the American Statistical Association (1991), 86, 316-327.</p></li>
-<li><p>Sliced Inverse Regression for Dimension Reduction: Comment,  R.D. Cook, and Sanford Weisberg, Journal of the American Statistical Association (1991), 86, 328-332.</p></li>
-<li><p>On directional regression for dimension reduction,  B. Li and S.Wang, Journal of the American Statistical Association (2007), 102:997–1008.</p></li>
-<li><p>On principal hessian directions for data visualization and dimension reduction:Another application of stein’s lemma, K.-C. Li. , Journal of the American Statistical Association(1992)., 87,1025–1039.</p></li>
-<li><p>Dimension Reduction for Conditional Mean in Regression, R. D. Cook and B. Li.,  The Annals of Statistics(2002)30(2):455–474.</p></li>
-<li><p>Robust Sufficient Dimension Reduction Via Ball Covariance Jia Zhang and Xin Chen, Computational Statistics and Data Analysis 140 (2019) 144–154</p></li>
-<li><p>Sufficient  Dimension  Reduction:  Methods  and  Applications  with  R, Li B (2018).  Chapman&amp; Hall /CRC, Monographs on Statistics and Applied Probability, New York</p></li>
+<li><p>Wenhui Sheng and Xiangrong Yin Sufficient Dimension Reduction via Distance Covariance, in: Journal of Computational and Graphical Statistics (2016),  25, issue 1, pages 91-104.</p></li>
+<li><p>Yu Zhang, Jicai Liu, Yuesong Wu and Xiangzhong Fang, A martingale-difference-divergence-based estimation of central mean subspace,  in: Statistics and Its Interface (2019),  12, number 3, pages 489-501.</p></li>
+<li><p>Li K-C,  Sliced Inverse Regression for Dimension Reduction,  Journal of the American Statistical Association (1991), 86, 316-327.</p></li>
+<li><p>R.D. Cook, and Sanford Weisberg, Sliced Inverse Regression for Dimension Reduction: Comment,   Journal of the American Statistical Association (1991), 86, 328-332.</p></li>
+<li><ol class="upperalpha simple" start="2">
+<li><p>Li and S.Wang, On directional regression for dimension reduction,  Journal of the American Statistical Association (2007), 102:997–1008.</p></li>
+</ol>
+</li>
+<li><p>K.-C. Li., On principal hessian directions for data visualization and dimension reduction:Another application of stein’s lemma, Journal of the American Statistical Association(1992)., 87,1025–1039.</p></li>
+<li><ol class="upperalpha simple" start="18">
+<li><ol class="upperalpha simple" start="4">
+<li><p>Cook and B. Li., Dimension Reduction for Conditional Mean in Regression,  The Annals of Statistics(2002)30(2):455–474.</p></li>
+</ol>
+</li>
+</ol>
+</li>
+<li><p>Jia Zhang and Xin Chen, Robust Sufficient Dimension Reduction Via Ball Covariance  Computational Statistics and Data Analysis 140 (2019) 144–154</p></li>
+<li><p>Li B, Sufficient  Dimension  Reduction:  Methods  and  Applications  with  R. (2018)  Chapman&amp; Hall /CRC, Monographs on Statistics and Applied Probability, New York</p></li>
 </ol>
 </div>
 </div>

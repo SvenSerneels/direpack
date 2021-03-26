@@ -44,6 +44,8 @@ class sudire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
             dcov-sdr : SDR via Distance Covariance 
             
             mdd-sdr : SDR via Martingale Difference Divergence.
+
+            bcov-sdr : SDR via ball covariance
             
         n_components : int 
                       dimension of the central subspace.

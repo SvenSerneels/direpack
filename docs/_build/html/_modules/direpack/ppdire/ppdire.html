@@ -87,11 +87,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../ppdire.html">ppdire</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../sudire.html">sudire</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../sprm.html">sprm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Pre-processing.html">Pre-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Cross-validation and plotting.html">Cross-validation and plotting</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Other information</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../Article.html">Article</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../Contacts.html">Contacts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Contributing.html">Contributing</a></li>
 </ul>
 
             
@@ -160,13 +161,13 @@
   <h1>Source code for direpack.ppdire.ppdire</h1><div class="highlight"><pre>
 <span></span><span class="ch">#!/usr/bin/env python3</span>
 <span class="c1"># -*- coding: utf-8 -*-</span>
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Created on Sun Dec 30 12:02:12 2018</span>
 
-<span class="sd">ppdire - Projection pursuit dimension reduction</span>
+<span class="c1">#: Created on Sun Dec 30 12:02:12 2018</span>
 
-<span class="sd">@author: Sven Serneels (Ponalytics)</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="c1">#: ppdire - pursuit dimension reduction part of direpack</span>
+
+<span class="c1">#: @author: Sven Serneels (Ponalytics)</span>
+
 
 
 <span class="c1">#from .dicomo import dicomo</span>
@@ -206,37 +207,67 @@
 <span class="sd">    order statistics of any kind, such as ranks, trimming, winsorizing, or </span>
 <span class="sd">    empirical quantiles.  </span>
 <span class="sd">        </span>
-<span class="sd">    Input parameters to class: </span>
-<span class="sd">        projection_index: function or class. dicomo and capi supplied in this</span>
-<span class="sd">            package can both be used, but user defined projection indices can </span>
-<span class="sd">            be processed </span>
-<span class="sd">        pi_arguments: dict of arguments to be passed on to projection index </span>
-<span class="sd">        n_components: int </span>
-<span class="sd">        trimming: float, trimming percentage to be entered as pct/100 </span>
-<span class="sd">        alpha: float. Continuum coefficient. Only relevant if ppdire is used to </span>
-<span class="sd">            estimate (classical or robust) continuum regression </span>
-<span class="sd">        optimizer: str. Presently: either &#39;grid&#39; (native optimizer) or </span>
-<span class="sd">            any of the options in scipy-optimize (e.g. &#39;SLSQP&#39;)</span>
-<span class="sd">        optimizer_options: dict with options to pass on to the optimizer. </span>
-<span class="sd">            If optimizer == &#39;grid&#39;,</span>
-<span class="sd">            ndir: int: Number of directions to calculate per iteration.</span>
-<span class="sd">            maxiter: int. Maximal number of iterations.</span>
-<span class="sd">        optimizer_constraints: dict or list of dicts, further constraints to be</span>
-<span class="sd">            passed on to the optimizer function.</span>
-<span class="sd">        regopt: str. regression option for regression step y~T. Can be set</span>
-<span class="sd">                to &#39;OLS&#39; (default), &#39;robust&#39; (will run sprm.rm) or &#39;quantile&#39; </span>
-<span class="sd">                (statsmodels.regression.quantreg). </span>
-<span class="sd">        center: str, how to center the data. options accepted are options from</span>
-<span class="sd">            sprm.preprocessing </span>
-<span class="sd">        center_data: bool </span>
-<span class="sd">        scale_data: bool. Note: if set to False, convergence to correct optimum </span>
-<span class="sd">            is not a given. Will throw a warning. </span>
-<span class="sd">        whiten_data: bool. Typically used for ICA (kurtosis as PI)</span>
-<span class="sd">        square_pi: bool. Whether to square the projection index upon evaluation.</span>
-<span class="sd">        compression: bool. Use internal data compresion step for flat data. </span>
-<span class="sd">        copy: bool. Whether to make a deep copy of the input data or not. </span>
-<span class="sd">        verbose: bool. Set to True prints the iteration number. </span>
-<span class="sd">        return_scaling_object: bool. </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ------------ </span>
+
+<span class="sd">        projection_index : function or class. </span>
+<span class="sd">                            dicomo and capi supplied in this package can both be used, but user defined projection indices can be processed ball covariance can be used. </span>
+<span class="sd">            </span>
+<span class="sd">        pi_arguments : dict </span>
+<span class="sd">                        arguments to be passed on to projection index </span>
+
+<span class="sd">        n_components : int </span>
+<span class="sd">                        number of components to estimate</span>
+
+<span class="sd">        trimming : float</span>
+<span class="sd">                     trimming percentage to be entered as pct/100 </span>
+
+<span class="sd">        alpha : float.</span>
+<span class="sd">                 Continuum coefficient. Only relevant if ppdire is used to estimate (classical or robust) continuum regression </span>
+
+<span class="sd">        optimizer : str.</span>
+<span class="sd">                    Presently: either &#39;grid&#39; (native optimizer) or any of the options in scipy-optimize (e.g. &#39;SLSQP&#39;)</span>
+
+<span class="sd">        optimizer_options : dict </span>
+<span class="sd">                            with options to pass on to the optimizer </span>
+<span class="sd">                            If optimizer == &#39;grid&#39;,</span>
+<span class="sd">                            ndir: int: Number of directions to calculate per iteration.</span>
+<span class="sd">                            maxiter: int. Maximal number of iterations.</span>
+
+<span class="sd">        optimizer_constraints : dict or list of dicts, </span>
+<span class="sd">                                further constraints to be passed on to the optimizer function.</span>
+
+<span class="sd">        regopt : str. </span>
+<span class="sd">                regression option for regression step y~T. Can be set</span>
+<span class="sd">                        to &#39;OLS&#39; (default), &#39;robust&#39; (will run sprm.rm) or &#39;quantile&#39; </span>
+<span class="sd">                        (statsmodels.regression.quantreg). </span>
+
+<span class="sd">        center : str, </span>
+<span class="sd">                how to center the data. options accepted are options from sprm.preprocessing </span>
+
+<span class="sd">        center_data : bool </span>
+
+<span class="sd">        scale_data : bool. </span>
+<span class="sd">                    Note: if set to False, convergence to correct optimum  is not a given. Will throw a warning. </span>
+
+<span class="sd">        whiten_data : bool. </span>
+<span class="sd">                    Typically used for ICA (kurtosis as PI)</span>
+
+<span class="sd">        square_pi : bool. </span>
+<span class="sd">                    Whether to square the projection index upon evaluation.</span>
+
+<span class="sd">        compression : bool. </span>
+<span class="sd">                        Use internal data compresion step for flat data. </span>
+
+<span class="sd">        copy : bool. </span>
+<span class="sd">                Whether to make a deep copy of the input data or not. </span>
+
+<span class="sd">        verbose : bool. </span>
+<span class="sd">                    Set to True prints the iteration number. </span>
+
+<span class="sd">        return_scaling_object : bool.</span>
+<span class="sd">                                If Trure, the rescaling object will be returned.  </span>
+
 <span class="sd">        </span>
 <span class="sd">    The grid optimization algorithm for projection pursuit implemented here, </span>
 <span class="sd">    was outlined in: </span>
@@ -306,24 +337,32 @@
 <span class="sd">        </span>
 <span class="sd">        Required input argument: X data as matrix or data frame </span>
 <span class="sd">        </span>
-<span class="sd">        Optinal input arguments: </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ------------ </span>
 <span class="sd">            </span>
-<span class="sd">            arg or kwarg:</span>
-<span class="sd">            y data as vector or 1D matrix</span>
+<span class="sd">            X : numpy array </span>
+<span class="sd">                Input data.</span>
+
+<span class="sd">            arg or kwarg :</span>
+<span class="sd">                    y :  data as vector or 1D matrix</span>
 <span class="sd">            </span>
 <span class="sd">            kwargs: </span>
-<span class="sd">            h, int: option to overrule class&#39;s n_components parameter in fit. </span>
+
+<span class="sd">            h :  int</span>
+<span class="sd">                 option to overrule class&#39;s n_components parameter in fit. </span>
 <span class="sd">                Convenient command line, yet should not be used in automated </span>
 <span class="sd">                loops, e.g. cross-validation.</span>
 <span class="sd">                </span>
-<span class="sd">            dmetric, str: distance metric used internally. Defaults to &#39;euclidean&#39;</span>
+<span class="sd">            dmetric :  str</span>
+<span class="sd">                     distance metric used internally. Defaults to &#39;euclidean&#39;</span>
 <span class="sd">            </span>
-<span class="sd">            mixing, bool: to estimate mixing matrix (only relevant for ICA)</span>
+<span class="sd">            mixing :  bool</span>
+<span class="sd">                     to estimate mixing matrix (only relevant for ICA)</span>
 <span class="sd">            </span>
 <span class="sd">            Further parameters to the regression methods can be passed on </span>
 <span class="sd">            here as well as kwargs, e.g. quantile=0.8 for quantile regression. </span>
 <span class="sd">            </span>
-<span class="sd">            kwargs only relevant if y specified: </span>
+<span class="sd">            kwargs only relevant if y specified.</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -476,6 +515,10 @@
             <span class="k">del</span> <span class="n">V</span><span class="p">,</span><span class="n">S</span>
             <span class="n">Xs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">K</span><span class="p">)</span>
             <span class="n">Xs</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        
+        <span class="c1"># Presently, X and y need to be matrices </span>
+        <span class="c1"># Will be changed to use regular np.ndarray</span>
+        <span class="n">Xs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="n">Xs</span><span class="p">)</span>
 
         <span class="c1"># Pre-process y data when available </span>
         <span class="k">if</span> <span class="n">flag</span> <span class="o">!=</span> <span class="s1">&#39;one-block&#39;</span><span class="p">:</span>
@@ -499,7 +542,7 @@
                 <span class="n">ys</span> <span class="o">=</span> <span class="n">y</span>
                 <span class="n">my</span> <span class="o">=</span> <span class="mi">0</span>
                 <span class="n">sy</span> <span class="o">=</span> <span class="mi">1</span>
-            <span class="n">ys</span> <span class="o">=</span> <span class="n">ys</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">)</span>
+            <span class="n">ys</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="n">ys</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">)</span>
         
         <span class="k">else</span><span class="p">:</span>
             <span class="n">ys</span> <span class="o">=</span> <span class="kc">None</span>
@@ -839,6 +882,22 @@
 
 
 <div class="viewcode-block" id="ppdire.predict"><a class="viewcode-back" href="../../../ppdire.html#direpack.ppdire.ppdire.ppdire.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">Xn</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        predicts the response  on new data Xn</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">                Xn : matrix or data frame</span>
+<span class="sd">                     Input data to be transformed </span>
+<span class="sd">                </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        predictions : numpy array </span>
+<span class="sd">                      The predictions from the dimension reduction model</span>
+<span class="sd">        -------</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">Xn</span> <span class="o">=</span> <span class="n">convert_X_input</span><span class="p">(</span><span class="n">Xn</span><span class="p">)</span>
         <span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">p</span><span class="p">)</span> <span class="o">=</span> <span class="n">Xn</span><span class="o">.</span><span class="n">shape</span>
         <span class="p">(</span><span class="n">q</span><span class="p">,</span><span class="n">h</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coef_</span><span class="o">.</span><span class="n">shape</span>
@@ -847,6 +906,23 @@
         <span class="k">return</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">Xn</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">coef_</span><span class="p">[:,</span><span class="n">h</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">intercept_</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span></div>
         
 <div class="viewcode-block" id="ppdire.transform"><a class="viewcode-back" href="../../../ppdire.html#direpack.ppdire.ppdire.ppdire.transform">[docs]</a>    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">Xn</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the dimension reduction of the data Xn based on the fitted sudire model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">                Xn : matrix or data frame</span>
+<span class="sd">                     Input data to be transformed </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        transformed_data : numpy array</span>
+<span class="sd">                             the dimension reduced data </span>
+
+<span class="sd">         -------</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">Xn</span> <span class="o">=</span> <span class="n">convert_X_input</span><span class="p">(</span><span class="n">Xn</span><span class="p">)</span>
         <span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">p</span><span class="p">)</span> <span class="o">=</span> <span class="n">Xn</span><span class="o">.</span><span class="n">shape</span>
         <span class="k">if</span> <span class="n">p</span><span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coef_</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>

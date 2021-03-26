@@ -18,7 +18,8 @@ The package is distributed through PyPI, so use::
 
 Examples
 ===============
-Example notebooks have been produced to showcase the three subpackages in direpack. These notebooks are available for `ppdire <https://github.com/SvenSerneels/direpack/blob/master/examples/ppdire_example.ipynb>`_,  `sprm <https://github.com/SvenSerneels/direpack/blob/master/examples/sprm_example.ipynb>`_ and `sudire <https://github.com/SvenSerneels/direpack/blob/master/examples/sudire_example.ipynb>`_ .
+Example notebooks have been produced to showcase the use `ppdire <https://github.com/SvenSerneels/direpack/blob/master/examples/ppdire_example.ipynb>`_,  `sprm <https://github.com/SvenSerneels/direpack/blob/master/examples/sprm_example.ipynb>`_ and `sudire <https://github.com/SvenSerneels/direpack/blob/master/examples/sudire_example.ipynb>`_  for statistical dimension reduction. 
+
 
 
 
@@ -31,13 +32,16 @@ Contents
    ppdire
    sudire
    sprm
+   Pre-processing
+   Cross-validation and plotting
+
 
 .. toctree::
    :maxdepth: 1
    :caption: Other information 
+
+   Contributing
    
-   Article
-   Contacts
 
 
 

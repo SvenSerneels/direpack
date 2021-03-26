@@ -7,7 +7,7 @@ ppdire
 Beyond discussion, the class of dimension reduction with the longest standing history accessible through direpack, is projection pursuit (PP) dimension reduction.
 Let $\mathbf{X}$ be a data matrix that is a sample of $n$ cases of a $p$ variate random variable and $\mathbf{y}$ be a sample of a corresponding depending variable, when applicable. 
 The set of projection pursuit scores $\mathbf{t}_i$ that span the columns of $\mathbf{T}$ are defined as linear combinations of the original variables: $\mathbf{T} = \mathbf{X}\mathbf{W}$, where the $\mathbf{w}_i$ are
-the solution to the optimisation problem: 
+the solution to the optimization problem: 
 
 .. math::
    :label: optim_ppdire
@@ -37,7 +37,7 @@ However, a set of popular projection indices deriving from (co-)moments, are pro
      * Co-moment statistics: covariance (PLS), higher order co-moments 
      * Standardized moments: skewness (ICA), kurtosis (ICA)
      * Standardized co-moments: correlation coefficient (CCA), co-skewness, co-kurtosis
-     * Linear combinations of (standardized co-) moments. Here, the \texttt{capi.py} file in the ppdire subpackage delivers to co-moment analysis projection index (Serneels2019). 
+     * Linear combinations of (standardized co-) moments. Here, the capi.py file in the ppdire subpackage delivers to co-moment analysis projection index (Serneels2019). 
      * Products of (co-)moments. Particularly the continuum association measure has been provided, which is given by $\mathop{\mbox{cont}}(\mathbf{X},\mathbf{y}) = \mathop{\mbox{cov}}(\mathbf{X},\mathbf{y})\mathop{\mbox{var}}(\mathbf{X})^{\alpha-1}$. Using this continuum measure produces continuum regression  (CR, Stone and Brooks (1990)). CR is equivalent to PLS for $\alpha = 1$ and approaches PCA as $\alpha \rightarrow\infty$.   
 
 
@@ -46,8 +46,8 @@ pp optimizers
 ==============
 
 Early ideas behind PP was the ability to scan all directions maximizing the projection index as denoted in  :eq:`optim_ppdire`. This essentially corresponds to a brute force optimization technique, which can be computationally very demanding.
-For instance, for both PCA and PLS, can be solved analytically, leading to effi-cient algorithms that do not directly optimize :eq:`optim_ppdire`. Whenever the projection index plugged in, leadsto a convex optimization problem, it is advisable to apply an efficient numerical optimizationtechnique.  For that purpose,ppdirehas the option to usescipy.optimize’s sequential leastsquares quadratic programming optimization (SLSQP). However, for projection indices basedon ordering or ranking data, such as medians or trimmed (co-)moments, the problem is nolonger convex and cannot be solved through SLSQP. 
-For those purposes, thegridalgorithm isincluded, which was originally developed to compute RCR (Filzmoser, Serneels, Croux, andVan Espen 2006). 
+For instance, both PCA and PLS, can be solved analytically, leading to efficient algorithms that do not directly optimize :eq:`optim_ppdire`. Whenever the projection index plugged in, leads to a convex optimization problem, it is advisable to apply an efficient numerical optimization technique.  For that purpose,ppdire has the option to use scipy.optimize’s sequential least squares quadratic programming optimization (SLSQP). However, for projection indices based on ordering or ranking data, such as medians or trimmed (co-)moments, the problem is no longer convex and cannot be solved through SLSQP. 
+For those purposes, the grid algorithm is included, which was originally developed to compute RCR (Filzmoser, Serneels, Croux, andVan Espen 2006). 
 
 Regularized regression
 =======================
@@ -64,6 +64,7 @@ due to the constraints in :eq:`optim_ppdire`, and allow to perform regression fo
     \end{equation*}
 
 which again leads to well-established methods such as principal component regression (PCR), PLS regression, etc.
+
 
 
 Usage
@@ -104,14 +105,12 @@ Dependencies
 
 References
 ==========
-1. Robust Multivariate Methods: The Projection Pursuit Approach, Peter Filzmoser, Sven Serneels, Christophe Croux and Pierre J. Van Espen, in: From Data and Information Analysis to Knowledge Engineering,
-        Spiliopoulou, M., Kruse, R., Borgelt, C., Nuernberger, A. and Gaul, W., eds., 
-        Springer Verlag, Berlin, Germany,
-        2006, pages 270--277.
+1. Peter Filzmoser, Sven Serneels, Christophe Croux and Pierre J. Van Espen, Robust Multivariate Methods: The Projection Pursuit Approach,  in: From Data and Information Analysis to Knowledge Engineering,Spiliopoulou, M., Kruse, R., Borgelt, C., Nuernberger, A. and Gaul, W., eds.,  Springer Verlag, Berlin, Germany, 2006, pages 270--277.
 
-2. Projection pursuit based generalized betas accounting for higher order co-moment effects in financial market analysis, Sven Serneels, in: 
-        JSM Proceedings, Business and Economic Statistics Section. Alexandria, VA: American Statistical Association, 2019, 3009-3035.
+2. Sven Serneels, Projection pursuit based generalized betas accounting for higher order co-moment effects in financial market analysis,  in: JSM Proceedings, Business and Economic Statistics Section. Alexandria, VA: American Statistical Association, 2019, 3009-3035.
 
-3. Robust principal components and dispersion matrices via projection pursuit, Chen, Z. and Li, G., Research Report, Department of Statistics, Harvard University, 1981.
+3. Chen, Z. and Li, G., Robust principal components and dispersion matrices via projection pursuit,  Research Report, Department of Statistics, Harvard University, 1981.
 
-4. Robust Continuum Regression, Sven Serneels, Peter Filzmoser, Christophe Croux, Pierre J. Van Espen, Chemometrics and Intelligent Laboratory Systems, 76 (2005), 197-204.
+4. Peter Filzmoser, Christophe Croux, Pierre J. Van Espen, Robust Continuum Regression, Sven Serneels,  Chemometrics and Intelligent Laboratory Systems, 76 (2005), 197-204.
+
+5. Stone  M,  Brooks  RJ  (1990).   “Continuum  Regression:   Cross-Validated  Sequentially  Constructed Prediction Embracing Ordinary Least Squares, Partial Least Squares and PrincipalComponents Regression.”Journal of the Royal Statistical Society. Series B (Methodological),52, 237–269.

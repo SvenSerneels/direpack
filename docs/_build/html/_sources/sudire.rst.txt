@@ -34,7 +34,7 @@ more demanding. This third group of SDR algorithms estimates a basis of the cent
 
     \begin{equation*}
     \begin{aligned}
-    & \underset{\mathbf{B}}{\text{maximise}} & & \mathfrak{P}^2\left(\mathbf{X}\mathbf{B},\mathbf{Y}\right)  \\
+    & \mathbf{W}_h = \argmax_{\mathbf{B}} & & \mathfrak{P}^2\left(\mathbf{X}\mathbf{B},\mathbf{Y}\right)  \\
     & \text{subject to} & & \mathbf{B}^T\mathbf{X}^T\mathbf{X}\mathbf{B} = \mathbf{I}_h,\\
     \end{aligned}
     \end{equation*}
@@ -42,7 +42,11 @@ more demanding. This third group of SDR algorithms estimates a basis of the cent
    
 
 where $\mathbf{B}$ is an arbitrary $p \times h$ matrix, $h \in [1,\min(n,p)]$. Here, $\mathfrak{P}$ can be any statistic, that estimate a subspace whose complement 
-is independent of $\mathbf{Y}$. Currently implemented $\mathfrak{P}$ statistics are  squared distance covariance, squared martingale difference divergence, and squared ball covariance.
+is independent of $\mathbf{Y}$. Currently implemented $\mathfrak{P}$ statistics are : 
+
+* distance  covariance  (Székely,  Rizzo,  and  Bakirov  2007),  leading  to  option dcov-sdr (Sheng and Yin 2016);
+* martingale  difference  divergence  (Shao  and  Zhang  2014),  leading  to  option mdd-sdr (Zhang, Liu, Wu, and Fang 2019);
+* ball covariance (Pan, Wang, Xiao, and Zhu 2019), leading to option bcov-sdr (Zhang and Chen 2019)
 
 
 
@@ -85,12 +89,12 @@ Dependencies
 
 References
 ==========
-1. Sufficient Dimension Reduction via Distance Covariance, Wenhui Sheng and Xiangrong Yin in: Journal of Computational and Graphical Statistics (2016),  25, issue 1, pages 91-104.
-2. A martingale-difference-divergence-based estimation of central mean subspace, Yu Zhang, Jicai Liu, Yuesong Wu and Xiangzhong Fang, in: Statistics and Its Interface (2019),  12, number 3, pages 489-501.
-3. Sliced Inverse Regression for Dimension Reduction, Li K-C,  Journal of the American Statistical Association (1991), 86, 316-327.
-4. Sliced Inverse Regression for Dimension Reduction: Comment,  R.D. Cook, and Sanford Weisberg, Journal of the American Statistical Association (1991), 86, 328-332.
-5. On directional regression for dimension reduction,  B. Li and S.Wang, Journal of the American Statistical Association (2007), 102:997–1008.
-6. On principal hessian directions for data visualization and dimension reduction:Another application of stein’s lemma, K.-C. Li. , Journal of the American Statistical Association(1992)., 87,1025–1039.
-7. Dimension Reduction for Conditional Mean in Regression, R. D. Cook and B. Li.,  The Annals of Statistics(2002)30(2):455–474.
-8. Robust Sufficient Dimension Reduction Via Ball Covariance Jia Zhang and Xin Chen, Computational Statistics and Data Analysis 140 (2019) 144–154
-9. Sufficient  Dimension  Reduction:  Methods  and  Applications  with  R, Li B (2018).  Chapman& Hall /CRC, Monographs on Statistics and Applied Probability, New York
+1. Wenhui Sheng and Xiangrong Yin Sufficient Dimension Reduction via Distance Covariance, in: Journal of Computational and Graphical Statistics (2016),  25, issue 1, pages 91-104.
+2. Yu Zhang, Jicai Liu, Yuesong Wu and Xiangzhong Fang, A martingale-difference-divergence-based estimation of central mean subspace,  in: Statistics and Its Interface (2019),  12, number 3, pages 489-501.
+3. Li K-C,  Sliced Inverse Regression for Dimension Reduction,  Journal of the American Statistical Association (1991), 86, 316-327.
+4. R.D. Cook, and Sanford Weisberg, Sliced Inverse Regression for Dimension Reduction: Comment,   Journal of the American Statistical Association (1991), 86, 328-332.
+5. B. Li and S.Wang, On directional regression for dimension reduction,  Journal of the American Statistical Association (2007), 102:997–1008.
+6. K.-C. Li., On principal hessian directions for data visualization and dimension reduction:Another application of stein’s lemma, Journal of the American Statistical Association(1992)., 87,1025–1039.
+7. R. D. Cook and B. Li., Dimension Reduction for Conditional Mean in Regression,  The Annals of Statistics(2002)30(2):455–474.
+8. Jia Zhang and Xin Chen, Robust Sufficient Dimension Reduction Via Ball Covariance  Computational Statistics and Data Analysis 140 (2019) 144–154
+9. Li B, Sufficient  Dimension  Reduction:  Methods  and  Applications  with  R. (2018)  Chapman& Hall /CRC, Monographs on Statistics and Applied Probability, New York 
