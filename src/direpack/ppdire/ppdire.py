@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-#Created on Sun Dec 30 12:02:12 2018
 
-#ppdire - pursuit dimension reduction part of direpack
+# Created on Sun Dec 30 12:02:12 2018
 
-#@author: Sven Serneels (Ponalytics)
-"""
+# ppdire - Projection pursuit dimension reduction
+
+# @author: Sven Serneels (Ponalytics)
+
 
 
 #from .dicomo import dicomo
@@ -46,7 +46,7 @@ class ppdire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
     order statistics of any kind, such as ranks, trimming, winsorizing, or 
     empirical quantiles.  
         
-    Parameters
+     Parameters
     ------------ 
 
         projection_index : function or class. 
@@ -119,6 +119,7 @@ class ppdire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
         2006, pages 270--277.
         
     The 'fit' function will take a set of optional input arguments. 
+
     
     """
 
@@ -172,29 +173,7 @@ class ppdire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
     def fit(self,X,*args,**kwargs):
         
         """
-        Fit a projection pursuit dimension reduction model. 
         
-        Required input argument: X data as matrix or data frame 
-        
-        Optinal input arguments: 
-            
-            arg or kwarg:
-            y data as vector or 1D matrix
-            
-            kwargs: 
-
-            h, int: option to overrule class's n_components parameter in fit. 
-                Convenient command line, yet should not be used in automated 
-                loops, e.g. cross-validation.
-                
-            dmetric, str: distance metric used internally. Defaults to 'euclidean'
-            
-            mixing, bool: to estimate mixing matrix (only relevant for ICA)
-            
-            Further parameters to the regression methods can be passed on 
-            here as well as kwargs, e.g. quantile=0.8 for quantile regression. 
-            
-            kwargs only relevant if y specified: 
         
         """
 
@@ -714,7 +693,6 @@ class ppdire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
 
 
     def predict(self,Xn):
-
         """
         predicts the response  on new data Xn
 
@@ -727,9 +705,7 @@ class ppdire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
         -------
         predictions : numpy array 
                       The predictions from the dimension reduction model
-        -------
         """
-
         Xn = convert_X_input(Xn)
         (n,p) = Xn.shape
         (q,h) = self.coef_.shape
@@ -738,7 +714,6 @@ class ppdire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
         return(np.array(np.matmul(Xn,self.coef_[:,h-1]) + self.intercept_).T.reshape(-1))
         
     def transform(self,Xn):
-
         """
         Computes the dimension reduction of the data Xn based on the fitted sudire model.
 
@@ -751,10 +726,7 @@ class ppdire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
         -------
         transformed_data : numpy array
                              the dimension reduced data 
-
-         -------
         """
-
         Xn = convert_X_input(Xn)
         (n,p) = Xn.shape
         if p!= self.coef_.shape[0]:

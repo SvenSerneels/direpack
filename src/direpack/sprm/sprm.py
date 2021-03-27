@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-#Created on Fri Jan 26 13:56:12 2018
-#@author: Sven Serneels, Ponalytics
-#"""
-# """ Module containing:
+
+# Created on Fri Jan 26 13:56:12 2018
+
+# Module containing:
     
 #     Estimators
 #     ----------
@@ -14,8 +14,10 @@
 #     0.3: Sparse NIPALS (SNIPLS) estimator moved to .snipls.
 
 # Depends on robcent.VersatileScaler class for robustly centering and scaling data and on snipls 
-# clas
-#  """
+# class
+
+# @author: Sven Serneels, Ponalytics
+
 
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
@@ -28,6 +30,7 @@ import pandas as ps
 import warnings
 from ..preprocessing.robcent import VersatileScaler
 from .snipls import snipls
+from ..utils.utils import MyException,_predict_check_input,_check_input
 from ._m_support_functions import *
 from ..preprocessing._preproc_utilities import scale_data
 
@@ -36,7 +39,7 @@ class sprm(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
     """
     SPRM Sparse Partial Robust M Regression 
     
-        Algorithm first outlined in: 
+    Algorithm first outlined in: 
         Sparse partial robust M regression, 
         Irene Hoffmann, Sven Serneels, Peter Filzmoser, Christophe Croux, 
         Chemometrics and Intelligent Laboratory Systems, 149 (2015), 50-59. 
@@ -91,7 +94,7 @@ class sprm(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
                             matrix itself. This is less stable for very flat data (p >> n), 
                             yet yields identical results to the SPRM R implementation 
                             available from CRAN.   
-    colums : (def false) Either boolean, list, numpy array or pandas Index
+    columns : (def false) Either boolean, list, numpy array or pandas Index
                 if False, no column names supplied
                 if True, 
                     if X data are supplied as a pandas data frame, will extract column 
@@ -101,6 +104,7 @@ class sprm(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
                     the column names of the x_data supplied in this list, 
                     will be printed in verbose mode
     copy : (def True) boolean, whether to copy data
+
     
     """
     
@@ -133,7 +137,6 @@ class sprm(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
     
 
     def fit(self,X,y):
-         
         """
         Fit a  SPRM model. 
         
@@ -145,8 +148,8 @@ class sprm(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
 
             y :   vector or 1D matrix
                 Response data
-        """
 
+        """
         if self.copy:
             self.X = copy.deepcopy(X)
             self.y = copy.deepcopy(y)
@@ -168,11 +171,6 @@ class sprm(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
         if (self.fun == "Hampel"):
             if (not((self.probp1 < self.probp2) & (self.probp2 < self.probp3) & (self.probp3 <= 1))):
                 raise MyException("Wrong choise of parameters for Hampel function. Use 0<probp1<hampelp2<hampelp3<=1")
-        ny = y.shape[0]
-        if ny != n:
-            raise MyException("Number of cases in y and X must be identical.")
-        if len(y.shape) >1:
-            y = np.array(y).reshape(-1).astype('float64')
         if type(self.columns) is list: 
             self.columns = np.array(self.columns)
         elif type(self.columns) is bool:
@@ -181,9 +179,11 @@ class sprm(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
         if type(X) == ps.core.frame.DataFrame:
             if type(self.columns) is bool and self.columns:
                 self.columns = X.columns
-            X = X.to_numpy()
-        if type(y) in [ps.core.frame.DataFrame,ps.core.series.Series]:
-            y = y.to_numpy().T.astype('float64')
+        X = _check_input(X)
+        y = _check_input(y)
+        ny = y.shape[0]
+        if ny != n:
+            raise MyException("Number of cases in y and X must be identical.")
 
         scaling = VersatileScaler(center=self.centre, scale=self.scale)
         Xs = scaling.fit_transform(X).astype('float64')
@@ -215,7 +215,7 @@ class sprm(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
                 self.columns = self.columns[vars_to_keep]
             p = len(vars_to_keep)
             if (self.n_components > p):
-                raise MyException("Upon removal of zero scale variables, the number of components is too large. Please reduce to {p} maximally.")
+                raise MyException(f"Upon removal of zero scale variables, the number of components is too large. Please reduce to {p} maximally.")
         
         self.non_zero_scale_vars_ = vars_to_keep
 
@@ -258,8 +258,8 @@ class sprm(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
             wx = Hampel(wx,self.probctx_,self.hampelbx_,self.hampelrx_)
             wy = Hampel(wy,self.probcty_,self.hampelby_,self.hampelry_)
         wx = np.array(wx).reshape(-1)
+        wy = np.array(wy).reshape(-1)
         w = (wx*wy).astype("float64")
-        print()
         if (w < 1e-06).any():
             w0 = np.where(w < 1e-06)[0]
             w[w0] = 1e-06
@@ -268,9 +268,10 @@ class sprm(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
             we = np.array(w,dtype=np.float64)
         wte = wx
         wye = wy
-        WEmat = np.array([np.sqrt(we) for i in range(1,p+1)],ndmin=1).T    
+        WEmat = np.array([np.sqrt(we) for i in range(1,p+1)],ndmin=1).T   
         Xw = np.multiply(Xs,WEmat).astype("float64")
         yw = ys*np.sqrt(we)
+        scalingt = copy.deepcopy(scaling)
         loops = 1
         rold = 1E-5
         difference = 1
@@ -290,12 +291,12 @@ class sprm(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
                 r = abs(r)/(1.4826 * np.median(abs(r[r != 0])))
             scalet = self.scale
             if (scalet == "None"):
-                scaling.set_params(scale = "mad") 
-            dt = scaling.fit_transform(T)
+                scalingt.set_params(scale = "mad") 
+            dt = scalingt.fit_transform(T)
             wtn = np.sqrt(np.array(np.sum(np.square(dt),1),dtype=np.float64))
             wtn = wtn/np.median(wtn)
             wtn = wtn.reshape(-1)
-            wye = r
+            wye = r.reshape(-1)
             wte = wtn
             if (self.fun == "Fair"):
                 wte = Fair(wtn,self.probctx_)
@@ -343,18 +344,18 @@ class sprm(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
         Xrw = np.array(np.multiply(Xs,np.sqrt(WEmat)).astype("float64"))
         scaling.set_params(scale='None')
         Xrw = scaling.fit_transform(Xrw) 
-        T = Xs * R
+        T = np.matmul(Xs,R)
         if self.verbose:
             print("Final Model: Variables retained for " + str(self.n_components) + " latent variables: \n" 
                  + str(res_snipls.colret_) + "\n")
         b_rescaled = np.multiply(np.reshape(sy/sX,(p,1)),b)
-        yp_rescaled = np.array(X*b_rescaled).reshape(-1)
+        yp_rescaled = np.matmul(X,b_rescaled)
         if(self.centre == "mean"):
-            intercept = np.mean(y - yp_rescaled)
+            intercept = np.mean(y - yp_rescaled,axis=0)
         else:
-            intercept = np.median(y - yp_rescaled)
+            intercept = np.median(y - yp_rescaled,axis=0)
         # This median calculation produces slightly different result in R and Py
-        yfit = yp_rescaled + intercept    
+        yfit = yp_rescaled + intercept   
         if (self.scale!="None"):
             if (self.centre == "mean"):
                 b0 = np.mean(ys.astype("float64") - np.matmul(Xs.astype("float64"),b))
@@ -368,7 +369,7 @@ class sprm(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
             else:
                 b0 = np.median(np.array(y - np.matmul(X,b)))
             # yfit = np.matmul(X,b) + intercept
-        yfit = yfit.reshape(-1)    
+        yfit = yfit
         r = y - yfit
         setattr(self,"x_weights_",W)
         setattr(self,"x_loadings_",P)
@@ -388,6 +389,7 @@ class sprm(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
         setattr(self,"caseweights_",we)
         setattr(self,"colret_",res_snipls.colret_)
         setattr(self,'scaling_',scaling)
+        setattr(self,'scalingt_',scalingt)
         return(self)
         pass
     
@@ -401,14 +403,8 @@ class sprm(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
             
             Xn : numpy array or data frame 
                 Input data.
-
         """
-        
-
-
-        if type(Xn) == ps.core.frame.DataFrame:
-            Xn = Xn.to_numpy()
-        (n,p) = Xn.shape
+        n,p,Xn = _predict_check_input(Xn)
         if p!= self.X.shape[1]:
             raise(ValueError('New data must have seame number of columns as the ones the model has been trained with'))
         Xn = Xn[:,self.non_zero_scale_vars_]
@@ -426,23 +422,20 @@ class sprm(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
                 Input data.
 
         """
-        if type(Xn) == ps.core.frame.DataFrame:
-            Xn = Xn.to_numpy()
-        (n,p) = Xn.shape
+        n,p,Xn = _predict_check_input(Xn)
         if p!= self.X.shape[1]:
             raise(ValueError('New data must have seame number of columns as the ones the model has been trained with'))
         Xn = Xn[:,self.non_zero_scale_vars_]
         Xnc = scale_data(Xn,self.x_loc_[self.non_zero_scale_vars_],self.x_sca_[self.non_zero_scale_vars_])
-        return(Xnc*self.x_Rweights_)
+        return(np.matmul(Xnc,self.x_Rweights_))
         
     def weightnewx(self,Xn):
-        if type(Xn) == ps.core.frame.DataFrame:
-            Xn = Xn.to_numpy()
+        n,p,Xn = _predict_check_input(Xn)
         (n,p) = Xn.shape
         if p!= self.X.shape[1]:
             raise(ValueError('New data must have seame number of columns as the ones the model has been trained with'))
         Tn = self.transform(Xn)
-        scaling = self.scaling_
+        scaling = self.scalingt_
         scalet = self.scale
         if (scalet == "None"):
             scaling.set_params(scale = "mad")
@@ -461,10 +454,7 @@ class sprm(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
         return(wtn)
         
     def valscore(self,Xn,yn,scoring):
-        if type(Xn) == ps.core.frame.DataFrame:
-            Xn = Xn.to_numpy()
-        if type(yn) in [ps.core.frame.DataFrame,ps.core.series.Series]:
-            yn = yn.to_numpy().T.astype('float64')
+        n,p,Xn = _predict_check_input(Xn)
         (n,p) = Xn.shape
         if p!= self.X.shape[1]:
             raise(ValueError('New data must have seame number of columns as the ones the model has been trained with'))
