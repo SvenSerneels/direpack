@@ -1,0 +1,422 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Pre-processing &mdash; direpack 1.0.10 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Cross-validation and plotting" href="Cross-validation and plotting.html" />
+    <link rel="prev" title="sprm" href="sprm.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> direpack
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="ppdire.html">ppdire</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sudire.html">sudire</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sprm.html">sprm</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Pre-processing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#data-standardization">Data standardization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#spatial-sign-pre-processing">Spatial sign pre-processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-direpack.preprocessing.robcent">Usage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#remarks">Remarks</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#references">References</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Cross-validation and plotting.html">Cross-validation and plotting</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Other information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Contributing.html">Contributing</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">direpack</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Pre-processing</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/Pre-processing.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="pre-processing">
+<span id="id1"></span><h1>Pre-processing<a class="headerlink" href="#pre-processing" title="Permalink to this headline">¶</a></h1>
+<p>The first step in most meaningful data analytics projects will be to pre-process the data, hence direpack proposes a set of tools for data pre-processing.</p>
+<div class="section" id="data-standardization">
+<h2>Data standardization<a class="headerlink" href="#data-standardization" title="Permalink to this headline">¶</a></h2>
+<p>A first, well accepted way to pre-process data is to center them and scale them to unit variance on a column wise basis. This corresponds to transforming a <img class="math" src="_images/math/c2f381d90fc59999f12539e7bd56b8c37238eba0.png" alt="\mathbf{x}"/> variable into z-scores:</p>
+<div class="math">
+<p><img src="_images/math/b4c7ddba607fe520ddcf792afcf85e5955ebf864.png" alt="\begin{equation*}
+         \mathbf{z} = \frac{\mathbf{x} - \hat{\boldsymbol{\mu}}}{\hat{\boldsymbol{\sigma}}}
+     \end{equation*}"/></p>
+</div><p>where <img class="math" src="_images/math/255f2a5f403431dd91056167be7d4aa885bd39e4.png" alt="\hat{\boldsymbol{\mu}}"/> and <img class="math" src="_images/math/0b0a4bd5e93ccd887e24cebb78c3aaf1656bb194.png" alt="\hat{\boldsymbol{\sigma}}"/> are estimates of location and scale, respectively.
+For normally distributed data, the appropriate way to accomplish this is by centering about the mean and dividing by the column wise standard deviation.
+However, when the marginal distributions in the data significantly deviate from the normal, outliers could throw the result of that data standardization off, and robust or nonparametric alternatives become a more reliable choice.
+Essentially, all robust statistics are subject to a trade-off between  efficiency and  robustness, which means that the variance of the estimates will increase as the estimator can resist a higher fraction of outliers.
+While scikit-learn provides highly robust nonparametric standardization in its RobustScaler, the estimators included therein are known to have a low statistical efficiency (these are the median for location and the interquartile range for scale).
+Since autoscaling the data is often an essential step, a few location and scale estimators have been implemented. For location, with increasing performance in terms of the robustness—efficiency trade-off, these are: the column wise median, the spatial median (also called <img class="math" src="_images/math/d959e8a5ad8a3aa2967d37516fdc51ea4bd39e26.png" alt="L_1"/>-median, although it minimizes an <img class="math" src="_images/math/b192cd420cb1827b8f83e6ffb8b7719e8155ee2b.png" alt="L_2"/> norm) and the <img class="math" src="_images/math/216f4ea485b6d181f2146a02c6d7c0975c3ef8e3.png" alt="k"/> step least trimmed squares  (LTS, Rousseeuw and Leroy (1987)) estimator.
+For scale, the consistency corrected median absolute deviation (MAD) and the <img class="math" src="_images/math/6999bbd023eb979c6e15e0d7d90181863451c498.png" alt="\tau"/> estimator of scale  (Maronna and Zamar 2002) have been included. Generally, it holds true that the more statistically efficient the estimator in these lists is, the higher its computational cost. In preprocessing, these estimators can be accessed through its VersatileScaler class, which takes the names of these estimators as strings, but it will also accept functions of location and scale estimators, should the user prefer to apply other ones.</p>
+</div>
+<div class="section" id="spatial-sign-pre-processing">
+<h2>Spatial sign pre-processing<a class="headerlink" href="#spatial-sign-pre-processing" title="Permalink to this headline">¶</a></h2>
+<p>Besides standardizing data, it can be beneficial to transform data to some sort of signs. The generalized spatial sign transformation consists of transforming a variable <img class="math" src="_images/math/c2f381d90fc59999f12539e7bd56b8c37238eba0.png" alt="\mathbf{x}"/> into</p>
+<div class="math">
+<p><img src="_images/math/e576f247e8c83729904224c02408f68e5061ea32.png" alt="\begin{equation*}
+         \mathbf{u} = \left(\mathbf{x} - \hat{\boldsymbol{\mu}}\right) \times f\left(\mathbf{x} - \hat{\boldsymbol{\mu}}\right)
+     \end{equation*}"/></p>
+</div><p>where the spatial sign is obtained by setting <img class="math" src="_images/math/6eb8ec6c97bcf295f6e18a85ebd247f619351822.png" alt="f(x) = {\parallel x \parallel}^{-1}"/> and <img class="math" src="_images/math/94b23600a97b070ca6ef1c954d9e95798882c285.png" alt="\parallel \cdot \parallel"/> denotes the norm (in all published literature in this context, the <img class="math" src="_images/math/b192cd420cb1827b8f83e6ffb8b7719e8155ee2b.png" alt="L_2"/> norm).
+Since spatial sign pre-processing (SS-PP) consists of dividing the data by their Euclidean norm, it is also known as  normalizing and as such, is available in scikit-learn’s Normalizer.
+Spatial sign pre-processing has been shown to convey moderate robustness to multivariate estimators that are entirely based on covariance estimates, such as PCA or PLS (Serneels, De Nolf, and Van Espen 2006).
+Moderate robustness means in this case that the resulting estimator can resist up to 50% of outliers, but will have a  sizeable  bias  even  for  small  fractions  of  contamination. The  reason  why  this  happens
+is that the spatial sign transform projects all cases onto the unit sphere indiscriminately, which can drastically change data topology, and thereby introduce bias. Recently, the generalized spatial sign transform has been proposed (Raymaekers and Rousseeuw 2019).
+These authors examine a set of different functions that can be plugged into the expression for <img class="math" src="_images/math/6ea15880d3bbe0529ebca23ca61d4560ee33fbef.png" alt="\mathbf{u}"/>, some of which will only transform those cases in the data that exceed a certain eccentricity threshold. These functions are the quadratic radial, ball, shell, Winsor and linear redescending (LR) functions, all of which can be accessed through direpack’s GenSpatialSignPreprocessor.</p>
+</div>
+<div class="section" id="module-direpack.preprocessing.robcent">
+<span id="usage"></span><h2>Usage<a class="headerlink" href="#module-direpack.preprocessing.robcent" title="Permalink to this headline">¶</a></h2>
+<p>Created on Sun Feb 4 2018
+Updated on Sun Dec 16 2018
+Refactored on Sat Dec 21 2019
+Refactored on Sat Mar 28 2020</p>
+<p>Class for classical and robust centering and scaling of input data for
+regression and machine learning</p>
+<p>Version 2.0: Code entirely restructured compared to version 1.0.
+Code made consistent with sklearn logic: fit(data,params) yields results.
+Code makes more effciient use of numpy builtin estimators.
+Version 3.0:
+Code now takes strings or functions as input to centring and scaling.
+Utility functions have been moved to _preproc_utilities.py
+Code now supplied for l1median cetring, with options to use different
+scipy.optimize optimization algorithms
+Version 4.0:
+Made the API compatible for ScikitLearn pipelines. However, some nonstandard
+functions and output remain for backwards compatibility. Functionality for
+sparse matrices still has to be implemented.</p>
+<dl class="field-list simple">
+<dt class="field-odd">param <cite>center</cite></dt>
+<dd class="field-odd"><p>function to be used, or ‘None’.</p>
+</dd>
+<dt class="field-even">type <cite>center</cite></dt>
+<dd class="field-even"><p>str or callable, location estimator. String has to be name of the</p>
+</dd>
+<dt class="field-odd">param <cite>scale</cite></dt>
+<dd class="field-odd"><p></p></dd>
+<dt class="field-even">type <cite>scale</cite></dt>
+<dd class="field-even"><p>str or callable, scale estimator</p>
+</dd>
+<dt class="field-odd">param <cite>trimming</cite></dt>
+<dd class="field-odd"><p></p></dd>
+<dt class="field-even">type <cite>trimming</cite></dt>
+<dd class="field-even"><p>trimming percentage to be used in location and scale estimation.</p>
+</dd>
+</dl>
+<dl class="method">
+<dt>
+<code class="sig-name descname">`fit(X)`: Will estimate location and scale using the estimators specified</code></dt>
+<dd><p>in ‘center’ and ‘scale’, with a certain trimming fraction when applicable.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="sig-name descname">`transform(X)`: Will scale X about estimated location and scale. Stores the</code></dt>
+<dd><p>result as ‘Xs_`</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="sig-name descname">`fit_transform(X)`: both of the above</code></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt>
+<code class="sig-name descname">`predict(X)`: Same as `transform`, but does not store the result (different</code></dt>
+<dd><p>from sklearn, can be convenient for some ML tools)</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="sig-name descname">`inverse_transform()`: transform the scaled data frame back to the original</code></dt>
+<dd><p>scale. When no input provided, will use the scaled <cite>datas_</cite> in the
+object.</p>
+</dd></dl>
+
+<dl class="simple">
+<dt>Arguments for methods:</dt><dd><p><cite>X</cite>: array-like, n x p, the data.
+<cite>trimming</cite>: float, fraction to be trimmed (must be in (0,1)).</p>
+</dd>
+</dl>
+<p>Ancillary functions in _preproc_utilities.py:
+<cite>scale_data(X,m,s)</cite>: centers and scales X on center m (as vector) and</p>
+<blockquote>
+<div><p>scale s (as vector).</p>
+</div></blockquote>
+<p><cite>mean(X,trimming)</cite>: Column-wise mean.
+<cite>median(X)</cite>: Column-wise median.
+<cite>l1median(X)</cite>: L1 or spatial median. Optional arguments:</p>
+<blockquote>
+<div><p><cite>x0</cite>: starting point for optimization, defaults to column wise median
+<cite>method</cite>: optimization algorithm, defaults to ‘SLSQP’
+<cite>tol</cite>: tolerance, defaults to 1e-8
+<cite>options</cite>: list of options for <cite>scipy.optimize.minimize</cite></p>
+</div></blockquote>
+<dl class="simple">
+<dt><a href="#id2"><span class="problematic" id="id3">`</span></a>kstepLTS(X): k-step LTS estimator of location.</dt><dd><p><cite>maxit</cite>: int, number of iterations to compute maximally
+<cite>tol</cite>: float, tolerance for convergence</p>
+</dd>
+</dl>
+<p><cite>std(X,trimming)</cite>: Column-wise std.
+<cite>mad(X,c)</cite>: Column-wise median absolute deviation, with consistency factor c.
+<cite>scaleTau2(x0, c1 = 4.5, c2 = 3, consistency = True)</cite>: Tau estimator of scale</p>
+<blockquote>
+<div><p>with consistency parameters c1 and c2 and option for consistency correction
+(True, False or ‘finiteSample’)</p>
+</div></blockquote>
+<div class="section" id="remarks">
+<h3>Remarks<a class="headerlink" href="#remarks" title="Permalink to this headline">¶</a></h3>
+<p>Options for classical estimators ‘mean’ and ‘std’ also give access to robust
+trimmed versions.</p>
+<p>&#64;author: Sven Serneels, Ponalytics</p>
+<dl class="class">
+<dt id="direpack.preprocessing.robcent.VersatileScaler">
+<em class="property">class </em><code class="sig-prename descclassname">direpack.preprocessing.robcent.</code><code class="sig-name descname">VersatileScaler</code><span class="sig-paren">(</span><em class="sig-param">center='mean'</em>, <em class="sig-param">scale='std'</em>, <em class="sig-param">trimming=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/direpack/preprocessing/robcent.html#VersatileScaler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#direpack.preprocessing.robcent.VersatileScaler" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<span class="target" id="module-direpack.preprocessing.gsspp"></span><p>Created on Wed Mar 25 09:01:53 2020</p>
+<p>&#64;author: Sven Serneels, Ponalytics, Mar 2020.</p>
+<dl class="class">
+<dt id="direpack.preprocessing.gsspp.GenSpatialSignPrePprocessor">
+<em class="property">class </em><code class="sig-prename descclassname">direpack.preprocessing.gsspp.</code><code class="sig-name descname">GenSpatialSignPrePprocessor</code><span class="sig-paren">(</span><em class="sig-param">center='l1median'</em>, <em class="sig-param">fun='linear_redescending'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/direpack/preprocessing/gsspp.html#GenSpatialSignPrePprocessor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#direpack.preprocessing.gsspp.GenSpatialSignPrePprocessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generalized Spatial Sign Pre-Processing as a scikit-learn compatible object
+that can be used in ML pipelines.</p>
+<dl class="simple">
+<dt>Inputs:</dt><dd><dl class="simple">
+<dt>center: str or function, location estimator for centring.</dt><dd><p>str options: ‘mean’, ‘median’, ‘l1median’, ‘kstepLTS’, ‘None’</p>
+</dd>
+<dt>fun: str or function, radial transformation function,</dt><dd><p>str options: ‘ss’ (the non-generalized spatial sign, equivalent
+to sklearn’s Normalizer), ‘ball’, ‘shell’, ‘quad’ (quadratic),
+‘winsor’, or ‘linear_redescending’</p>
+</dd>
+</dl>
+</dd>
+<dt>Methods: sklearn API: <cite>fit(X)</cite>, <cite>transform(X)</cite> and <cite>fit_transform(X)</cite> with</dt><dd><p>X: Data matrix</p>
+</dd>
+</dl>
+<dl class="attribute">
+<dt>
+<code class="sig-name descname">`'gss_'`</code></dt>
+<dd><p>the generalized spatial signs</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="sig-name descname">`'Xm_'`</code></dt>
+<dd><p>the centred data</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="sig-name descname">`'centring_'`</code></dt>
+<dd><p>VersatileScaler centring object</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="sig-name descname">`'X_gss_pp_'`</code></dt>
+<dd><p>Data Ppreprocessed by Generalized Spatial Sign</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="references">
+<h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li><p>Maronna  RA,  Zamar  RH  (2002). “Robust  estimates  of  location  and  dispersion  for  high-dimensional datasets.” Technometrics, 44(4), 307–317.</p></li>
+<li><p>Rousseeuw PJ, Leroy AM (1987). Robust Regression and Outlier Detection. Wiley and Sons, New York</p></li>
+<li><p>Raymaekers J, Rousseeuw PJ (2019). “A generalized spatial sign covariance matrix.” Journal of Multivariate Analysis, 171, 94–111.</p></li>
+<li><p>Serneels S, De Nolf E, Van Espen PJ (2006). “Spatial Sign Preprocessing:  A Simple Way ToImpart Moderate Robustness to Multivariate Estimators.” Journal of Chemical Information and Modeling, 46, 1402–1409.</p></li>
+</ol>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="Cross-validation and plotting.html" class="btn btn-neutral float-right" title="Cross-validation and plotting" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="sprm.html" class="btn btn-neutral float-left" title="sprm" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Sven Serneels and Emmanuel Jordy Menvouta.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

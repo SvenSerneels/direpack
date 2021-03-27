@@ -1,23 +1,23 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Fri Jan 26 13:56:12 2018
 
-Module containing:
+# Created on Fri Jan 26 13:56:12 2018
+
+# Module containing:
     
-    Estimators
-    ----------
-    Sparse Partial Robust M Regression (SPRM)
+#     Estimators
+#     ----------
+#     Sparse Partial Robust M Regression (SPRM)
     
-    0.2: Ancillary functions moved to ._m_support_functions
-         Plotting functions moved to .sprm_plot
-    0.3: Sparse NIPALS (SNIPLS) estimator moved to .snipls.
+#     0.2: Ancillary functions moved to ._m_support_functions
+#          Plotting functions moved to .sprm_plot
+#     0.3: Sparse NIPALS (SNIPLS) estimator moved to .snipls.
 
-Depends on robcent.VersatileScaler class for robustly centering and scaling data and on snipls 
-class
+# Depends on robcent.VersatileScaler class for robustly centering and scaling data and on snipls 
+# class
 
-@author: Sven Serneels, Ponalytics
-"""
+# @author: Sven Serneels, Ponalytics
+
 
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
@@ -44,47 +44,67 @@ class sprm(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
         Irene Hoffmann, Sven Serneels, Peter Filzmoser, Christophe Croux, 
         Chemometrics and Intelligent Laboratory Systems, 149 (2015), 50-59. 
     
-    Parameters:
+    Parameters
     -----------
-    eta: float. Sparsity parameter in [0,1)
-    n_components: int, min 1. Note that if applied on data, n_components shall 
-        take a value <= min(x_data.shape)
-    fun: str, downweighting function. 'Hampel' (recommended), 'Fair' or 
-                'Huber'
-    probp1: float, probability cutoff for start of downweighting 
-                 (e.g. 0.95)
-    probp2: float, probability cutoff for start of steep downweighting 
-                 (e.g. 0.975, only relevant if fun='Hampel')
-    probp3: float, probability cutoff for start of outlier omission 
-                 (e.g. 0.999, only relevant if fun='Hampel')
-    centre: str, type of centring (`'mean'`, `'median'`, `'l1median'`, or `'kstepLTS'`, 
+
+    eta : float.
+          Sparsity parameter in [0,1)
+
+    n_components : int
+                     min 1. Note that if applied on data, n_components shall take a value <= min(x_data.shape)
+
+    fun : str
+         downweighting function. 'Hampel' (recommended), 'Fair' or  'Huber'
+
+    probp1 : float
+             probability cutoff for start of downweighting (e.g. 0.95)
+
+    probp2 : float
+            probability cutoff for start of steep downweighting (e.g. 0.975, only relevant if fun='Hampel')
+
+    probp3 : float
+            probability cutoff for start of outlier omission (e.g. 0.999, only relevant if fun='Hampel')
+
+    centre : str
+            type of centring (`'mean'`, `'median'`, `'l1median'`, or `'kstepLTS'`, 
             the latter recommended statistically, if too slow, switch to `'median'`)
-    scale: str, type of scaling ('std','mad', 'scaleTau2' [recommended] or 'None')
-    verbose: boolean, specifying verbose mode
-    maxit: int, maximal number of iterations in M algorithm
-    tol: float, tolerance for convergence in M algorithm 
-    start_cutoff_mode: str, values:
-        'specific' will set starting value cutoffs specific to X and y (preferred); 
-        any other value will set X and y stating cutoffs identically. 
-        The latter yields identical results to the SPRM R implementation available from
-        CRAN.
-    start_X_init: str, values:
-        'pcapp' will include a PCA/broken stick projection to 
-                calculate the staring weights, else just based on X;
-        any other value will calculate the X starting values based on the X
-                matrix itself. This is less stable for very flat data (p >> n), 
-                yet yields identical results to the SPRM R implementation 
-                available from CRAN.   
-    colums (def false): Either boolean, list, numpy array or pandas Index
-        if False, no column names supplied
-        if True, 
-            if X data are supplied as a pandas data frame, will extract column 
-                names from the frane
-            throws an error for other data input types
-        if a list, array or Index (will only take length x_data.shape[1]), 
-            the column names of the x_data supplied in this list, 
-            will be printed in verbose mode
-    copy (def True): boolean, whether to copy data
+
+    scale : str
+            type of scaling ('std','mad', 'scaleTau2' [recommended] or 'None')
+
+    verbose : booleans
+             specifying verbose mode
+
+    maxit : int
+            maximal number of iterations in M algorithm
+
+    tol : float
+         tolerance for convergence in M algorithm 
+
+    start_cutoff_mode : str,
+                        values:'specific' will set starting value cutoffs specific to X and y (preferred); 
+                            any other value will set X and y stating cutoffs identically. 
+                            The latter yields identical results to the SPRM R implementation available from
+                            CRAN.
+    start_X_init: str,
+                 values:
+                    'pcapp' will include a PCA/broken stick projection to 
+                            calculate the staring weights, else just based on X;
+                    any other value will calculate the X starting values based on the X
+                            matrix itself. This is less stable for very flat data (p >> n), 
+                            yet yields identical results to the SPRM R implementation 
+                            available from CRAN.   
+    columns : (def false) Either boolean, list, numpy array or pandas Index
+                if False, no column names supplied
+                if True, 
+                    if X data are supplied as a pandas data frame, will extract column 
+                        names from the frane
+                    throws an error for other data input types
+                if a list, array or Index (will only take length x_data.shape[1]), 
+                    the column names of the x_data supplied in this list, 
+                    will be printed in verbose mode
+    copy : (def True) boolean, whether to copy data
+
     
     """
     
@@ -117,6 +137,19 @@ class sprm(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
     
 
     def fit(self,X,y):
+        """
+        Fit a  SPRM model. 
+        
+        Parameters
+        ------------ 
+            
+            X : numpy array 
+                Input data.
+
+            y :   vector or 1D matrix
+                Response data
+
+        """
         if self.copy:
             self.X = copy.deepcopy(X)
             self.y = copy.deepcopy(y)
@@ -362,6 +395,15 @@ class sprm(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
     
         
     def predict(self,Xn):
+        """
+        Predict using a  SPRM model. 
+        
+        Parameters
+        ------------ 
+            
+            Xn : numpy array or data frame 
+                Input data.
+        """
         n,p,Xn = _predict_check_input(Xn)
         if p!= self.X.shape[1]:
             raise(ValueError('New data must have seame number of columns as the ones the model has been trained with'))
@@ -369,6 +411,17 @@ class sprm(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
         return(np.matmul(Xn,self.coef_) + self.intercept_)
         
     def transform(self,Xn):
+        """
+        Transform input data. 
+        
+        
+        Parameters
+        ------------ 
+            
+            Xn : numpy array or data frame 
+                Input data.
+
+        """
         n,p,Xn = _predict_check_input(Xn)
         if p!= self.X.shape[1]:
             raise(ValueError('New data must have seame number of columns as the ones the model has been trained with'))

@@ -1,0 +1,283 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Welcome to direpack’s documentation! &mdash; direpack 1.0.10 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="ppdire" href="ppdire.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="#" class="icon icon-home"> direpack
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="ppdire.html">ppdire</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sudire.html">sudire</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sprm.html">sprm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Pre-processing.html">Pre-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Cross-validation and plotting.html">Cross-validation and plotting</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Other information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Contributing.html">Contributing</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">direpack</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="#" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Welcome to direpack’s documentation!</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="welcome-to-direpack-s-documentation">
+<h1>Welcome to direpack’s documentation!<a class="headerlink" href="#welcome-to-direpack-s-documentation" title="Permalink to this headline">¶</a></h1>
+<p>The direpack package aims to establish a set of modern statistical dimension reduction techniques into the Python universe as a single, consistent package.
+The dimension reduction methods included resort into three categories: projection pursuit based dimension reduction, sufficient dimension reduction, and robust M estimators for dimension reduction.
+As a corollary, regularized regression estimators based on these reduced dimension spaces are provided as well, ranging from classical principal component regression up to sparse partial robust M regression.
+The package also contains a set of classical and robust pre-processing utilities, including generalized spatial signs,  as well as dedicated plotting functionality and cross-validation utilities.
+Finally, direpack has been written consistent with the scikit-learn API, such that the estimators can flawlessly be included into (statistical and/or machine) learning pipelines in that framework.</p>
+</div>
+<div class="section" id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<p>The package is distributed through PyPI, so use:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">direpack</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="examples">
+<h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h1>
+<p>Example notebooks have been produced to showcase the use <a class="reference external" href="https://github.com/SvenSerneels/direpack/blob/master/examples/ppdire_example.ipynb">ppdire</a>,  <a class="reference external" href="https://github.com/SvenSerneels/direpack/blob/master/examples/sprm_example.ipynb">sprm</a> and <a class="reference external" href="https://github.com/SvenSerneels/direpack/blob/master/examples/sudire_example.ipynb">sudire</a>  for statistical dimension reduction.</p>
+</div>
+<div class="section" id="contents">
+<h1>Contents<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ppdire.html">ppdire</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ppdire.html#dicomo">dicomo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppdire.html#pp-optimizers">pp optimizers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppdire.html#regularized-regression">Regularized regression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppdire.html#module-direpack.ppdire.ppdire">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppdire.html#dependencies">Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppdire.html#references">References</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="sudire.html">sudire</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="sudire.html#module-direpack.sudire.sudire">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sudire.html#dependencies">Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sudire.html#references">References</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="sprm.html">sprm</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="sprm.html#robust-m-regression">Robust M regression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sprm.html#sparse-nipals">Sparse NIPALS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sprm.html#sparse-partial-robust-m">Sparse partial robust M</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sprm.html#module-direpack.sprm.sprm">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sprm.html#dependencies">Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sprm.html#references">References</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Pre-processing.html">Pre-processing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Pre-processing.html#data-standardization">Data standardization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Pre-processing.html#spatial-sign-pre-processing">Spatial sign pre-processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Pre-processing.html#module-direpack.preprocessing.robcent">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Pre-processing.html#references">References</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Cross-validation and plotting.html">Cross-validation and plotting</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Other information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Contributing.html">Contributing</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="ppdire.html" class="btn btn-neutral float-right" title="ppdire" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Sven Serneels and Emmanuel Jordy Menvouta.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
