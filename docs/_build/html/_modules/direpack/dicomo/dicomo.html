@@ -1,0 +1,661 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>direpack.dicomo.dicomo &mdash; direpack 1.0.10 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> direpack
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../ppdire.html">ppdire</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sudire.html">sudire</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sprm.html">sprm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Pre-processing.html">Pre-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Cross-validation and plotting.html">Cross-validation and plotting</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Other information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../Contributing.html">Contributing</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">direpack</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>direpack.dicomo.dicomo</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for direpack.dicomo.dicomo</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="c1">#Created on Sun Dec  2 13:14:51 2018</span>
+
+<span class="c1">#@author: sven</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.stats</span> <span class="k">as</span> <span class="nn">sps</span>
+<span class="kn">import</span> <span class="nn">scipy.spatial</span> <span class="k">as</span> <span class="nn">spp</span>
+<span class="kn">from</span> <span class="nn">sklearn.base</span> <span class="kn">import</span> <span class="n">BaseEstimator</span>
+<span class="kn">from</span> <span class="nn">sklearn.utils.metaestimators</span> <span class="kn">import</span> <span class="n">_BaseComposition</span>
+<span class="kn">from</span> <span class="nn">statsmodels</span> <span class="kn">import</span> <span class="n">robust</span> <span class="k">as</span> <span class="n">srs</span>
+<span class="kn">from</span> <span class="nn">._dicomo_utils</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">dcor</span> <span class="k">as</span> <span class="nn">dc</span>
+<span class="c1"># Optional: if Ballcov required, import Ball </span>
+<span class="c1"># import Ball</span>
+
+<span class="k">class</span> <span class="nc">MyException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+<div class="viewcode-block" id="dicomo"><a class="viewcode-back" href="../../../ppdire.html#direpack.dicomo.dicomo.dicomo">[docs]</a><span class="k">class</span> <span class="nc">dicomo</span><span class="p">(</span><span class="n">_BaseComposition</span><span class="p">,</span><span class="n">BaseEstimator</span><span class="p">):</span>
+    
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The `dicomo` class implements (co)-moment statistics, covering both clasical product-moment </span>
+<span class="sd">    statistics, as well as more recently developed energy statistics. </span>
+<span class="sd">    The `dicomo` class also serves as a plug-in into `capi` and  `ppdire`. </span>
+<span class="sd">    It has been written consistently with `ppdire` such that it provides a wide range of </span>
+<span class="sd">    projection indices based on (co-)moments. Ancillary functions for (co-)moment </span>
+<span class="sd">    estimation are in `_dicomo_utils.py`.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ------------ </span>
+
+<span class="sd">        est :  str</span>
+<span class="sd">             mode of estimation. The set of options are `&#39;arithmetic&#39;` (product-moment)  or `&#39;distance&#39;` (energy statistics)</span>
+
+<span class="sd">        mode : str</span>
+<span class="sd">                 type of moment. Options include :</span>
+<span class="sd">                * `&#39;mom&#39;`: moment </span>
+<span class="sd">                * `&#39;var&#39;`: variance </span>
+<span class="sd">                * `&#39;std&#39;`: standard deviation </span>
+<span class="sd">                * `&#39;skew&#39;`: skewness </span>
+<span class="sd">                * `&#39;kurt&#39;`: kurtosis</span>
+<span class="sd">                * `&#39;com&#39;`: co-moment </span>
+<span class="sd">                * `&#39;M3&#39;`: shortcut for third order co-moment</span>
+<span class="sd">                * `&#39;cov&#39;`: covariance </span>
+<span class="sd">                * `&#39;cos&#39;`: co-skewness</span>
+<span class="sd">                * `&#39;cok&#39;`: co-kurtosis </span>
+<span class="sd">                * `&#39;corr&#39;`: correlation, </span>
+<span class="sd">                * `&#39;continuum&#39;`: continuum association </span>
+<span class="sd">                * `&#39;mdd&#39;`: martingale difference divergence (requires `est = &#39;distance&#39;`)</span>
+<span class="sd">                * `&#39;mdc&#39;`: martingale difference correlation (requires `est = &#39;distance&#39;`)</span>
+<span class="sd">                * `&#39;ballcov&#39;`: ball covariance (requires installing `Ball` and uncommenting the `import` statement)</span>
+
+<span class="sd">        center : str </span>
+<span class="sd">                 internal centring used in calculation. Options are `mean` or `median`.  </span>
+
+<span class="sd">        Attributes:</span>
+<span class="sd">            Always provided: </span>
+<span class="sd">            `moment_`: The resulting (co-)moment</span>
+<span class="sd">            Depending on the options picked, intermediate results are stored as well, </span>
+<span class="sd">            such as `x_moment_`, `y_moment_` or `co_moment_`</span>
+<span class="sd">    </span>
+<span class="sd">        Methods</span>
+<span class="sd">            `fit(X, *args, **kwargs)`: fit model </span>
+
+<span class="sd">        Remarks:</span>
+<span class="sd">        The `fit` function takes several optional input arguments. These are options that </span>
+<span class="sd">        apply to individual settings: </span>
+<span class="sd">            `biascorr`, Bool, when `True`, correct for bias. For classical product-moment statistics, this </span>
+<span class="sd">                is the small sample correction. For energy statistics, this leads to the estimates </span>
+<span class="sd">                that are unbiased in high dimension</span>
+<span class="sd">                (but not preferred in low dimension). </span>
+<span class="sd">            `alpha`, float, parameter for continuum association. Has no effect for other options.  </span>
+<span class="sd">            `option`, int, determines which higher order co-moment to calculate, </span>
+<span class="sd">                e.g. for co-skewness, `option=1` calciulates CoS(x,x,y)</span>
+<span class="sd">            `order`, int, which order (co-)moment to calculate. Can be overruled by `mode`, </span>
+<span class="sd">                e.g. if `mode=&#39;var&#39;`, `order` is set to 2. </span>
+<span class="sd">            `calcmode`, str, to use the efficient or naive algorithm to calculate distance statistics. Defaults to `fast` when available. </span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">est</span><span class="o">=</span><span class="s1">&#39;arithmetic&#39;</span><span class="p">,</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;mom&#39;</span><span class="p">,</span><span class="n">center</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">est</span><span class="o">=</span><span class="n">est</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">center</span><span class="o">=</span><span class="n">center</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">liest</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;arithmetic&#39;</span><span class="p">,</span><span class="s1">&#39;distance&#39;</span><span class="p">,</span><span class="s1">&#39;sign&#39;</span><span class="p">,</span><span class="s1">&#39;entropy&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">limo</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;mom&#39;</span><span class="p">,</span><span class="s1">&#39;var&#39;</span><span class="p">,</span><span class="s1">&#39;std&#39;</span><span class="p">,</span><span class="s1">&#39;skew&#39;</span><span class="p">,</span><span class="s1">&#39;kurt&#39;</span><span class="p">,</span><span class="s1">&#39;com&#39;</span><span class="p">,</span><span class="s1">&#39;cov&#39;</span><span class="p">,</span><span class="s1">&#39;cok&#39;</span><span class="p">,</span><span class="s1">&#39;cos&#39;</span><span class="p">,</span><span class="s1">&#39;corr&#39;</span><span class="p">,</span><span class="s1">&#39;continuum&#39;</span><span class="p">,</span><span class="s1">&#39;M3&#39;</span><span class="p">,</span> <span class="s1">&#39;mdd&#39;</span><span class="p">,</span><span class="s1">&#39;ballcov&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">licenter</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span><span class="s1">&#39;median&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">limo</span><span class="p">):</span>
+            <span class="k">raise</span><span class="p">(</span><span class="n">MyException</span><span class="p">(</span><span class="s2">&quot;Only models allowed are: &#39;mom&#39;,&#39;var&#39;,&#39;skew&#39;,&#39;kurt&#39;,&#39;com&#39;,&#39;cov&#39;,&#39;cos&#39;,&#39;cok&#39;,&#39;corr&#39;,&#39;continuum&#39;,&#39;M3&#39;,&#39;mdd&#39;,&#39;mdc&#39;,&#39;ballcov&#39;&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">est</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">liest</span><span class="p">):</span>
+            <span class="k">raise</span><span class="p">(</span><span class="n">MyException</span><span class="p">(</span><span class="s1">&#39;Only estimator classes allowed are: &quot;arithmetic&quot;, &quot;distance&quot;, &quot;sign&quot;, &quot;entropy&quot;&#39;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">center</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">licenter</span><span class="p">):</span>
+            <span class="k">raise</span><span class="p">(</span><span class="n">MyException</span><span class="p">(</span><span class="s1">&#39;Only centring classes allowed are: &quot;mean&quot;, &quot;median&quot;&#39;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">est</span><span class="o">==</span><span class="s1">&#39;arithmetic&#39;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;mdd&#39;</span><span class="p">,</span><span class="s1">&#39;mdc&#39;</span><span class="p">]):</span>
+            <span class="k">raise</span><span class="p">(</span><span class="n">MyException</span><span class="p">(</span><span class="s1">&#39;MDD only defined when est=&quot;distance&quot;&#39;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">==</span><span class="s1">&#39;ballcov&#39;</span><span class="p">):</span> 
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;To use the Ballcov functionality, uncomment the import statement and comment this line&quot;</span><span class="p">)</span>
+        
+        
+        
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        
+        
+        <span class="k">if</span> <span class="s1">&#39;trimming&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">trimming</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">trimming</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;trimming&#39;</span><span class="p">)</span>
+            
+        <span class="k">if</span> <span class="s1">&#39;biascorr&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">biascorr</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">biascorr</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;biascorr&#39;</span><span class="p">)</span>
+            
+        <span class="k">if</span> <span class="s1">&#39;alpha&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">alpha</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">alpha</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;alpha&#39;</span><span class="p">)</span>
+            
+        <span class="k">if</span> <span class="s1">&#39;dmetric&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">dmetric</span> <span class="o">=</span> <span class="s1">&#39;euclidean&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dmetric</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;dmetric&#39;</span><span class="p">)</span>
+            
+        <span class="k">if</span> <span class="s1">&#39;calcmode&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">calcmode</span> <span class="o">=</span> <span class="s1">&#39;fast&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">calcmode</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;calcmode&#39;</span><span class="p">)</span>
+            
+        <span class="k">if</span> <span class="s1">&#39;order&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">order</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">order</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;order&#39;</span><span class="p">)</span>
+            
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;var&#39;</span><span class="p">:</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;mom&#39;</span> 
+            <span class="n">order</span><span class="o">=</span><span class="mi">2</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;cov&#39;</span><span class="p">:</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;com&#39;</span>
+            <span class="n">order</span><span class="o">=</span><span class="mi">2</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;std&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">center</span> <span class="o">=</span> <span class="s1">&#39;mean&#39;</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;mom&#39;</span>
+            <span class="n">order</span><span class="o">=</span><span class="mi">2</span>
+            <span class="n">num_power</span> <span class="o">=</span> <span class="mf">0.5</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;skew&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">center</span> <span class="o">=</span> <span class="s1">&#39;mean&#39;</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;mom&#39;</span>
+            <span class="n">order</span> <span class="o">=</span> <span class="mi">3</span>
+            <span class="n">num_power</span> <span class="o">=</span> <span class="mf">1.5</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;kurt&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">center</span> <span class="o">=</span> <span class="s1">&#39;mean&#39;</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;mom&#39;</span>
+            <span class="n">order</span> <span class="o">=</span> <span class="mi">4</span>
+            <span class="n">num_power</span> <span class="o">=</span> <span class="mi">2</span>
+            <span class="k">if</span> <span class="s1">&#39;Fisher&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                <span class="n">Fisher</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">Fisher</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Fisher&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;cos&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">center</span> <span class="o">=</span> <span class="s1">&#39;mean&#39;</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;com&#39;</span>
+            <span class="n">order</span> <span class="o">=</span> <span class="mi">3</span>
+            <span class="k">if</span> <span class="s1">&#39;standardized&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                <span class="n">standardized</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">standardized</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;standardized&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;M3&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">center</span> <span class="o">=</span> <span class="s1">&#39;mean&#39;</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;com&#39;</span>
+            <span class="n">order</span> <span class="o">=</span> <span class="mi">3</span>
+            <span class="k">if</span> <span class="s1">&#39;standardized&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                <span class="n">standardized</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">standardized</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;standardized&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;cok&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">center</span> <span class="o">=</span> <span class="s1">&#39;mean&#39;</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;com&#39;</span>
+            <span class="n">order</span> <span class="o">=</span> <span class="mi">4</span>
+            <span class="k">if</span> <span class="s1">&#39;standardized&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                <span class="n">standardized</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">standardized</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;standardized&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s1">&#39;Fisher&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                <span class="n">Fisher</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">Fisher</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Fisher&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span>
+            
+        <span class="k">if</span> <span class="n">order</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span> 
+            <span class="k">if</span> <span class="s1">&#39;option&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                <span class="n">option</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">option</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;option&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">option</span> <span class="o">=</span> <span class="mi">0</span>
+            
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">ntrim</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">n</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">trimming</span><span class="p">))</span> 
+        
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">n</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+        
+        <span class="k">if</span> <span class="n">mode</span><span class="o">==</span><span class="s1">&#39;corr&#39;</span><span class="p">:</span>
+            <span class="n">alpha</span> <span class="o">=</span> <span class="mi">1</span>
+        
+        <span class="k">if</span> <span class="n">n</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span><span class="p">(</span><span class="n">MyException</span><span class="p">(</span><span class="s1">&#39;Please feed data with length &gt; 0&#39;</span><span class="p">))</span>
+            
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">center</span> <span class="o">==</span> <span class="s1">&#39;median&#39;</span><span class="p">:</span>
+            <span class="n">locest</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">locest</span> <span class="o">=</span> <span class="n">trim_mean</span>
+        
+        <span class="c1"># Classical variance, covariance and continuum as well as robust alternatives</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">est</span><span class="o">==</span><span class="s1">&#39;arithmetic&#39;</span><span class="p">:</span>
+            
+            <span class="c1"># Variance</span>
+            <span class="k">if</span> <span class="n">mode</span><span class="o">!=</span><span class="s1">&#39;com&#39;</span><span class="p">:</span>
+<span class="c1">#                if self.center==&#39;mean&#39;:</span>
+<span class="c1">#                    xvar = trimvar(x,trimming)*ntrim/(ntrim-1)</span>
+<span class="c1">#                elif self.center==&#39;median&#39;:</span>
+<span class="c1">#                    xvar = srs.mad(x)**2</span>
+                <span class="n">xmom</span> <span class="o">=</span> <span class="n">trim_mom</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">locest</span><span class="p">,</span><span class="n">order</span><span class="p">,</span><span class="n">trimming</span><span class="p">,</span><span class="n">option</span><span class="p">,</span><span class="n">biascorr</span><span class="p">)</span> 
+                <span class="bp">self</span><span class="o">.</span><span class="n">x_moment_</span> <span class="o">=</span> <span class="n">xmom</span>
+                
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;std&#39;</span><span class="p">,</span><span class="s1">&#39;skew&#39;</span><span class="p">,</span><span class="s1">&#39;kurt&#39;</span><span class="p">):</span>
+                    <span class="n">x2mom</span> <span class="o">=</span> <span class="n">trim_mom</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">locest</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="n">trimming</span><span class="p">,</span><span class="n">option</span><span class="p">,</span><span class="kc">False</span><span class="p">)</span>
+                    <span class="n">xmom</span> <span class="o">/=</span> <span class="p">(</span><span class="n">x2mom</span><span class="o">**</span><span class="n">num_power</span><span class="p">)</span> 
+                    <span class="k">if</span> <span class="n">biascorr</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;skew&#39;</span><span class="p">:</span>
+                            <span class="n">xmom</span> <span class="o">*=</span> <span class="p">(</span><span class="n">ntrim</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+                            <span class="n">xmom</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">ntrim</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">ntrim</span><span class="p">)</span>
+                        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;kurt&#39;</span><span class="p">:</span>
+                            <span class="n">xmom</span> <span class="o">=</span> <span class="n">xmom</span><span class="o">*</span><span class="n">ntrim</span> <span class="o">-</span> <span class="n">xmom</span><span class="o">/</span><span class="n">ntrim</span>
+                            <span class="n">xmom</span> <span class="o">-=</span> <span class="mi">3</span><span class="o">*</span><span class="p">(</span><span class="n">ntrim</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="mf">2.0</span> <span class="o">/</span> <span class="p">((</span><span class="n">ntrim</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">ntrim</span><span class="o">-</span><span class="mi">3</span><span class="p">))</span>
+                            <span class="k">if</span> <span class="ow">not</span> <span class="n">Fisher</span><span class="p">:</span>
+                                <span class="n">xmom</span> <span class="o">+=</span> <span class="mi">3</span>
+                
+                <span class="k">if</span> <span class="n">mode</span><span class="o">==</span><span class="s1">&#39;mom&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">moment_</span> <span class="o">=</span> <span class="n">xmom</span>
+            
+            <span class="c1"># Covariance or continuum</span>
+            <span class="k">if</span> <span class="n">mode</span><span class="o">!=</span><span class="s1">&#39;mom&#39;</span><span class="p">:</span>
+                
+                <span class="k">if</span> <span class="s1">&#39;y&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                    <span class="k">raise</span><span class="p">(</span><span class="n">MyException</span><span class="p">(</span><span class="s1">&#39;Please supply second data vector&#39;</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">y</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">)</span>
+                
+                <span class="n">n1</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">n1</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+                    <span class="k">raise</span><span class="p">(</span><span class="n">MyException</span><span class="p">(</span><span class="s1">&#39;Please feed data with length &gt; 0&#39;</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">n1</span><span class="o">!=</span><span class="n">n</span><span class="p">:</span>
+                    <span class="k">raise</span><span class="p">(</span><span class="n">MyException</span><span class="p">(</span><span class="s1">&#39;Please feed x and y data of equal length&#39;</span><span class="p">))</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+                    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">n</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+                
+                <span class="n">como</span> <span class="o">=</span> <span class="n">trim_mom</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">locest</span><span class="p">,</span><span class="n">order</span><span class="p">,</span><span class="n">trimming</span><span class="p">,</span><span class="n">option</span><span class="p">,</span><span class="n">biascorr</span><span class="p">)</span>
+                
+                <span class="bp">self</span><span class="o">.</span><span class="n">co_moment_</span> <span class="o">=</span> <span class="n">como</span>
+                
+                <span class="k">if</span> <span class="p">(</span><span class="n">biascorr</span> <span class="ow">and</span> <span class="p">(</span><span class="n">order</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">)):</span>
+                    <span class="n">como</span> <span class="o">*=</span> <span class="n">ntrim</span>
+                
+                <span class="k">if</span> <span class="n">mode</span><span class="o">==</span><span class="s1">&#39;com&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">moment_</span> <span class="o">=</span> <span class="n">como</span>
+                
+                    
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;cok&#39;</span><span class="p">,</span><span class="s1">&#39;cos&#39;</span><span class="p">):</span>
+                    <span class="n">x2sd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">trim_mom</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">locest</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="n">trimming</span><span class="p">,</span><span class="n">option</span><span class="p">,</span><span class="n">biascorr</span><span class="p">))</span>
+                    <span class="n">y2sd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">trim_mom</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">locest</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="n">trimming</span><span class="p">,</span><span class="n">option</span><span class="p">,</span><span class="n">biascorr</span><span class="p">))</span>
+                        
+                    <span class="k">if</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;cok&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">biascorr</span><span class="p">):</span> <span class="c1"># biascorr is only exact if standardized</span>
+                        <span class="n">como</span> <span class="o">-=</span> <span class="n">como</span><span class="o">/</span><span class="p">(</span><span class="n">ntrim</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+                        <span class="n">como</span> <span class="o">-=</span> <span class="mi">3</span><span class="o">*</span><span class="p">(</span><span class="n">ntrim</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="mf">2.0</span> <span class="o">/</span> <span class="p">((</span><span class="n">ntrim</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">ntrim</span><span class="o">-</span><span class="mi">3</span><span class="p">))</span>
+
+                
+                <span class="k">if</span> <span class="n">mode</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;corr&#39;</span><span class="p">,</span><span class="s1">&#39;continuum&#39;</span><span class="p">]:</span>
+                    
+<span class="c1">#                    if self.center==&#39;mean&#39;:</span>
+<span class="c1">#                        yvar = trimvar(y,trimming)*ntrim/(ntrim-1)</span>
+<span class="c1">#                    </span>
+<span class="c1">#                    elif self.center==&#39;median&#39;:</span>
+<span class="c1">#                        yvar = srs.mad(y)</span>
+                    <span class="n">ymom</span> <span class="o">=</span> <span class="n">trim_mom</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">locest</span><span class="p">,</span><span class="n">order</span><span class="p">,</span><span class="n">trimming</span><span class="p">,</span><span class="n">option</span><span class="p">,</span><span class="n">biascorr</span><span class="p">)</span>
+                    
+                    <span class="bp">self</span><span class="o">.</span><span class="n">y_moment_</span> <span class="o">=</span> <span class="n">ymom</span>
+                    
+        
+        <span class="c1"># Distance based metrics</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">est</span><span class="o">==</span><span class="s1">&#39;distance&#39;</span><span class="p">:</span>
+            
+            <span class="k">if</span> <span class="s1">&#39;dmetric&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                <span class="n">dmetric</span> <span class="o">=</span> <span class="s1">&#39;euclidean&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">dmetric</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;dmetric&#39;</span><span class="p">)</span>
+                
+            <span class="k">if</span> <span class="p">(</span><span class="n">mode</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;ballcov&#39;</span><span class="p">,</span><span class="s1">&#39;mdd&#39;</span><span class="p">,</span><span class="s1">&#39;mdc&#39;</span><span class="p">]):</span>
+        
+                <span class="k">if</span> <span class="s1">&#39;y&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                        <span class="k">raise</span><span class="p">(</span><span class="n">MyException</span><span class="p">(</span><span class="s1">&#39;Please supply second data vector&#39;</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">y</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">)</span>
+                    <span class="n">n1</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">n1</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+                        <span class="k">raise</span><span class="p">(</span><span class="n">MyException</span><span class="p">(</span><span class="s1">&#39;Please feed data with length &gt; 0&#39;</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="n">n1</span><span class="o">!=</span><span class="n">n</span><span class="p">:</span>
+                        <span class="k">raise</span><span class="p">(</span><span class="n">MyException</span><span class="p">(</span><span class="s1">&#39;Please feed x and y data of equal length&#39;</span><span class="p">))</span> 
+                    <span class="k">if</span> <span class="p">(</span><span class="n">mode</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;mdd&#39;</span><span class="p">,</span><span class="s1">&#39;mdc&#39;</span><span class="p">]):</span>
+                        <span class="n">como</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">difference_divergence</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">center</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">center</span><span class="p">,</span><span class="n">trimming</span><span class="o">=</span><span class="n">trimming</span><span class="p">,</span><span class="n">biascorr</span><span class="o">=</span><span class="n">biascorr</span><span class="p">))</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">co_moment_</span> <span class="o">=</span> <span class="n">como</span>
+                        <span class="k">if</span> <span class="n">mode</span><span class="o">==</span><span class="s1">&#39;mdd&#39;</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">moment_</span> <span class="o">=</span> <span class="n">como</span> 
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">xmom</span><span class="o">=</span><span class="n">difference_divergence</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">center</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">center</span><span class="p">,</span><span class="n">trimming</span><span class="o">=</span><span class="n">trimming</span><span class="p">,</span><span class="n">biascorr</span><span class="o">=</span><span class="n">biascorr</span><span class="p">)</span>
+                            <span class="n">ymom</span><span class="o">=</span><span class="n">difference_divergence</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">center</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">center</span><span class="p">,</span><span class="n">trimming</span><span class="o">=</span><span class="n">trimming</span><span class="p">,</span><span class="n">biascorr</span><span class="o">=</span><span class="n">biascorr</span><span class="p">)</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">x_moment_</span> <span class="o">=</span> <span class="n">xmom</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">y_moment_</span> <span class="o">=</span> <span class="n">ymom</span>
+                            <span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;corr&#39;</span>
+
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">dmy</span><span class="p">,</span> <span class="n">n2</span> <span class="o">=</span> <span class="n">distance_matrix_centered</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">biascorr</span><span class="o">=</span><span class="n">biascorr</span><span class="p">,</span>
+                                                   <span class="n">trimming</span><span class="o">=</span><span class="n">trimming</span><span class="p">,</span>
+                                                   <span class="n">center</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">center</span><span class="p">,</span>
+                                                   <span class="n">dmetric</span><span class="o">=</span><span class="n">dmetric</span><span class="p">)</span> 
+                        <span class="n">bcov_res</span><span class="o">=</span><span class="n">Ball</span><span class="o">.</span><span class="n">bcov_test</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">num_permutations</span><span class="o">=</span><span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">moment_</span> <span class="o">=</span> <span class="n">bcov_res</span>
+                        
+                
+                
+            
+            <span class="k">elif</span> <span class="p">(</span><span class="n">calcmode</span><span class="o">==</span><span class="s1">&#39;fast&#39;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">center</span> <span class="o">==</span><span class="s1">&#39;mean&#39;</span> <span class="ow">and</span> <span class="n">trimming</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">order</span><span class="o">==</span><span class="mi">2</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">mode</span> <span class="o">!=</span> <span class="s1">&#39;com&#39;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">biascorr</span><span class="p">:</span>
+                        <span class="n">xmom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">dc</span><span class="o">.</span><span class="n">u_distance_covariance_sqr</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">x</span><span class="p">))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">xmom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">dc</span><span class="o">.</span><span class="n">distance_covariance_sqr</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">x</span><span class="p">))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">moment_</span> <span class="o">=</span> <span class="n">xmom</span>
+                <span class="k">if</span> <span class="n">mode</span> <span class="o">!=</span><span class="s1">&#39;mom&#39;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="s1">&#39;y&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                        <span class="k">raise</span><span class="p">(</span><span class="n">MyException</span><span class="p">(</span><span class="s1">&#39;Please supply second data vector&#39;</span><span class="p">))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">y</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">)</span>
+                        <span class="n">n1</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+                    
+                    <span class="k">if</span> <span class="n">biascorr</span><span class="p">:</span>
+                        <span class="n">como</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">dc</span><span class="o">.</span><span class="n">u_distance_covariance_sqr</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">como</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">dc</span><span class="o">.</span><span class="n">distance_covariance_sqr</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="n">mode</span><span class="o">==</span><span class="s1">&#39;com&#39;</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">co_moment_</span> <span class="o">=</span> <span class="n">como</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">moment_</span> <span class="o">=</span> <span class="n">como</span>
+                    <span class="k">elif</span> <span class="n">mode</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;corr&#39;</span><span class="p">,</span><span class="s1">&#39;continuum&#39;</span><span class="p">,</span><span class="s1">&#39;cos&#39;</span><span class="p">,</span><span class="s1">&#39;cok&#39;</span><span class="p">]:</span>
+                        <span class="k">if</span> <span class="n">biascorr</span><span class="p">:</span>
+                            <span class="n">ymom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">dc</span><span class="o">.</span><span class="n">u_distance_covariance_sqr</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">y</span><span class="p">))</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">ymom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">dc</span><span class="o">.</span><span class="n">distance_covariance_sqr</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">y</span><span class="p">))</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">y_moment_</span> <span class="o">=</span> <span class="n">ymom</span>
+                        
+            
+                
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">dmx</span><span class="p">,</span> <span class="n">n1</span> <span class="o">=</span> <span class="n">distance_matrix_centered</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">biascorr</span><span class="o">=</span><span class="n">biascorr</span><span class="p">,</span>
+                                                   <span class="n">trimming</span><span class="o">=</span><span class="n">trimming</span><span class="p">,</span>
+                                                   <span class="n">center</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">center</span><span class="p">,</span>
+                                                   <span class="n">dmetric</span><span class="o">=</span><span class="n">dmetric</span><span class="p">)</span>
+                
+                <span class="c1"># Variance</span>
+                <span class="k">if</span> <span class="n">mode</span><span class="o">!=</span><span class="s1">&#39;com&#39;</span><span class="p">:</span>
+                    
+                    <span class="n">xmom</span> <span class="o">=</span> <span class="n">distance_moment</span><span class="p">(</span><span class="n">dmx</span><span class="p">,</span><span class="n">dmx</span><span class="p">,</span><span class="n">n1</span><span class="o">=</span><span class="n">n1</span><span class="p">,</span><span class="n">biascorr</span><span class="o">=</span><span class="n">biascorr</span><span class="p">,</span><span class="n">center</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">center</span><span class="p">,</span><span class="n">trimming</span><span class="o">=</span><span class="n">trimming</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="n">order</span><span class="p">,</span><span class="n">option</span><span class="o">=</span><span class="n">option</span><span class="p">)</span>
+                        
+                    <span class="bp">self</span><span class="o">.</span><span class="n">x_moment_</span> <span class="o">=</span> <span class="n">xmom</span>
+                    
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;std&#39;</span><span class="p">,</span><span class="s1">&#39;skew&#39;</span><span class="p">,</span><span class="s1">&#39;kurt&#39;</span><span class="p">):</span>
+                        <span class="n">x2mom</span> <span class="o">=</span><span class="n">distance_moment</span><span class="p">(</span><span class="n">dmx</span><span class="p">,</span><span class="n">dmx</span><span class="p">,</span><span class="n">n1</span><span class="o">=</span><span class="n">n1</span><span class="p">,</span><span class="n">biascorr</span><span class="o">=</span><span class="n">biascorr</span><span class="p">,</span><span class="n">center</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">center</span><span class="p">,</span><span class="n">trimming</span><span class="o">=</span><span class="n">trimming</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="n">option</span><span class="o">=</span><span class="n">option</span><span class="p">)</span>
+                        <span class="n">xmom</span> <span class="o">/=</span> <span class="n">x2mom</span><span class="o">**</span><span class="n">num_power</span>
+                        
+                    <span class="k">if</span> <span class="n">mode</span><span class="o">==</span><span class="s1">&#39;mom&#39;</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">moment_</span> <span class="o">=</span> <span class="n">xmom</span>
+                        
+                <span class="k">if</span> <span class="n">mode</span><span class="o">!=</span><span class="s1">&#39;mom&#39;</span><span class="p">:</span>
+                    
+                    <span class="k">if</span> <span class="s1">&#39;y&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                        <span class="k">raise</span><span class="p">(</span><span class="n">MyException</span><span class="p">(</span><span class="s1">&#39;Please supply second data vector&#39;</span><span class="p">))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">y</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">)</span>
+                        <span class="n">n1</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">n1</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+                        <span class="k">raise</span><span class="p">(</span><span class="n">MyException</span><span class="p">(</span><span class="s1">&#39;Please feed data with length &gt; 0&#39;</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="n">n1</span><span class="o">!=</span><span class="n">n</span><span class="p">:</span>
+                        <span class="k">raise</span><span class="p">(</span><span class="n">MyException</span><span class="p">(</span><span class="s1">&#39;Please feed x and y data of equal length&#39;</span><span class="p">))</span>
+                    
+                    <span class="n">dmy</span><span class="p">,</span> <span class="n">n2</span> <span class="o">=</span> <span class="n">distance_matrix_centered</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">biascorr</span><span class="o">=</span><span class="n">biascorr</span><span class="p">,</span>
+                                                   <span class="n">trimming</span><span class="o">=</span><span class="n">trimming</span><span class="p">,</span>
+                                                   <span class="n">center</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">center</span><span class="p">,</span>
+                                                   <span class="n">dmetric</span><span class="o">=</span><span class="n">dmetric</span><span class="p">)</span>
+                    
+                    <span class="n">como</span> <span class="o">=</span> <span class="n">distance_moment</span><span class="p">(</span><span class="n">dmx</span><span class="p">,</span><span class="n">dmy</span><span class="p">,</span><span class="n">n1</span><span class="o">=</span><span class="n">n1</span><span class="p">,</span><span class="n">biascorr</span><span class="o">=</span><span class="n">biascorr</span><span class="p">,</span><span class="n">center</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">center</span><span class="p">,</span><span class="n">trimming</span><span class="o">=</span><span class="n">trimming</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="n">order</span><span class="p">,</span><span class="n">option</span><span class="o">=</span><span class="n">option</span><span class="p">)</span>
+                    
+                    <span class="bp">self</span><span class="o">.</span><span class="n">co_moment_</span> <span class="o">=</span> <span class="n">como</span>
+                    
+                    <span class="k">if</span> <span class="n">mode</span><span class="o">==</span><span class="s1">&#39;com&#39;</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">moment_</span> <span class="o">=</span> <span class="n">como</span>
+                        
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;cok&#39;</span><span class="p">,</span><span class="s1">&#39;cos&#39;</span><span class="p">):</span>
+                        <span class="n">x2sd</span> <span class="o">=</span> <span class="n">distance_moment</span><span class="p">(</span><span class="n">dmx</span><span class="p">,</span><span class="n">dmx</span><span class="p">,</span><span class="n">n1</span><span class="o">=</span><span class="n">n1</span><span class="p">,</span><span class="n">biascorr</span><span class="o">=</span><span class="n">biascorr</span><span class="p">,</span><span class="n">center</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">center</span><span class="p">,</span><span class="n">trimming</span><span class="o">=</span><span class="n">trimming</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="n">option</span><span class="o">=</span><span class="n">option</span><span class="p">)</span>
+                        <span class="n">x2sd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x2sd</span><span class="p">)</span>
+                        <span class="n">y2sd</span> <span class="o">=</span> <span class="n">distance_moment</span><span class="p">(</span><span class="n">dmy</span><span class="p">,</span><span class="n">dmy</span><span class="p">,</span><span class="n">n1</span><span class="o">=</span><span class="n">n1</span><span class="p">,</span><span class="n">biascorr</span><span class="o">=</span><span class="n">biascorr</span><span class="p">,</span><span class="n">center</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">center</span><span class="p">,</span><span class="n">trimming</span><span class="o">=</span><span class="n">trimming</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="n">option</span><span class="o">=</span><span class="n">option</span><span class="p">)</span>
+                        <span class="n">y2sd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">y2sd</span><span class="p">)</span>
+                    
+                    <span class="k">if</span> <span class="n">mode</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;corr&#39;</span><span class="p">,</span><span class="s1">&#39;continuum&#39;</span><span class="p">,</span><span class="s1">&#39;cok&#39;</span><span class="p">,</span><span class="s1">&#39;cos&#39;</span><span class="p">]:</span>
+                        
+                        <span class="n">ymom</span> <span class="o">=</span> <span class="n">distance_moment</span><span class="p">(</span><span class="n">dmy</span><span class="p">,</span><span class="n">dmy</span><span class="p">,</span><span class="n">n1</span><span class="o">=</span><span class="n">n</span><span class="p">,</span><span class="n">biascorr</span><span class="o">=</span><span class="n">biascorr</span><span class="p">,</span><span class="n">center</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">center</span><span class="p">,</span><span class="n">trimming</span><span class="o">=</span><span class="n">trimming</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="n">order</span><span class="p">,</span><span class="n">option</span><span class="o">=</span><span class="n">option</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">y_moment_</span> <span class="o">=</span> <span class="n">ymom</span>
+                    
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;corr&#39;</span><span class="p">:</span> 
+            <span class="n">como</span> <span class="o">/=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">xmom</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">ymom</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">moment_</span><span class="o">=</span><span class="n">como</span>
+        <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;continuum&#39;</span><span class="p">:</span>
+            <span class="n">como</span> <span class="o">*=</span> <span class="n">como</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">xmom</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="n">alpha</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">moment_</span><span class="o">=</span><span class="n">como</span>
+        
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;cok&#39;</span><span class="p">,</span><span class="s1">&#39;cos&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">standardized</span><span class="p">):</span>
+            <span class="n">iter_stop_2</span> <span class="o">=</span> <span class="n">option</span> 
+            <span class="n">iter_stop_1</span> <span class="o">=</span> <span class="n">order</span> <span class="o">-</span> <span class="n">option</span>
+            <span class="n">como</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">x2sd</span><span class="p">,</span><span class="n">iter_stop_1</span><span class="p">)</span>
+            <span class="n">como</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">y2sd</span><span class="p">,</span><span class="n">iter_stop_2</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;cok&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">Fisher</span><span class="p">):</span> <span class="c1"># Not very meaningful for co-moment</span>
+                <span class="n">como</span> <span class="o">+=</span> <span class="mi">3</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">moment_</span><span class="o">=</span><span class="n">como</span>
+        
+                        
+        
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moment_</span><span class="p">)</span><span class="o">==</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">moment_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moment_</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moment_</span><span class="p">)</span></div>
+        
+                    
+                    
+                
+            
+        
+            
+            
+                
+        
+        
+        
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Sven Serneels and Emmanuel Jordy Menvouta.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

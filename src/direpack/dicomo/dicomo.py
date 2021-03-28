@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Sun Dec  2 13:14:51 2018
 
-@author: sven
-"""
+# Created on Sun Dec  2 13:14:51 2018
+
+# @author: sven
+
 import numpy as np
 import scipy.stats as sps
 import scipy.spatial as spp
@@ -29,49 +29,56 @@ class dicomo(_BaseComposition,BaseEstimator):
     projection indices based on (co-)moments. Ancillary functions for (co-)moment 
     estimation are in `_dicomo_utils.py`.
     
-    Parameters:
-        `est`, str: mode of estimation. The set of options are `'arithmetic'` (product-moment) 
-            or `'distance'` (energy statistics)
-        `mode`, str: type of moment. Options are: 
-            * `'mom'`: moment 
-            * `'var'`: variance 
-            * `'std'`: standard deviation 
-            * `'skew'`: skewness 
-            * `'kurt'`: kurtosis
-            * `'com'`: co-moment 
-            * `'M3'`: shortcut for third order co-moment
-            * `'cov'`: covariance 
-            * `'cos'`: co-skewness
-            * `'cok'`: co-kurtosis 
-            * `'corr'`: correlation, 
-            * `'continuum'`: continuum association 
-            * `'mdd'`: martingale difference divergence (requires `est = 'distance'`)
-            * `'mdc'`: martingale difference correlation (requires `est = 'distance'`)
-            * `'ballcov'`: ball covariance (requires installing `Ball` and uncommenting the `import` statement)
-        `center`: internal centring used in calculation. Options are `mean` or `median`.  
+    Parameters
+    ------------ 
 
-    Attributes:
-        Always provided: 
-        `moment_`: The resulting (co-)moment
-        Depending on the options picked, intermediate results are stored as well, 
-        such as `x_moment_`, `y_moment_` or `co_moment_`
+        est :  str
+             mode of estimation. The set of options are `'arithmetic'` (product-moment)  or `'distance'` (energy statistics)
+
+        mode : str
+                 type of moment. Options include :
+                * `'mom'`: moment 
+                * `'var'`: variance 
+                * `'std'`: standard deviation 
+                * `'skew'`: skewness 
+                * `'kurt'`: kurtosis
+                * `'com'`: co-moment 
+                * `'M3'`: shortcut for third order co-moment
+                * `'cov'`: covariance 
+                * `'cos'`: co-skewness
+                * `'cok'`: co-kurtosis 
+                * `'corr'`: correlation, 
+                * `'continuum'`: continuum association 
+                * `'mdd'`: martingale difference divergence (requires `est = 'distance'`)
+                * `'mdc'`: martingale difference correlation (requires `est = 'distance'`)
+                * `'ballcov'`: ball covariance (requires installing `Ball` and uncommenting the `import` statement)
+
+        center : str 
+                 internal centring used in calculation. Options are `mean` or `median`.  
+
+        Attributes:
+            Always provided: 
+            `moment_`: The resulting (co-)moment
+            Depending on the options picked, intermediate results are stored as well, 
+            such as `x_moment_`, `y_moment_` or `co_moment_`
     
-    Methods
-        `fit(X, *args, **kwargs)`: fit model 
+        Methods
+            `fit(X, *args, **kwargs)`: fit model 
 
-    Remarks:
-    The `fit` function takes several optional input arguments. These are options that 
-    apply to individual settings: 
-        `biascorr`, Bool, when `True`, correct for bias. For classical product-moment statistics, this 
-            is the small sample correction. For energy statistics, this leads to the estimates 
-            that are unbiased in high dimension
-            (but not preferred in low dimension). 
-        `alpha`, float, parameter for continuum association. Has no effect for other options.  
-        `option`, int, determines which higher order co-moment to calculate, 
-            e.g. for co-skewness, `option=1` calciulates CoS(x,x,y)
-        `order`, int, which order (co-)moment to calculate. Can be overruled by `mode`, 
-            e.g. if `mode='var'`, `order` is set to 2. 
-        `calcmode`, str, to use the efficient or naive algorithm to calculate distance statistics. Defaults to `fast` when available. 
+        Remarks:
+        The `fit` function takes several optional input arguments. These are options that 
+        apply to individual settings: 
+            `biascorr`, Bool, when `True`, correct for bias. For classical product-moment statistics, this 
+                is the small sample correction. For energy statistics, this leads to the estimates 
+                that are unbiased in high dimension
+                (but not preferred in low dimension). 
+            `alpha`, float, parameter for continuum association. Has no effect for other options.  
+            `option`, int, determines which higher order co-moment to calculate, 
+                e.g. for co-skewness, `option=1` calculates CoS(x,x,y)
+            `order`, int, which order (co-)moment to calculate. Can be overruled by `mode`, 
+                e.g. if `mode='var'`, `order` is set to 2. 
+            `calcmode`, str, to use the efficient or naive algorithm to calculate distance statistics. Defaults to `fast` when available. 
+
     
     """
     
@@ -438,11 +445,3 @@ class dicomo(_BaseComposition,BaseEstimator):
                     
                     
                 
-            
-        
-            
-            
-                
-        
-        
-        

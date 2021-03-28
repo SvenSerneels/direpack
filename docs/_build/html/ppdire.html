@@ -1,0 +1,495 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>ppdire &mdash; direpack 1.0.10 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="sudire" href="sudire.html" />
+    <link rel="prev" title="Welcome to direpack’s documentation!" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> direpack
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">ppdire</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#dicomo">dicomo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pp-optimizers">pp optimizers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#regularized-regression">Regularized regression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-direpack.ppdire.ppdire">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dependencies">Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#references">References</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="sudire.html">sudire</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sprm.html">sprm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Pre-processing.html">Pre-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Cross-validation and plotting.html">Cross-validation and plotting</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Other information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Contributing.html">Contributing</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">direpack</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>ppdire</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/ppdire.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="ppdire">
+<span id="id1"></span><h1>ppdire<a class="headerlink" href="#ppdire" title="Permalink to this headline">¶</a></h1>
+<p>Beyond discussion, the class of dimension reduction with the longest standing history accessible through direpack, is projection pursuit (PP) dimension reduction.
+Let <img class="math" src="_images/math/de6be83ba59860294b69180369ce3579a380034e.png" alt="\mathbf{X}"/> be a data matrix that is a sample of <img class="math" src="_images/math/918c016711c5ef0b747f8271d2d437967e77bfd9.png" alt="n"/> cases of a <img class="math" src="_images/math/5ca892c10ba12c6691356a5fe6dc6b68931e725a.png" alt="p"/> variate random variable and <img class="math" src="_images/math/e9b54b042d5b42f094fbafda29ebc1bbe1084fd6.png" alt="\mathbf{y}"/> be a sample of a corresponding depending variable, when applicable.
+The set of projection pursuit scores <img class="math" src="_images/math/695513ca5d4505cb7efbf12f5f7270bde3c2bcd1.png" alt="\mathbf{t}_i"/> that span the columns of <img class="math" src="_images/math/977017a4ddd31c0ae9d38ab41a5529c9836dc43d.png" alt="\mathbf{T}"/> are defined as linear combinations of the original variables: <img class="math" src="_images/math/98872e4d22c697d582b178a576f7949e52189c13.png" alt="\mathbf{T} = \mathbf{X}\mathbf{W}"/>, where the <img class="math" src="_images/math/f3d7da7db17748a18c487791596d7c3dd8984c0f.png" alt="\mathbf{w}_i"/> are
+the solution to the optimization problem:</p>
+<div class="math" id="equation-optim-ppdire">
+<p><span class="eqno">(1)<a class="headerlink" href="#equation-optim-ppdire" title="Permalink to this equation">¶</a></span><img src="_images/math/f37f755642ceeae1024f615757d11aaee369b184.png" alt="\begin{equation*}
+ \begin{aligned}
+ &amp; \underset{\mathbf{a}}{\text{maximise}} &amp; &amp; \mathfrak{P}\left(\mathbb{S}\left(\mathbf{a}^T\mathbf{X}\right)\right) \\
+ &amp; \text{subject to} &amp; &amp; \mathbf{w}_i^T\mathbf{X}^T\mathbf{X}\mathbf{w}_j = 0 \mbox{ and } \parallel \mathbf{w}_i\parallel_2 = 1,\\
+ \end{aligned}
+ \end{equation*}"/></p>
+</div><p>where <img class="math" src="_images/math/4588dc9f581bc7f3c4ab8f2329f11f23a4553e58.png" alt="i,j \in [1,\min(n,p)]"/>, <img class="math" src="_images/math/e0b1da76c111fdd8cebba24f0eef8f67e23bfdb0.png" alt="j &gt; i"/>  and the set <img class="math" src="_images/math/4405c3c18c5f561d576431e2774e1193c563561d.png" alt="\mathbb{S} = \{\mathbf{X},\mathbf{y}\}"/> if data for a dependent variable <img class="math" src="_images/math/f149b5a5eec1379e9afb8b6bb768fa8d8c2d5896.png" alt="Y"/> exist and is a singleton containing <img class="math" src="_images/math/de6be83ba59860294b69180369ce3579a380034e.png" alt="\mathbf{X}"/> otherwise.
+Maximization of this criterion is very flexible and the properties of the dimension reduction accomplished according to it can vary widely, mainly dependent on the presence or absence of dependent
+variable data, as well as on <img class="math" src="_images/math/60e10a0129155204df4efed41c9bbc8d99d955f0.png" alt="\mathfrak{P}"/>, which in the PP literature is referred to as the  projection index.</p>
+<div class="section" id="dicomo">
+<h2>dicomo<a class="headerlink" href="#dicomo" title="Permalink to this headline">¶</a></h2>
+<p>The projection index determines which method is being calculated.
+In direpack, projection pursuit can be called through the ppdire subpackge and class object, which allows the user to pass any function of appropriate dimensionality as a projection index.
+However, a set of popular projection indices deriving from (co-)moments, are provided as well through the dicomo subpackage. For several of these, plugging them in leads to well-established methods. They comprise:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Moment statistics: variance (PCA), higher order moments</p></li>
+<li><p>Co-moment statistics: covariance (PLS), higher order co-moments</p></li>
+<li><p>Standardized moments: skewness (ICA), kurtosis (ICA)</p></li>
+<li><p>Standardized co-moments: correlation coefficient (CCA), co-skewness, co-kurtosis</p></li>
+<li><p>Linear combinations of (standardized co-) moments. Here, the capi.py file in the ppdire subpackage delivers to co-moment analysis projection index (Serneels2019).</p></li>
+<li><p>Products of (co-)moments. Particularly the continuum association measure has been provided, which is given by <img class="math" src="_images/math/65bd440ede53b5584a7aa17e02039922d8447c4a.png" alt="\mathop{\mbox{cont}}(\mathbf{X},\mathbf{y}) = \mathop{\mbox{cov}}(\mathbf{X},\mathbf{y})\mathop{\mbox{var}}(\mathbf{X})^{\alpha-1}"/>. Using this continuum measure produces continuum regression  (CR, Stone and Brooks (1990)). CR is equivalent to PLS for <img class="math" src="_images/math/9a41fcf442087ffff36900e132822450727cd999.png" alt="\alpha = 1"/> and approaches PCA as <img class="math" src="_images/math/211cfe6ec760fefecd0ab747224e14e015ff39c7.png" alt="\alpha \rightarrow\infty"/>.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="pp-optimizers">
+<h2>pp optimizers<a class="headerlink" href="#pp-optimizers" title="Permalink to this headline">¶</a></h2>
+<p>Early ideas behind PP was the ability to scan all directions maximizing the projection index as denoted in  <a class="reference internal" href="#equation-optim-ppdire">(1)</a>. This essentially corresponds to a brute force optimization technique, which can be computationally very demanding.
+For instance, both PCA and PLS, can be solved analytically, leading to efficient algorithms that do not directly optimize <a class="reference internal" href="#equation-optim-ppdire">(1)</a>. Whenever the projection index plugged in, leads to a convex optimization problem, it is advisable to apply an efficient numerical optimization technique.  For that purpose,ppdire has the option to use scipy.optimize’s sequential least squares quadratic programming optimization (SLSQP). However, for projection indices based on ordering or ranking data, such as medians or trimmed (co-)moments, the problem is no longer convex and cannot be solved through SLSQP.
+For those purposes, the grid algorithm is included, which was originally developed to compute RCR (Filzmoser, Serneels, Croux, andVan Espen 2006).</p>
+</div>
+<div class="section" id="regularized-regression">
+<h2>Regularized regression<a class="headerlink" href="#regularized-regression" title="Permalink to this headline">¶</a></h2>
+<p>While the main focus of direpack is dimension reduction, all dimension reduction techniques offer a bridge to regularized regression.
+This can be achieved by regressing the dependent variable onto the estimated dimension reduced space. The latter provides regularization of the covariance matrix,
+due to the constraints in <a class="reference internal" href="#equation-optim-ppdire">(1)</a>, and allow to perform regression for an undersampled <img class="math" src="_images/math/de6be83ba59860294b69180369ce3579a380034e.png" alt="\mathbf{X}"/>. The classical estimate is to predict <img class="math" src="_images/math/e9b54b042d5b42f094fbafda29ebc1bbe1084fd6.png" alt="\mathbf{y}"/> through least squares regression:</p>
+<div class="math">
+<p><img src="_images/math/44af892aeb8369998fd01cb4de420b49a7eaadf9.png" alt="\begin{equation*}
+ \hat{\mathbf{y}}  = \hat{\mathbf{T}} \hat{\mathbf{T}}^T\mathbf{y}
+ \end{equation*}"/></p>
+</div><p>which again leads to well-established methods such as principal component regression (PCR), PLS regression, etc.</p>
+</div>
+<div class="section" id="module-direpack.ppdire.ppdire">
+<span id="usage"></span><h2>Usage<a class="headerlink" href="#module-direpack.ppdire.ppdire" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="direpack.ppdire.ppdire.ppdire">
+<em class="property">class </em><code class="sig-prename descclassname">direpack.ppdire.ppdire.</code><code class="sig-name descname">ppdire</code><span class="sig-paren">(</span><em class="sig-param">projection_index</em>, <em class="sig-param">pi_arguments={}</em>, <em class="sig-param">n_components=1</em>, <em class="sig-param">trimming=0</em>, <em class="sig-param">alpha=1</em>, <em class="sig-param">optimizer='SLSQP'</em>, <em class="sig-param">optimizer_options={'maxiter': 100000}</em>, <em class="sig-param">optimizer_constraints={}</em>, <em class="sig-param">regopt='OLS'</em>, <em class="sig-param">center='mean'</em>, <em class="sig-param">center_data=True</em>, <em class="sig-param">scale_data=True</em>, <em class="sig-param">whiten_data=False</em>, <em class="sig-param">square_pi=False</em>, <em class="sig-param">compression=False</em>, <em class="sig-param">copy=True</em>, <em class="sig-param">verbose=True</em>, <em class="sig-param">return_scaling_object=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/direpack/ppdire/ppdire.html#ppdire"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#direpack.ppdire.ppdire.ppdire" title="Permalink to this definition">¶</a></dt>
+<dd><p>PPDIRE Projection Pursuit Dimension Reduction</p>
+<p>The class allows for calculation of the projection pursuit optimization
+either through <cite>scipy.optimize</cite> or through the grid algorithm, native to this
+package. The class provides a very flexible way to access optimization of
+projection indices that can lead to either classical or robust dimension
+reduction. Optimization through scipy.optimize is much more efficient, yet
+it will only provide correct results for classical projection indices. The
+native grid algorithm should be used when the projection index involves
+order statistics of any kind, such as ranks, trimming, winsorizing, or
+empirical quantiles.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>projection_index</strong> (<em>function</em><em> or </em><em>class.</em>) – dicomo and capi supplied in this package can both be used, but user defined projection indices can be processed ball covariance can be used.</p></li>
+<li><p><strong>pi_arguments</strong> (<em>dict</em>) – arguments to be passed on to projection index</p></li>
+<li><p><strong>n_components</strong> (<em>int</em>) – number of components to estimate</p></li>
+<li><p><strong>trimming</strong> (<em>float</em>) – trimming percentage to be entered as pct/100</p></li>
+<li><p><strong>alpha</strong> (<em>float.</em>) – Continuum coefficient. Only relevant if ppdire is used to estimate (classical or robust) continuum regression</p></li>
+<li><p><strong>optimizer</strong> (<em>str.</em>) – Presently: either ‘grid’ (native optimizer) or any of the options in scipy-optimize (e.g. ‘SLSQP’)</p></li>
+<li><p><strong>optimizer_options</strong> (<em>dict</em>) – with options to pass on to the optimizer
+If optimizer == ‘grid’,
+ndir: int: Number of directions to calculate per iteration.
+maxiter: int. Maximal number of iterations.</p></li>
+<li><p><strong>optimizer_constraints</strong> (<em>dict</em><em> or </em><em>list of dicts</em><em>,</em>) – further constraints to be passed on to the optimizer function.</p></li>
+<li><p><strong>regopt</strong> (<em>str.</em>) – <dl class="simple">
+<dt>regression option for regression step y~T. Can be set</dt><dd><p>to ‘OLS’ (default), ‘robust’ (will run sprm.rm) or ‘quantile’
+(statsmodels.regression.quantreg).</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>center</strong> (<em>str</em><em>,</em>) – how to center the data. options accepted are options from sprm.preprocessing</p></li>
+<li><p><strong>center_data</strong> (<em>bool</em>) – </p></li>
+<li><p><strong>scale_data</strong> (<em>bool.</em>) – Note: if set to False, convergence to correct optimum  is not a given. Will throw a warning.</p></li>
+<li><p><strong>whiten_data</strong> (<em>bool.</em>) – Typically used for ICA (kurtosis as PI)</p></li>
+<li><p><strong>square_pi</strong> (<em>bool.</em>) – Whether to square the projection index upon evaluation.</p></li>
+<li><p><strong>compression</strong> (<em>bool.</em>) – Use internal data compresion step for flat data.</p></li>
+<li><p><strong>copy</strong> (<em>bool.</em>) – Whether to make a deep copy of the input data or not.</p></li>
+<li><p><strong>verbose</strong> (<em>bool.</em>) – Set to True prints the iteration number.</p></li>
+<li><p><strong>return_scaling_object</strong> (<em>bool.</em>) – If Trure, the rescaling object will be returned.</p></li>
+</ul>
+</dd>
+</dl>
+<p>The grid optimization algorithm for projection pursuit implemented here,
+was outlined in:</p>
+<blockquote>
+<div><p>Filzmoser, P., Serneels, S., Croux, C. and Van Espen, P.J.,
+Robust multivariate methods: The projection pursuit approach,
+in: From Data and Information Analysis to Knowledge Engineering,
+Spiliopoulou, M., Kruse, R., Borgelt, C., Nuernberger, A. and Gaul, W., eds.,
+Springer Verlag, Berlin, Germany,
+2006, pages 270–277.</p>
+</div></blockquote>
+<p>The ‘fit’ function will take a set of optional input arguments.</p>
+<dl class="method">
+<dt id="direpack.ppdire.ppdire.ppdire.fit">
+<code class="sig-name descname">fit</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/direpack/ppdire/ppdire.html#ppdire.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#direpack.ppdire.ppdire.ppdire.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit a projection pursuit dimension reduction model.</p>
+<p>Required input argument: X data as matrix or data frame</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>numpy array</em>) – Input data.</p></li>
+<li><p><strong>or kwarg</strong> (<em>arg</em>) – y :  data as vector or 1D matrix</p></li>
+<li><p><strong>kwargs</strong> – </p></li>
+<li><p><strong>h</strong> (<em>int</em>) – option to overrule class’s n_components parameter in fit.
+Convenient command line, yet should not be used in automated
+loops, e.g. cross-validation.</p></li>
+<li><p><strong>dmetric</strong> (<em>str</em>) – distance metric used internally. Defaults to ‘euclidean’</p></li>
+<li><p><strong>mixing</strong> (<em>bool</em>) – to estimate mixing matrix (only relevant for ICA)</p></li>
+<li><p><strong>parameters to the regression methods can be passed on</strong> (<em>Further</em>) – </p></li>
+<li><p><strong>as well as kwargs</strong><strong>, </strong><strong>e.g. quantile=0.8 for quantile regression.</strong> (<em>here</em>) – </p></li>
+<li><p><strong>only relevant if y specified.</strong> (<em>kwargs</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="direpack.ppdire.ppdire.ppdire.get_params">
+<code class="sig-name descname">get_params</code><span class="sig-paren">(</span><em class="sig-param">deep=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/direpack/ppdire/ppdire.html#ppdire.get_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#direpack.ppdire.ppdire.ppdire.get_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get parameters for this estimator.
+:param deep: If True, will return the parameters for this estimator and</p>
+<blockquote>
+<div><p>contained subobjects that are estimators.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><strong>params</strong> (<em>mapping of string to any</em>) – Parameter names mapped to their values.</p></li>
+<li><p><em>——</em></p></li>
+<li><p><em>Copied from ScikitLlearn instead of imported to avoid ‘deep=True’</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="direpack.ppdire.ppdire.ppdire.transform">
+<code class="sig-name descname">transform</code><span class="sig-paren">(</span><em class="sig-param">Xn</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/direpack/ppdire/ppdire.html#ppdire.transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#direpack.ppdire.ppdire.ppdire.transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the dimension reduction of the data Xn based on the fitted sudire model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>Xn</strong> (<em>matrix</em><em> or </em><em>data frame</em>) – Input data to be transformed</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>transformed_data</strong> –                     the dimension reduced data</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="direpack.ppdire.ppdire.ppdire.predict">
+<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param">Xn</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/direpack/ppdire/ppdire.html#ppdire.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#direpack.ppdire.ppdire.ppdire.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>predicts the response  on new data Xn</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>Xn</strong> (<em>matrix</em><em> or </em><em>data frame</em>) – Input data to be transformed</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>predictions</strong> (<em>numpy array</em>) – The predictions from the dimension reduction model</p></li>
+<li><p><em>——-</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-direpack.dicomo.dicomo"></span><dl class="class">
+<dt id="direpack.dicomo.dicomo.dicomo">
+<em class="property">class </em><code class="sig-prename descclassname">direpack.dicomo.dicomo.</code><code class="sig-name descname">dicomo</code><span class="sig-paren">(</span><em class="sig-param">est='arithmetic'</em>, <em class="sig-param">mode='mom'</em>, <em class="sig-param">center='mean'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/direpack/dicomo/dicomo.html#dicomo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#direpack.dicomo.dicomo.dicomo" title="Permalink to this definition">¶</a></dt>
+<dd><p>The <cite>dicomo</cite> class implements (co)-moment statistics, covering both clasical product-moment
+statistics, as well as more recently developed energy statistics.
+The <cite>dicomo</cite> class also serves as a plug-in into <cite>capi</cite> and  <cite>ppdire</cite>.
+It has been written consistently with <cite>ppdire</cite> such that it provides a wide range of
+projection indices based on (co-)moments. Ancillary functions for (co-)moment
+estimation are in <cite>_dicomo_utils.py</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>est</strong> (<em>str</em>) – mode of estimation. The set of options are <cite>‘arithmetic’</cite> (product-moment)  or <cite>‘distance’</cite> (energy statistics)</p></li>
+<li><p><strong>mode</strong> (<em>str</em>) – type of moment. Options include :
+* <cite>‘mom’</cite>: moment
+* <cite>‘var’</cite>: variance
+* <cite>‘std’</cite>: standard deviation
+* <cite>‘skew’</cite>: skewness
+* <cite>‘kurt’</cite>: kurtosis
+* <cite>‘com’</cite>: co-moment
+* <cite>‘M3’</cite>: shortcut for third order co-moment
+* <cite>‘cov’</cite>: covariance
+* <cite>‘cos’</cite>: co-skewness
+* <cite>‘cok’</cite>: co-kurtosis
+* <cite>‘corr’</cite>: correlation,
+* <cite>‘continuum’</cite>: continuum association
+* <cite>‘mdd’</cite>: martingale difference divergence (requires <cite>est = ‘distance’</cite>)
+* <cite>‘mdc’</cite>: martingale difference correlation (requires <cite>est = ‘distance’</cite>)
+* <cite>‘ballcov’</cite>: ball covariance (requires installing <cite>Ball</cite> and uncommenting the <cite>import</cite> statement)</p></li>
+<li><p><strong>center</strong> (<em>str</em>) – internal centring used in calculation. Options are <cite>mean</cite> or <cite>median</cite>.</p></li>
+<li><p><strong>Attributes</strong> – Always provided:
+<cite>moment_</cite>: The resulting (co-)moment
+Depending on the options picked, intermediate results are stored as well,
+such as <cite>x_moment_</cite>, <cite>y_moment_</cite> or <cite>co_moment_</cite></p></li>
+<li><p><strong>Methods</strong> – <cite>fit(X, *args, **kwargs)</cite>: fit model</p></li>
+<li><p><strong>Remarks</strong> – </p></li>
+<li><p><strong>fit function takes several optional input arguments. These are options that</strong> (<em>The</em>) – </p></li>
+<li><p><strong>to individual settings</strong> (<em>apply</em>) – <dl class="simple">
+<dt><cite>biascorr</cite>, Bool, when <cite>True</cite>, correct for bias. For classical product-moment statistics, this</dt><dd><p>is the small sample correction. For energy statistics, this leads to the estimates
+that are unbiased in high dimension
+(but not preferred in low dimension).</p>
+</dd>
+</dl>
+<p><cite>alpha</cite>, float, parameter for continuum association. Has no effect for other options.
+<cite>option</cite>, int, determines which higher order co-moment to calculate,</p>
+<blockquote>
+<div><p>e.g. for co-skewness, <cite>option=1</cite> calciulates CoS(x,x,y)</p>
+</div></blockquote>
+<dl class="simple">
+<dt><cite>order</cite>, int, which order (co-)moment to calculate. Can be overruled by <cite>mode</cite>,</dt><dd><p>e.g. if <cite>mode=’var’</cite>, <cite>order</cite> is set to 2.</p>
+</dd>
+</dl>
+<p><cite>calcmode</cite>, str, to use the efficient or naive algorithm to calculate distance statistics. Defaults to <cite>fast</cite> when available.</p>
+</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="dependencies">
+<h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>From <cite>sklearn.base</cite>: <cite>BaseEstimator</cite>,`TransformerMixin`,`RegressorMixin`</p></li>
+<li><p>From <cite>sklearn.utils</cite>: <cite>_BaseComposition</cite></p></li>
+<li><p><cite>copy</cite></p></li>
+<li><p><cite>scipy.stats</cite></p></li>
+<li><p>From <cite>scipy.linalg</cite>: <cite>pinv2</cite></p></li>
+<li><p>From <cite>scipy.optimize</cite>: <cite>minimize</cite></p></li>
+<li><p><cite>numpy</cite></p></li>
+<li><p>From <cite>statsmodels.regression.quantile_regression</cite>: <cite>QuantReg</cite></p></li>
+<li><p>From <cite>sklearn.utils.extmath</cite>: <cite>svd_flip</cite></p></li>
+</ul>
+</div>
+<div class="section" id="references">
+<h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li><p>Peter Filzmoser, Sven Serneels, Christophe Croux and Pierre J. Van Espen, Robust Multivariate Methods: The Projection Pursuit Approach,  in: From Data and Information Analysis to Knowledge Engineering,Spiliopoulou, M., Kruse, R., Borgelt, C., Nuernberger, A. and Gaul, W., eds.,  Springer Verlag, Berlin, Germany, 2006, pages 270–277.</p></li>
+<li><p>Sven Serneels, Projection pursuit based generalized betas accounting for higher order co-moment effects in financial market analysis,  in: JSM Proceedings, Business and Economic Statistics Section. Alexandria, VA: American Statistical Association, 2019, 3009-3035.</p></li>
+<li><p>Chen, Z. and Li, G., Robust principal components and dispersion matrices via projection pursuit,  Research Report, Department of Statistics, Harvard University, 1981.</p></li>
+<li><p>Peter Filzmoser, Christophe Croux, Pierre J. Van Espen, Robust Continuum Regression, Sven Serneels,  Chemometrics and Intelligent Laboratory Systems, 76 (2005), 197-204.</p></li>
+<li><p>Stone  M,  Brooks  RJ  (1990).   “Continuum  Regression:   Cross-Validated  Sequentially  Constructed Prediction Embracing Ordinary Least Squares, Partial Least Squares and PrincipalComponents Regression.”Journal of the Royal Statistical Society. Series B (Methodological),52, 237–269.</p></li>
+</ol>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="sudire.html" class="btn btn-neutral float-right" title="sudire" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to direpack’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Sven Serneels and Emmanuel Jordy Menvouta.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Fri Apr 26 19:27:52 2019
 
-@author: sven
-"""
+# Created on Fri Apr 26 19:27:52 2019
+
+# @author: sven
+
 
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
@@ -26,25 +26,37 @@ class snipls(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
         I. Hoffmann, P. Filzmoser, S. Serneels, K. Varmuza, 
         Journal of Chemometrics, 30 (2016), 153-162.
     
-    Parameters:
+     Parameters
     -----------
-    eta: float. Sparsity parameter in [0,1)
-    n_components: int, min 1. Note that if applied on data, n_components shall 
-        take a value <= min(x_data.shape)
-    verbose: Boolean (def true): to print intermediate set of columns retained
-    colums (def false): Either boolean, list, numpy array or pandas Index
-        if False, no column names supplied
-        if True, 
-            if X data are supplied as a pandas data frame, will extract column 
-                names from the frane
-            throws an error for other data input types
-        if a list, array or Index (will only take length x_data.shape[1]), 
-            the column names of the x_data supplied in this list, 
-            will be printed in verbose mode
-    centre: str, type of centring (`'mean'` [recommended], `'median'` or `'l1median'`), 
-    scale: str, type of scaling ('std','mad' or 'None')
-    copy (def True): boolean, whether to copy data
-    Note: copy not yet aligned with sklearn def  - we always copy    
+    eta : float.
+         Sparsity parameter in [0,1)
+
+    n_components : int,
+                     min 1. Note that if applied on data, n_components shall take a value <= min(x_data.shape)
+
+    verbose: Boolean (def true)
+                to print intermediate set of columns retained
+
+    columns : Either boolean, list, numpy array or pandas Index
+                (def false)
+                if False, no column names supplied
+                if True, 
+                    if X data are supplied as a pandas data frame, will extract column 
+                        names from the frane
+                    throws an error for other data input types
+                if a list, array or Index (will only take length x_data.shape[1]), 
+                    the column names of the x_data supplied in this list, 
+                    will be printed in verbose mode
+
+    centre : str, 
+                type of centring (`'mean'` [recommended], `'median'` or `'l1median'`), 
+
+    scale : str,
+             type of scaling ('std','mad' or 'None')
+
+    copy : (def True): boolean,
+             whether to copy data.  Note : copy not yet aligned with sklearn def  - we always copy  
+    
     
     """
     
@@ -59,6 +71,19 @@ class snipls(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
         self.copy = copy
 
     def fit(self,X,y):
+        """
+            Fit a  SNIPLS model. 
+            
+            Parameters
+            ------------ 
+                
+                X : numpy array 
+                    Input data.
+
+                y :   vector or 1D matrix
+                    Response data
+
+        """
         if type(self.columns) is list: 
             self.columns = np.array(self.columns)
         elif type(self.columns) is bool:
@@ -184,12 +209,33 @@ class snipls(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
         
     
     def predict(self,Xn):
+        """
+        Predict using a  SNIPLS model. 
+        
+        Parameters
+        ------------ 
+            
+            Xn : numpy array or data frame 
+                Input data.
+
+        """
         n,p,Xn = _predict_check_input(Xn)
         if p!= self.X.shape[1]:
             raise(ValueError('New data must have same number of columns as the ones the model has been trained with'))
         return(np.matmul(Xn,self.coef_) + self.intercept_)
         
     def transform(self,Xn):
+        """
+        Transform input data. 
+        
+        
+        Parameters
+        ------------ 
+            
+            Xn : numpy array or data frame 
+                Input data.
+
+        """
         n,p,Xn = _predict_check_input(Xn)
         if p!= self.X.shape[1]:
             raise(ValueError('New data must have seame number of columns as the ones the model has been trained with'))

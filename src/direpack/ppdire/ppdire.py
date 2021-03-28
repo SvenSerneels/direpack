@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Sun Dec 30 12:02:12 2018
 
-ppdire - Projection pursuit dimension reduction
+# Created on Sun Dec 30 12:02:12 2018
 
-@author: Sven Serneels (Ponalytics)
-"""
+# ppdire - Projection pursuit dimension reduction
+
+# @author: Sven Serneels (Ponalytics)
+
 
 
 #from .dicomo import dicomo
@@ -46,37 +46,67 @@ class ppdire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
     order statistics of any kind, such as ranks, trimming, winsorizing, or 
     empirical quantiles.  
         
-    Input parameters to class: 
-        projection_index: function or class. dicomo and capi supplied in this
-            package can both be used, but user defined projection indices can 
-            be processed 
-        pi_arguments: dict of arguments to be passed on to projection index 
-        n_components: int 
-        trimming: float, trimming percentage to be entered as pct/100 
-        alpha: float. Continuum coefficient. Only relevant if ppdire is used to 
-            estimate (classical or robust) continuum regression 
-        optimizer: str. Presently: either 'grid' (native optimizer) or 
-            any of the options in scipy-optimize (e.g. 'SLSQP')
-        optimizer_options: dict with options to pass on to the optimizer. 
-            If optimizer == 'grid',
-            ndir: int: Number of directions to calculate per iteration.
-            maxiter: int. Maximal number of iterations.
-        optimizer_constraints: dict or list of dicts, further constraints to be
-            passed on to the optimizer function.
-        regopt: str. regression option for regression step y~T. Can be set
-                to 'OLS' (default), 'robust' (will run sprm.rm) or 'quantile' 
-                (statsmodels.regression.quantreg). 
-        center: str, how to center the data. options accepted are options from
-            sprm.preprocessing 
-        center_data: bool 
-        scale_data: bool. Note: if set to False, convergence to correct optimum 
-            is not a given. Will throw a warning. 
-        whiten_data: bool. Typically used for ICA (kurtosis as PI)
-        square_pi: bool. Whether to square the projection index upon evaluation.
-        compression: bool. Use internal data compresion step for flat data. 
-        copy: bool. Whether to make a deep copy of the input data or not. 
-        verbose: bool. Set to True prints the iteration number. 
-        return_scaling_object: bool. 
+     Parameters
+    ------------ 
+
+        projection_index : function or class. 
+                            dicomo and capi supplied in this package can both be used, but user defined projection indices can be processed ball covariance can be used. 
+            
+        pi_arguments : dict 
+                        arguments to be passed on to projection index 
+
+        n_components : int 
+                        number of components to estimate
+
+        trimming : float
+                     trimming percentage to be entered as pct/100 
+
+        alpha : float.
+                 Continuum coefficient. Only relevant if ppdire is used to estimate (classical or robust) continuum regression 
+
+        optimizer : str.
+                    Presently: either 'grid' (native optimizer) or any of the options in scipy-optimize (e.g. 'SLSQP')
+
+        optimizer_options : dict 
+                            with options to pass on to the optimizer 
+                            If optimizer == 'grid',
+                            ndir: int: Number of directions to calculate per iteration.
+                            maxiter: int. Maximal number of iterations.
+
+        optimizer_constraints : dict or list of dicts, 
+                                further constraints to be passed on to the optimizer function.
+
+        regopt : str. 
+                regression option for regression step y~T. Can be set
+                        to 'OLS' (default), 'robust' (will run sprm.rm) or 'quantile' 
+                        (statsmodels.regression.quantreg). 
+
+        center : str, 
+                how to center the data. options accepted are options from sprm.preprocessing 
+
+        center_data : bool 
+
+        scale_data : bool. 
+                    Note: if set to False, convergence to correct optimum  is not a given. Will throw a warning. 
+
+        whiten_data : bool. 
+                    Typically used for ICA (kurtosis as PI)
+
+        square_pi : bool. 
+                    Whether to square the projection index upon evaluation.
+
+        compression : bool. 
+                        Use internal data compresion step for flat data. 
+
+        copy : bool. 
+                Whether to make a deep copy of the input data or not. 
+
+        verbose : bool. 
+                    Set to True prints the iteration number. 
+
+        return_scaling_object : bool.
+                                If Trure, the rescaling object will be returned.  
+
         
     The grid optimization algorithm for projection pursuit implemented here, 
     was outlined in: 
@@ -89,6 +119,7 @@ class ppdire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
         2006, pages 270--277.
         
     The 'fit' function will take a set of optional input arguments. 
+
     
     """
 
@@ -142,28 +173,7 @@ class ppdire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
     def fit(self,X,*args,**kwargs):
         
         """
-        Fit a projection pursuit dimension reduction model. 
         
-        Required input argument: X data as matrix or data frame 
-        
-        Optinal input arguments: 
-            
-            arg or kwarg:
-            y data as vector or 1D matrix
-            
-            kwargs: 
-            h, int: option to overrule class's n_components parameter in fit. 
-                Convenient command line, yet should not be used in automated 
-                loops, e.g. cross-validation.
-                
-            dmetric, str: distance metric used internally. Defaults to 'euclidean'
-            
-            mixing, bool: to estimate mixing matrix (only relevant for ICA)
-            
-            Further parameters to the regression methods can be passed on 
-            here as well as kwargs, e.g. quantile=0.8 for quantile regression. 
-            
-            kwargs only relevant if y specified: 
         
         """
 
@@ -683,6 +693,19 @@ class ppdire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
 
 
     def predict(self,Xn):
+        """
+        predicts the response  on new data Xn
+
+        Parameters
+        ----------
+                Xn : matrix or data frame
+                     Input data to be transformed 
+                
+        Returns
+        -------
+        predictions : numpy array 
+                      The predictions from the dimension reduction model
+        """
         Xn = convert_X_input(Xn)
         (n,p) = Xn.shape
         (q,h) = self.coef_.shape
@@ -691,6 +714,19 @@ class ppdire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
         return(np.array(np.matmul(Xn,self.coef_[:,h-1]) + self.intercept_).T.reshape(-1))
         
     def transform(self,Xn):
+        """
+        Computes the dimension reduction of the data Xn based on the fitted sudire model.
+
+        Parameters
+        ----------
+                Xn : matrix or data frame
+                     Input data to be transformed 
+
+        Returns
+        -------
+        transformed_data : numpy array
+                             the dimension reduced data 
+        """
         Xn = convert_X_input(Xn)
         (n,p) = Xn.shape
         if p!= self.coef_.shape[0]:

@@ -1,0 +1,924 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>direpack.sudire.sudire &mdash; direpack 1.0.10 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> direpack
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../ppdire.html">ppdire</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sudire.html">sudire</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sprm.html">sprm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Pre-processing.html">Pre-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Cross-validation and plotting.html">Cross-validation and plotting</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Other information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../Contributing.html">Contributing</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">direpack</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>direpack.sudire.sudire</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for direpack.sudire.sudire</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.linalg</span> <span class="kn">import</span>  <span class="n">inv</span><span class="p">,</span> <span class="n">sqrtm</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">from</span> <span class="nn">sklearn.utils.metaestimators</span> <span class="kn">import</span> <span class="n">_BaseComposition</span>
+<span class="kn">from</span> <span class="nn">sklearn.base</span> <span class="kn">import</span> <span class="n">RegressorMixin</span><span class="p">,</span><span class="n">BaseEstimator</span><span class="p">,</span><span class="n">TransformerMixin</span><span class="p">,</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">..preprocessing.robcent</span> <span class="kn">import</span> <span class="n">VersatileScaler</span>
+<span class="kn">from</span> <span class="nn">._sudire_utils</span> <span class="kn">import</span> <span class="o">*</span> 
+<span class="kn">from</span> <span class="nn">scipy.linalg</span> <span class="kn">import</span> <span class="n">orth</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">trim_mean</span>
+<span class="kn">import</span> <span class="nn">dcor</span> <span class="k">as</span> <span class="nn">dc</span>
+<span class="kn">import</span> <span class="nn">statsmodels.api</span> <span class="k">as</span> <span class="nn">sm</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">from</span> <span class="nn">..ipopt_temp.ipopt_wrapper</span> <span class="kn">import</span> <span class="n">minimize_ipopt</span>
+<span class="kn">from</span> <span class="nn">..ipopt_temp.jacobian</span> <span class="kn">import</span> <span class="n">FunctionWithApproxJacobianCentral</span><span class="p">,</span><span class="n">FunctionWithApproxJacobian</span>
+<span class="kn">from</span> <span class="nn">..dicomo._dicomo_utils</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">..utils.utils</span> <span class="kn">import</span> <span class="o">*</span>
+
+<div class="viewcode-block" id="sudire"><a class="viewcode-back" href="../../../sudire.html#direpack.sudire.sudire.sudire">[docs]</a><span class="k">class</span> <span class="nc">sudire</span><span class="p">(</span><span class="n">_BaseComposition</span><span class="p">,</span><span class="n">BaseEstimator</span><span class="p">,</span><span class="n">TransformerMixin</span><span class="p">,</span><span class="n">RegressorMixin</span><span class="p">):</span>
+    
+    <span class="sd">&quot;&quot;&quot;SUDIRE Sufficient Dimension Reduction </span>
+<span class="sd">    </span>
+<span class="sd">    The class allows for Sufficient Dimension Reduction using a variety of </span>
+<span class="sd">    methods. If the method requires optimization of a function, </span>
+<span class="sd">    This optimization is done through the Interior Point Optimizer (IPOPT)</span>
+<span class="sd">    algorithm. </span>
+<span class="sd">        </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">        sudiremeth: function or class. sudiremeth in this package can also be used, but user defined functions  can be processed. Built in options are : </span>
+
+<span class="sd">            save : Sliced Average Variance Estimation</span>
+
+<span class="sd">            sir  : Slices Inverse Regression</span>
+
+<span class="sd">            dr   : Directional Regression </span>
+
+<span class="sd">            iht  : Iterative Hessian Transformations</span>
+
+<span class="sd">            dcov-sdr : SDR via Distance Covariance </span>
+<span class="sd">            </span>
+<span class="sd">            mdd-sdr : SDR via Martingale Difference Divergence.</span>
+
+<span class="sd">            bcov-sdr : SDR via ball covariance</span>
+<span class="sd">            </span>
+<span class="sd">        n_components : int </span>
+<span class="sd">                      dimension of the central subspace.</span>
+<span class="sd">            </span>
+<span class="sd">        trimming : float</span>
+<span class="sd">                 trimming percentage to be entered as pct/100 </span>
+<span class="sd">        </span>
+<span class="sd">        optimizer_options : dict </span>
+<span class="sd">                            with options to pass on to the optimizer.Includes: </span>
+
+<span class="sd">        max_iter : int</span>
+<span class="sd">                     Maximal number of iterations.</span>
+
+<span class="sd">        tol: float</span>
+<span class="sd">             relative convergence tolerance</span>
+
+<span class="sd">        constr_viol_tol : float</span>
+<span class="sd">                        Desired threshold for the constraint violation.</span>
+<span class="sd">            </span>
+<span class="sd">        optimizer_constraints : dict or list of dicts</span>
+<span class="sd">                                 further constraints to be passed on to the optimizer function.</span>
+<span class="sd">            </span>
+<span class="sd">        optimizer_arguments: dict</span>
+<span class="sd">                             extra arguments to be passed to the sudiremeth function during optimization.</span>
+<span class="sd">        </span>
+<span class="sd">        optimizer_start : numpy array</span>
+<span class="sd">                         starting value for the optimization.</span>
+<span class="sd">        </span>
+<span class="sd">        center : str</span>
+<span class="sd">             how to center the data. options accepted are options from sprm.preprocessing </span>
+<span class="sd">            </span>
+<span class="sd">        center_data : bool </span>
+<span class="sd">                    If True, the data will be centered before the dimension reduction   </span>
+<span class="sd">        </span>
+<span class="sd">        scale_data : bool</span>
+<span class="sd">                    if set to False, convergence to correct optimum  is not a given. Will throw a warning. </span>
+<span class="sd">            </span>
+<span class="sd">        compression : bool</span>
+<span class="sd">                     Use internal data compresion step for flat data. </span>
+<span class="sd">        </span>
+<span class="sd">        n_slices :  int</span>
+<span class="sd">                    The number of slices for SAVE, SIR, DR</span>
+<span class="sd">    </span>
+<span class="sd">        is_distance_mat : bool </span>
+<span class="sd">                         if the inputed matrices for x and y are distance matrices.</span>
+<span class="sd">            </span>
+<span class="sd">        dmetric :  str</span>
+<span class="sd">                 distance metric used internally. Defaults to &#39;euclidean&#39;</span>
+<span class="sd">        </span>
+<span class="sd">        fit_ols :  bool </span>
+<span class="sd">                 if True, an OLS model is fitted after the dimension reduction.</span>
+<span class="sd">        </span>
+<span class="sd">        copy : bool</span>
+<span class="sd">              Whether to make a deep copy of the input data or not. </span>
+<span class="sd">        </span>
+<span class="sd">        verbose : bool</span>
+<span class="sd">                 Set to True prints the iteration number. </span>
+<span class="sd">        </span>
+<span class="sd">        return_scaling_object: bool. </span>
+<span class="sd">                                If True, the scaling object will be return after the dimension reduction. </span>
+<span class="sd">        </span>
+<span class="sd">    </span>
+<span class="sd">        </span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">sudiremeth</span> <span class="o">=</span> <span class="s1">&#39;dcov-sdr&#39;</span><span class="p">,</span> 
+                 <span class="n">n_components</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> 
+                 <span class="n">trimming</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+                 <span class="n">optimizer_options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;max_iter&#39;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">},</span> 
+                 <span class="n">optimizer_constraints</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">optimizer_arguments</span> <span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">optimizer_start</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">center_data</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">center</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span>
+                 <span class="n">scale_data</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">whiten_data</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">compression</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                 <span class="n">n_slices</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span>
+                 <span class="n">dmetric</span> <span class="o">=</span> <span class="s1">&#39;euclidean&#39;</span><span class="p">,</span>
+                 <span class="n">fit_ols</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                 <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
+                 <span class="n">return_scaling_object</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="c1"># Called arguments</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sudiremeth</span> <span class="o">=</span> <span class="n">sudiremeth</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_components</span> <span class="o">=</span> <span class="n">n_components</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trimming</span> <span class="o">=</span> <span class="n">trimming</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_options</span> <span class="o">=</span> <span class="n">optimizer_options</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_constraints</span> <span class="o">=</span> <span class="n">optimizer_constraints</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_arguments</span> <span class="o">=</span> <span class="n">optimizer_arguments</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_start</span> <span class="o">=</span> <span class="n">optimizer_start</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">center</span> <span class="o">=</span> <span class="n">center</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">center_data</span> <span class="o">=</span> <span class="n">center_data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_data</span> <span class="o">=</span> <span class="n">scale_data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">whiten_data</span> <span class="o">=</span> <span class="n">whiten_data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compression</span> <span class="o">=</span> <span class="n">compression</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_slices</span> <span class="o">=</span> <span class="n">n_slices</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dmetric</span> <span class="o">=</span> <span class="n">dmetric</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit_ols</span> <span class="o">=</span> <span class="n">fit_ols</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">copy</span> <span class="o">=</span> <span class="n">copy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">return_scaling_object</span> <span class="o">=</span> <span class="n">return_scaling_object</span>
+        
+        <span class="c1"># Other global parameters </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">licenter</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span><span class="s1">&#39;median&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">center</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">licenter</span><span class="p">):</span>
+            <span class="k">raise</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Only location estimator classes allowed are: &quot;mean&quot;, &quot;median&quot;&#39;</span><span class="p">))</span>
+            
+        <span class="bp">self</span><span class="o">.</span><span class="n">limeths</span> <span class="o">=</span><span class="p">[</span><span class="s1">&#39;sir&#39;</span><span class="p">,</span> <span class="s1">&#39;save&#39;</span><span class="p">,</span> <span class="s1">&#39;dr&#39;</span><span class="p">,</span><span class="s1">&#39;dcov-sdr&#39;</span><span class="p">,</span><span class="s1">&#39;bcov-sdr&#39;</span><span class="p">,</span><span class="s1">&#39;mdd-sdr&#39;</span><span class="p">,</span><span class="s1">&#39;phd&#39;</span><span class="p">,</span><span class="s1">&#39;iht&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sudiremeth</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">limeths</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sudiremeth</span><span class="p">)):</span>            
+            <span class="k">raise</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Only SDR methods allowed are : &quot;sir&quot;, &quot;save&quot;, &quot;dr&quot;, &quot;dcov-sdr&quot;,&quot;bcov-sdr&quot;, &quot;mdd-sdr&quot;, &quot;iht&quot;,&quot;phd&quot;&#39;</span><span class="p">))</span>
+            
+    
+
+<div class="viewcode-block" id="sudire.fit"><a class="viewcode-back" href="../../../sudire.html#direpack.sudire.sudire.sudire.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">X</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fit a Sufficient Dimension Reduction Model. </span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">                X : matrix or data frame </span>
+<span class="sd">                    Input data of predictors  </span>
+
+<span class="sd">                y :  vector or 1D matrix</span>
+<span class="sd">                    Response data</span>
+<span class="sd">                </span>
+<span class="sd">                args or kwargs : </span>
+<span class="sd">                                Further parameters to user defined sudiremeth can be passed here  </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">            self</span>
+<span class="sd">        </span>
+<span class="sd">        -------</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Collect optional fit arguments</span>
+            
+        <span class="k">if</span> <span class="s1">&#39;dmetric&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">dmetric</span> <span class="o">=</span> <span class="s1">&#39;euclidean&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dmetric</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;dmetric&#39;</span><span class="p">)</span>
+            
+        <span class="k">if</span> <span class="s1">&#39;biascorr&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">biascorr</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">biascorr</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;biascorr&#39;</span><span class="p">)</span>
+            
+        <span class="k">if</span> <span class="s1">&#39;flag&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">flag</span> <span class="o">=</span> <span class="s1">&#39;two-block&#39;</span>
+        <span class="k">else</span> <span class="p">:</span>
+            <span class="n">flag</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;flag&#39;</span><span class="p">)</span>     
+        
+        <span class="k">if</span> <span class="s1">&#39;is_distance_mat&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="p">:</span> 
+            <span class="n">is_distance_mat</span> <span class="o">=</span><span class="kc">False</span>
+        <span class="k">else</span> <span class="p">:</span> 
+            <span class="n">is_distance_mat</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;is_distance_mat&#39;</span><span class="p">)</span>
+            
+            
+                               
+        
+        <span class="c1"># Initiate some parameters and data frames</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">:</span>
+            <span class="n">X0</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">X0</span> <span class="o">=</span> <span class="n">X0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">X0</span> <span class="o">=</span> <span class="n">X</span>        
+        <span class="n">X</span> <span class="o">=</span> <span class="n">convert_X_input</span><span class="p">(</span><span class="n">X0</span><span class="p">)</span>    
+        <span class="n">n</span><span class="p">,</span><span class="n">p</span> <span class="o">=</span> <span class="n">X0</span><span class="o">.</span><span class="n">shape</span> 
+        <span class="n">trimming</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trimming</span>
+        
+        <span class="c1"># Check dimensions </span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_components</span> <span class="o">&gt;</span> <span class="nb">min</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">p</span><span class="p">):</span>
+            <span class="k">raise</span><span class="p">(</span><span class="n">MyException</span><span class="p">(</span><span class="s1">&#39;number of components cannot exceed number of variables or sample size&#39;</span><span class="p">))</span>
+            
+        <span class="c1"># Pre-processing adjustment if whitening</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">whiten_data</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">center_data</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scale_data</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">compression</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;All results produced are for whitened data&#39;</span><span class="p">)</span>
+            
+         <span class="c1">#Store original X data mean and varcov matrix.</span>
+        <span class="n">varmatx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cov</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">rowvar</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">meanx</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">N2</span> <span class="o">=</span> <span class="n">inv</span><span class="p">(</span><span class="n">sqrtm</span><span class="p">(</span><span class="n">varmatx</span><span class="p">))</span>
+        
+                    
+         <span class="c1"># Data Compression for flat tables if required                </span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">p</span><span class="o">&gt;</span><span class="n">n</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">compression</span><span class="p">):</span>
+            <span class="n">V</span><span class="p">,</span><span class="n">S</span><span class="p">,</span><span class="n">U</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="n">full_matrices</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">U</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">S</span><span class="p">))</span>
+            <span class="n">n</span><span class="p">,</span><span class="n">p</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span>
+            
+            <span class="k">if</span> <span class="p">(</span><span class="n">srs</span><span class="o">.</span><span class="n">mad</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span> 
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Due to low scales in data, compression would induce zero scales.&#39;</span> 
+                              <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="s1">&#39;Proceeding without compression.&#39;</span><span class="p">)</span>
+                <span class="n">dimensions</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">if</span> <span class="n">copy</span><span class="p">:</span>
+                    <span class="n">X</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">X0</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">X</span> <span class="o">=</span> <span class="n">X0</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">dimensions</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dimensions</span> <span class="o">=</span> <span class="kc">False</span>
+            
+            <span class="c1"># Centring and scaling</span>
+            <span class="c1"># centering :</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">center_data</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">center</span> <span class="o">!=</span> <span class="s1">&#39;mean&#39;</span><span class="p">:</span>
+                <span class="n">centring</span> <span class="o">=</span> <span class="n">VersatileScaler</span><span class="p">(</span><span class="n">center</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">center</span><span class="p">,</span> <span class="n">scale</span> <span class="o">=</span><span class="s1">&#39;None&#39;</span><span class="p">,</span><span class="n">trimming</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">trimming</span><span class="p">)</span> 
+                <span class="n">Xs</span> <span class="o">=</span> <span class="n">centring</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X0</span><span class="p">)</span>
+                <span class="n">mX</span> <span class="o">=</span> <span class="n">centring</span><span class="o">.</span><span class="n">col_loc_</span>
+                <span class="n">sX</span> <span class="o">=</span> <span class="n">centring</span><span class="o">.</span><span class="n">col_sca_</span>
+            <span class="k">else</span> <span class="p">:</span>
+                <span class="n">Xs</span> <span class="o">=</span> <span class="n">X</span> <span class="o">-</span><span class="n">trim_mean</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">trimming</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> 
+                <span class="n">mX</span> <span class="o">=</span> <span class="n">trim_mean</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">trimming</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">sX</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">varmatx</span><span class="p">))</span>                
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">Xs</span> <span class="o">=</span> <span class="n">X0</span>
+            <span class="n">mX</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span><span class="n">p</span><span class="p">))</span>
+            <span class="n">sX</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span><span class="n">p</span><span class="p">))</span>
+          
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_data</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">center</span><span class="o">==</span><span class="s1">&#39;mean&#39;</span><span class="p">:</span> 
+                <span class="n">scale</span> <span class="o">=</span> <span class="s1">&#39;std&#39;</span>
+                <span class="n">N2</span> <span class="o">=</span> <span class="n">inv</span><span class="p">(</span><span class="n">sqrtm</span><span class="p">(</span><span class="n">varmatx</span><span class="p">))</span>
+                <span class="n">Xs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span><span class="n">N2</span><span class="p">)</span> 
+                
+            <span class="k">elif</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">center</span><span class="o">==</span><span class="s1">&#39;median&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">center</span><span class="o">==</span><span class="s1">&#39;l1median&#39;</span><span class="p">)):</span>
+                <span class="n">scale</span> <span class="o">=</span> <span class="s1">&#39;mad&#39;</span> 
+                <span class="n">centring</span> <span class="o">=</span> <span class="n">VersatileScaler</span><span class="p">(</span><span class="n">center</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">center</span><span class="p">,</span><span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">,</span><span class="n">trimming</span><span class="o">=</span><span class="n">trimming</span><span class="p">)</span> 
+                <span class="n">Xs</span> <span class="o">=</span> <span class="n">centring</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X0</span><span class="p">)</span>
+                <span class="n">mX</span> <span class="o">=</span> <span class="n">centring</span><span class="o">.</span><span class="n">col_loc_</span>
+                <span class="n">sX</span> <span class="o">=</span> <span class="n">centring</span><span class="o">.</span><span class="n">col_sca_</span>
+            <span class="k">else</span> <span class="p">:</span>
+                <span class="k">raise</span><span class="p">(</span><span class="n">MyException</span><span class="p">(</span><span class="s1">&#39;centering options have to be either &quot;mean&quot;, &quot;median&quot;, or &quot;l1median&quot;&#39;</span><span class="p">))</span>
+                
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">scale</span> <span class="o">=</span> <span class="s1">&#39;None&#39;</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Without scaling, convergence to optima is not given&#39;</span><span class="p">)</span>
+           
+        
+        <span class="c1"># Initiate centring object and scale X data      </span>
+            
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">whiten_data</span><span class="p">:</span>
+            <span class="n">V</span><span class="p">,</span><span class="n">S</span><span class="p">,</span><span class="n">U</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">Xs</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="n">full_matrices</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">del</span> <span class="n">U</span>
+            <span class="n">K</span> <span class="o">=</span> <span class="p">(</span><span class="n">V</span><span class="o">/</span><span class="n">S</span><span class="p">)[:,:</span><span class="n">p</span><span class="p">]</span>
+            <span class="k">del</span> <span class="n">S</span>
+            <span class="n">Xs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">K</span><span class="p">)</span>
+            <span class="n">Xs</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+        <span class="c1"># Pre-process y data  </span>
+        <span class="n">ny</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">convert_y_input</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">ny</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">ny</span> <span class="o">!=</span> <span class="n">n</span><span class="p">:</span>
+            <span class="k">raise</span><span class="p">(</span><span class="n">MyException</span><span class="p">(</span><span class="s1">&#39;X and y number of rows must agree&#39;</span><span class="p">))</span>
+        
+        <span class="c1"># Pre-process y data when available </span>
+        <span class="k">if</span> <span class="n">flag</span> <span class="o">!=</span> <span class="s1">&#39;one-block&#39;</span><span class="p">:</span>    
+            <span class="n">ny</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">convert_y_input</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">ny</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">ny</span> <span class="o">!=</span> <span class="n">n</span><span class="p">:</span>
+                <span class="k">raise</span><span class="p">(</span><span class="n">MyException</span><span class="p">(</span><span class="s1">&#39;X and y number of rows must agree&#39;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">:</span>
+                <span class="n">y0</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">y0</span> <span class="o">=</span> <span class="n">y0</span>
+                
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">center_data</span><span class="p">:</span>
+                <span class="n">ys</span><span class="o">=</span><span class="n">y</span> <span class="c1"># dont center y</span>
+                <span class="n">my</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">sy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ys</span> <span class="o">=</span> <span class="n">y</span>
+                <span class="n">my</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">sy</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">ys</span> <span class="o">=</span> <span class="n">ys</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">)</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ys</span> <span class="o">=</span> <span class="kc">None</span>
+        
+                   
+        <span class="k">if</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sudiremeth</span> <span class="o">==</span> <span class="s1">&#39;sir&#39;</span><span class="p">):</span>
+            <span class="n">P</span> <span class="o">=</span> <span class="n">SIR</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_slices</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">n_components</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">center_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_data</span><span class="p">)</span>
+            <span class="n">projMat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">P</span><span class="p">,</span><span class="n">inv</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">P</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="n">P</span><span class="p">))),</span><span class="n">P</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+            <span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X0</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
+            
+        <span class="k">elif</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sudiremeth</span> <span class="o">==</span><span class="s1">&#39;save&#39;</span><span class="p">):</span>
+            <span class="n">P</span> <span class="o">=</span> <span class="n">SAVE</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_slices</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">n_components</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">center_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_data</span><span class="p">)</span>
+            <span class="n">projMat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">P</span><span class="p">,</span><span class="n">inv</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">P</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="n">P</span><span class="p">))),</span><span class="n">P</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+            <span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X0</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
+            
+        <span class="k">elif</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sudiremeth</span> <span class="o">==</span> <span class="s1">&#39;dr&#39;</span><span class="p">)</span> <span class="p">:</span> 
+            <span class="n">P</span> <span class="o">=</span> <span class="n">DR</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_slices</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">n_components</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">center_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_data</span><span class="p">)</span>
+            <span class="n">projMat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">P</span><span class="p">,</span><span class="n">inv</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">P</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="n">P</span><span class="p">))),</span><span class="n">P</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+            <span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X0</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
+            
+        <span class="k">elif</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sudiremeth</span> <span class="o">==</span> <span class="s1">&#39;phd&#39;</span><span class="p">):</span>
+            <span class="n">P</span> <span class="o">=</span> <span class="n">PHD</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">n_components</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">center_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_data</span><span class="p">)</span>
+            <span class="n">projMat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">P</span><span class="p">,</span><span class="n">inv</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">P</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="n">P</span><span class="p">))),</span><span class="n">P</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+            <span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X0</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
+            
+        <span class="k">elif</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sudiremeth</span> <span class="o">==</span> <span class="s1">&#39;iht&#39;</span><span class="p">):</span>
+            <span class="n">P</span> <span class="o">=</span> <span class="n">IHT</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">n_components</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">center_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_data</span><span class="p">)</span>
+            <span class="n">projMat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">P</span><span class="p">,</span><span class="n">inv</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">P</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="n">P</span><span class="p">))),</span><span class="n">P</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+            <span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X0</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
+            
+        
+        <span class="k">else</span> <span class="p">:</span> <span class="c1">#SDR obtained through optimization of some function</span>
+            
+             <span class="c1">## choose starting value for DCOV-SDR</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_start</span> <span class="ow">is</span> <span class="kc">None</span> <span class="p">:</span>
+                <span class="n">save_start</span><span class="o">=</span><span class="n">SAVE</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span><span class="n">ys</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">n_components</span><span class="p">)</span>
+                <span class="n">sir_start</span><span class="o">=</span><span class="n">SIR</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">n_components</span><span class="p">)</span>
+                <span class="n">beta_save</span><span class="o">=</span> <span class="n">orth</span><span class="p">(</span><span class="n">save_start</span><span class="p">)</span>
+                <span class="n">dc_save</span> <span class="o">=</span> <span class="n">dc</span><span class="o">.</span><span class="n">distance_covariance_sqr</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span><span class="n">beta_save</span><span class="p">),</span><span class="n">y</span><span class="p">)</span>       
+                <span class="n">beta_sir</span> <span class="o">=</span> <span class="n">orth</span><span class="p">(</span><span class="n">sir_start</span><span class="p">)</span>
+                <span class="n">dc_sir</span> <span class="o">=</span> <span class="n">dc</span><span class="o">.</span><span class="n">distance_covariance_sqr</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span><span class="n">beta_sir</span><span class="p">),</span><span class="n">y</span><span class="p">)</span>
+                <span class="n">DR_start</span> <span class="o">=</span> <span class="n">DR</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">n_components</span><span class="p">)</span>
+                <span class="n">beta_DR</span> <span class="o">=</span> <span class="n">orth</span><span class="p">(</span><span class="n">DR_start</span><span class="p">)</span>
+                <span class="n">dc_DR</span> <span class="o">=</span> <span class="n">dc</span><span class="o">.</span><span class="n">distance_covariance_sqr</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span><span class="n">beta_DR</span><span class="p">),</span><span class="n">y</span><span class="p">)</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">dc_save</span> <span class="o">&gt;=</span> <span class="n">dc_sir</span> <span class="ow">and</span> <span class="n">dc_save</span> <span class="o">&gt;=</span> <span class="n">dc_DR</span><span class="p">)</span> <span class="p">:</span> 
+                    <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_start</span><span class="o">=</span> <span class="n">save_start</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="p">(</span><span class="n">dc_sir</span> <span class="o">&gt;=</span> <span class="n">dc_save</span> <span class="ow">and</span> <span class="n">dc_sir</span> <span class="o">&gt;=</span> <span class="n">dc_DR</span><span class="p">)</span> <span class="p">:</span>    
+                    <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_start</span> <span class="o">=</span> <span class="n">sir_start</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span>
+                <span class="k">else</span> <span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_start</span> <span class="o">=</span> <span class="n">DR_start</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span>
+                
+            <span class="c1">## add constraints for the optimization</span>
+            <span class="k">if</span>  <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_constraints</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">const_x</span><span class="o">=</span><span class="p">[]</span>
+                <span class="n">const_z</span><span class="o">=</span><span class="p">[]</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_components</span><span class="p">):</span>
+                    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">n_components</span><span class="p">):</span> 
+                        <span class="n">const_x</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;eq&#39;</span><span class="p">,</span> <span class="s1">&#39;fun&#39;</span> <span class="p">:</span> <span class="n">const_xscale</span><span class="p">,</span>
+                                      <span class="s1">&#39;args&#39;</span><span class="p">:(</span><span class="n">Xs</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">n_components</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">)})</span> <span class="c1"># change const2 to const_func</span>
+                        <span class="n">const_z</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;eq&#39;</span><span class="p">,</span> <span class="s1">&#39;fun&#39;</span> <span class="p">:</span> <span class="n">const_zscale</span><span class="p">,</span>
+                                      <span class="s1">&#39;args&#39;</span><span class="p">:(</span><span class="n">Xs</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">n_components</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">)})</span>
+                
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_data</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_constraints</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">const_z</span><span class="p">)</span>
+                <span class="k">else</span> <span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_constraints</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">const_x</span><span class="p">)</span>
+                    
+            
+            <span class="k">if</span>  <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_arguments</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">N2</span> <span class="o">=</span> <span class="n">inv</span><span class="p">(</span><span class="n">sqrtm</span><span class="p">(</span><span class="n">varmatx</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_arguments</span> <span class="o">=</span> <span class="p">(</span><span class="n">Xs</span><span class="p">,</span><span class="n">ys</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_components</span><span class="p">,</span><span class="n">N2</span><span class="p">,</span> <span class="n">is_distance_mat</span><span class="p">,</span>
+                                            <span class="bp">self</span><span class="o">.</span><span class="n">trimming</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">center</span><span class="p">,</span> <span class="n">dmetric</span><span class="p">,</span><span class="n">biascorr</span><span class="p">)</span>
+            
+            <span class="c1">#perform DCOV-SDR optimization</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">minimize_ipopt</span><span class="p">(</span><span class="n">dcov_trim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_start</span><span class="p">,</span>
+                                 <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_arguments</span><span class="p">,</span>
+                                 <span class="n">constraints</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_constraints</span><span class="p">,</span>
+                                 <span class="n">options</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">optimizer_options</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_data</span> <span class="p">:</span> 
+                <span class="n">dcov_res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">N2</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">x</span><span class="p">,(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">n_components</span><span class="p">),</span><span class="n">order</span> <span class="o">=</span> <span class="s1">&#39;F&#39;</span><span class="p">))</span>
+            <span class="k">else</span> <span class="p">:</span> 
+                <span class="n">dcov_res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">x</span><span class="p">,(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">n_components</span><span class="p">),</span><span class="n">order</span> <span class="o">=</span> <span class="s1">&#39;F&#39;</span><span class="p">)</span>
+            
+            <span class="k">if</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sudiremeth</span> <span class="o">==</span> <span class="s1">&#39;dcov-sdr&#39;</span><span class="p">):</span>
+                <span class="n">P</span> <span class="o">=</span> <span class="n">dcov_res</span>
+                <span class="n">projMat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">P</span><span class="p">,</span><span class="n">inv</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">P</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="n">P</span><span class="p">))),</span><span class="n">P</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+                <span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X0</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
+                
+            <span class="k">elif</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sudiremeth</span> <span class="o">==</span> <span class="s1">&#39;bcov-sdr&#39;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_start</span> <span class="o">=</span> <span class="n">dcov_res</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span>
+                <span class="n">res_ball</span> <span class="o">=</span> <span class="n">minimize_ipopt</span><span class="p">(</span><span class="n">ballcov_func</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">optimizer_start</span><span class="p">,</span>
+                                          <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_arguments</span><span class="p">,</span>
+                                          <span class="n">constraints</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_constraints</span><span class="p">,</span>
+                                          <span class="n">options</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">optimizer_options</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_data</span><span class="p">:</span>
+                    <span class="n">P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">N2</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">res_ball</span><span class="o">.</span><span class="n">x</span><span class="p">,(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">n_components</span><span class="p">),</span><span class="n">order</span> <span class="o">=</span> <span class="s1">&#39;F&#39;</span><span class="p">))</span>
+                <span class="k">else</span> <span class="p">:</span>
+                    <span class="n">P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">res_ball</span><span class="o">.</span><span class="n">x</span><span class="p">,(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">n_components</span><span class="p">),</span><span class="n">order</span> <span class="o">=</span> <span class="s1">&#39;F&#39;</span><span class="p">)</span>
+                <span class="n">projMat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">P</span><span class="p">,</span><span class="n">inv</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">P</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="n">P</span><span class="p">))),</span><span class="n">P</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+                <span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X0</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
+                
+                
+            <span class="k">elif</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sudiremeth</span> <span class="o">==</span> <span class="s1">&#39;mdd-sdr&#39;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_start</span> <span class="o">=</span> <span class="n">dcov_res</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span>
+                <span class="n">res_mdd</span> <span class="o">=</span> <span class="n">minimize_ipopt</span><span class="p">(</span><span class="n">mdd_trim</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">optimizer_start</span><span class="p">,</span>
+                                          <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_arguments</span><span class="p">,</span>
+                                          <span class="n">constraints</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_constraints</span><span class="p">,</span>
+                                          <span class="n">options</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">optimizer_options</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_data</span> <span class="p">:</span>
+                    <span class="n">P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">N2</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">res_mdd</span><span class="o">.</span><span class="n">x</span><span class="p">,(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">n_components</span><span class="p">),</span><span class="n">order</span> <span class="o">=</span> <span class="s1">&#39;F&#39;</span><span class="p">))</span>
+                <span class="k">else</span> <span class="p">:</span>
+                    <span class="n">P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">res_mdd</span><span class="o">.</span><span class="n">x</span><span class="p">,(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">n_components</span><span class="p">),</span><span class="n">order</span> <span class="o">=</span> <span class="s1">&#39;F&#39;</span><span class="p">)</span>
+                <span class="n">projMat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">P</span><span class="p">,</span><span class="n">inv</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">P</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="n">P</span><span class="p">))),</span><span class="n">P</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+                <span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X0</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
+                
+            <span class="k">else</span> <span class="p">:</span> <span class="c1">## user defined function   </span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_start</span> <span class="o">=</span> <span class="n">dcov_res</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span>
+                <span class="n">opt_res</span> <span class="o">=</span> <span class="n">minimize_ipopt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sudiremeth</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_start</span><span class="p">,</span>
+                                          <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_arguments</span><span class="p">,</span>
+                                          <span class="n">constraints</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_constraints</span><span class="p">,</span>
+                                          <span class="n">options</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">optimizer_options</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_data</span> <span class="p">:</span> 
+                    <span class="n">P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">N2</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">opt_res</span><span class="o">.</span><span class="n">x</span><span class="p">,(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">n_components</span><span class="p">),</span><span class="n">order</span> <span class="o">=</span> <span class="s1">&#39;F&#39;</span><span class="p">))</span>
+                <span class="k">else</span> <span class="p">:</span> 
+                    <span class="n">P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">opt_res</span><span class="o">.</span><span class="n">x</span><span class="p">,(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">n_components</span><span class="p">),</span><span class="n">order</span> <span class="o">=</span> <span class="s1">&#39;F&#39;</span><span class="p">)</span>
+                <span class="n">projMat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">P</span><span class="p">,</span><span class="n">inv</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">P</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="n">P</span><span class="p">))),</span><span class="n">P</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+                <span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X0</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
+                
+        <span class="c1"># perform OLS regression</span>
+        <span class="n">T_reg</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">add_constant</span><span class="p">(</span><span class="n">T</span><span class="p">)</span> <span class="c1"># adding a constant</span>
+        <span class="n">ols_obj</span><span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">OLS</span><span class="p">(</span><span class="n">ys</span><span class="p">,</span> <span class="n">T_reg</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+        
+                                
+        <span class="c1"># Re-adjust estimates to original dimensions if data have been compressed </span>
+        <span class="k">if</span> <span class="n">dimensions</span><span class="p">:</span>      
+            <span class="n">P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">V</span><span class="p">[:,</span><span class="mi">0</span><span class="p">:</span><span class="n">p</span><span class="p">],</span><span class="n">P</span><span class="p">)</span>
+        
+        
+
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s2">&quot;x_loadings_&quot;</span><span class="p">,</span><span class="n">P</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s2">&quot;x_scores_&quot;</span><span class="p">,</span><span class="n">T</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;proj_mat_&quot;</span><span class="p">,</span> <span class="n">projMat</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">whiten_data</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s2">&quot;whitening_&quot;</span><span class="p">,</span><span class="n">K</span><span class="p">)</span>   
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s2">&quot;x_loc_&quot;</span><span class="p">,</span><span class="n">mX</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s2">&quot;x_sca_&quot;</span><span class="p">,</span><span class="n">sX</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s1">&#39;scaling_&#39;</span><span class="p">,</span><span class="n">scale</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s1">&#39;ols_obj_&#39;</span><span class="p">,</span><span class="n">ols_obj</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">return_scaling_object</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">center</span><span class="o">!=</span> <span class="s1">&#39;mean&#39;</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s1">&#39;scaling_object_&#39;</span><span class="p">,</span><span class="n">centring</span><span class="p">)</span>
+        
+        <span class="k">return</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="sudire.transform"><a class="viewcode-back" href="../../../sudire.html#direpack.sudire.sudire.sudire.transform">[docs]</a>    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">Xn</span><span class="p">,</span> <span class="n">distance_mat</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the dimension reduction of the data Xn based on the fitted sudire model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">                Xn : matrix or data frame</span>
+<span class="sd">                     Input data to be transformed </span>
+
+<span class="sd">                distance_mat : numpy array </span>
+<span class="sd">                                 distance matrix to represent similarity between observations. </span>
+<span class="sd">                </span>
+<span class="sd">                args or kwargs: </span>
+<span class="sd">                                Further parameters to user defined sufdiremeth can be passed here  </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        transformed_data : numpy array</span>
+<span class="sd">                             the dimension reduced data </span>
+
+<span class="sd">         -------</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">Xn</span> <span class="o">=</span> <span class="n">convert_X_input</span><span class="p">(</span><span class="n">Xn</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">p</span><span class="p">)</span> <span class="o">=</span> <span class="n">Xn</span><span class="o">.</span><span class="n">shape</span>
+        <span class="p">(</span><span class="n">q</span><span class="p">,</span><span class="n">h</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_loadings_</span><span class="o">.</span><span class="n">shape</span>
+        <span class="k">if</span> <span class="n">p</span><span class="o">!=</span><span class="n">q</span><span class="p">:</span>
+            <span class="k">raise</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;New data must have same number of columns as the ones the model has been trained with&#39;</span><span class="p">))</span>
+        <span class="k">return</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">Xn</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_loadings_</span><span class="p">))</span></div>
+
+    
+<div class="viewcode-block" id="sudire.predict"><a class="viewcode-back" href="../../../sudire.html#direpack.sudire.sudire.sudire.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">Xn</span><span class="p">,</span> <span class="n">is_distance_mat</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        predicts the response  on new data Xn</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">                Xn : matrix or data frame</span>
+<span class="sd">                     Input data to be transformed </span>
+
+<span class="sd">                is_distance_mat : bool </span>
+<span class="sd">                                 if True, Xn is treated as a distance matrix </span>
+<span class="sd">                </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        predictions : numpy array </span>
+<span class="sd">                      The predictions from the dimension reduction model</span>
+<span class="sd">        -------</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">Xn</span> <span class="o">=</span> <span class="n">convert_X_input</span><span class="p">(</span><span class="n">Xn</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">p</span><span class="p">)</span> <span class="o">=</span> <span class="n">Xn</span><span class="o">.</span><span class="n">shape</span>
+        <span class="p">(</span><span class="n">q</span><span class="p">,</span><span class="n">h</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_loadings_</span><span class="o">.</span><span class="n">shape</span>
+        <span class="k">if</span> <span class="n">p</span><span class="o">!=</span><span class="n">q</span><span class="p">:</span>
+            <span class="k">raise</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;New data must have same number of columns as the ones the model has been trained with&#39;</span><span class="p">))</span>
+        <span class="n">Xns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">Xn</span><span class="p">)</span>
+        <span class="n">Xns</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">add_constant</span><span class="p">(</span><span class="n">Xns</span><span class="p">)</span> <span class="c1"># adding a constant</span>
+        <span class="n">ys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ols_obj_</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">Xns</span><span class="p">)</span>
+        <span class="k">return</span><span class="p">(</span><span class="n">ys</span><span class="p">)</span></div></div>
+        
+   
+<span class="nd">@classmethod</span>   
+<span class="k">def</span> <span class="nf">_get_param_names</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get parameter names for the estimator&quot;&quot;&quot;</span>
+    <span class="c1"># fetch the constructor or the original constructor before</span>
+    <span class="c1"># deprecation wrapping if any</span>
+    <span class="n">init</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="fm">__init__</span><span class="p">,</span> <span class="s1">&#39;deprecated_original&#39;</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="fm">__init__</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">init</span> <span class="ow">is</span> <span class="nb">object</span><span class="o">.</span><span class="fm">__init__</span><span class="p">:</span>
+        <span class="c1"># No explicit constructor to introspect</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="c1"># introspect the constructor arguments to find the model parameters</span>
+    <span class="c1"># to represent</span>
+    <span class="n">init_signature</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">init</span><span class="p">)</span>
+    <span class="c1"># Consider the constructor parameters excluding &#39;self&#39;</span>
+    <span class="n">parameters</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">init_signature</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+                  <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="s1">&#39;self&#39;</span> <span class="ow">and</span> <span class="n">p</span><span class="o">.</span><span class="n">kind</span> <span class="o">!=</span> <span class="n">p</span><span class="o">.</span><span class="n">VAR_KEYWORD</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">p</span><span class="o">.</span><span class="n">VAR_POSITIONAL</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;scikit-learn estimators should always &quot;</span>
+                               <span class="s2">&quot;specify their parameters in the signature&quot;</span>
+                               <span class="s2">&quot; of their __init__ (no varargs).&quot;</span>
+                               <span class="s2">&quot; </span><span class="si">%s</span><span class="s2"> with constructor </span><span class="si">%s</span><span class="s2"> doesn&#39;t &quot;</span>
+                               <span class="s2">&quot; follow this convention.&quot;</span>
+                               <span class="o">%</span> <span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">init_signature</span><span class="p">))</span>
+    <span class="c1"># Extract and sort argument names excluding &#39;self&#39;</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">p</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">])</span>
+
+<span class="k">def</span> <span class="nf">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deep</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get parameters for this estimator.</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    deep : boolean, optional</span>
+<span class="sd">        If True, will return the parameters for this estimator and</span>
+<span class="sd">        contained subobjects that are estimators.</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    params : mapping of string to any</span>
+<span class="sd">        Parameter names mapped to their values.</span>
+<span class="sd">    ------</span>
+<span class="sd">    Copied from ScikitLlearn instead of imported to avoid &#39;deep=True&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_param_names</span><span class="p">():</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">deep</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s1">&#39;get_params&#39;</span><span class="p">):</span>
+            <span class="n">deep_items</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">get_params</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">update</span><span class="p">((</span><span class="n">key</span> <span class="o">+</span> <span class="s1">&#39;__&#39;</span> <span class="o">+</span> <span class="n">k</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">deep_items</span><span class="p">)</span>
+        <span class="n">out</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+<span class="k">def</span> <span class="nf">set_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Set the parameters of this estimator.</span>
+<span class="sd">    Copied from ScikitLearn, adapted to avoid calling &#39;deep=True&#39;</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    self</span>
+<span class="sd">    ------</span>
+<span class="sd">    Copied from ScikitLlearn instead of imported to avoid &#39;deep=True&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="p">:</span>
+        <span class="c1"># Simple optimization to gain speed (inspect is slow)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+    <span class="n">valid_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_params</span><span class="p">()</span>
+
+    <span class="n">nested_params</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>  <span class="c1"># grouped by prefix</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">key</span><span class="p">,</span> <span class="n">delim</span><span class="p">,</span> <span class="n">sub_key</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s1">&#39;__&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid_params</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid parameter </span><span class="si">%s</span><span class="s1"> for estimator </span><span class="si">%s</span><span class="s1">. &#39;</span>
+                             <span class="s1">&#39;Check the list of available parameters &#39;</span>
+                             <span class="s1">&#39;with `estimator.get_params().keys()`.&#39;</span> <span class="o">%</span>
+                             <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="bp">self</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">delim</span><span class="p">:</span>
+            <span class="n">nested_params</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">sub_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+            <span class="n">valid_params</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">sub_params</span> <span class="ow">in</span> <span class="n">nested_params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">valid_params</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="n">sub_params</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="bp">self</span>
+
+<div class="viewcode-block" id="estimate_structural_dim"><a class="viewcode-back" href="../../../sudire.html#direpack.sudire.sudire.estimate_structural_dim">[docs]</a><span class="k">def</span> <span class="nf">estimate_structural_dim</span><span class="p">(</span><span class="n">sudiremeth</span><span class="p">,</span> <span class="n">Xn</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Estimates the dimension of the central subspace using </span>
+<span class="sd">    the sudiremeth.  This approach is based on the bootstrap method of Sheng and Yin (2016)</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">        sudiermeth : str</span>
+<span class="sd">                    the SDR method to use in the estimation.</span>
+
+<span class="sd">        X :  numpy array or dataframe</span>
+<span class="sd">            Input X data</span>
+
+<span class="sd">        Y : vector or 1d matrix</span>
+<span class="sd">            Input Y data as </span>
+
+<span class="sd">        B : int </span>
+<span class="sd">            Number of bootstrap replications</span>
+
+<span class="sd">        kwargs:</span>
+
+<span class="sd">            n_slices: number of slices for SIR/SAVE/DR</span>
+
+<span class="sd">            center_data, bool : if the data  should be centered </span>
+
+<span class="sd">            scale_data, bool :  if the data should be scaled</span>
+
+<span class="sd">            center, string :   which centering(&#39;mean&#39;, &#39;median&#39;)</span>
+<span class="sd">            </span>
+<span class="sd">    Returns</span>
+<span class="sd">    ----------     </span>
+
+<span class="sd">    h : int </span>
+<span class="sd">        representing the dimension of the central subspace</span>
+
+<span class="sd">    ----------</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="s1">&#39;n_slices&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+        <span class="n">n_slices</span> <span class="o">=</span> <span class="mi">6</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">n_slices</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;n_slices&#39;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="s1">&#39;center_data&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="p">:</span>
+        <span class="n">center_data</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">else</span> <span class="p">:</span>
+        <span class="n">center_data</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;center_data&#39;</span><span class="p">)</span>
+        
+    <span class="k">if</span> <span class="s1">&#39;scale_data&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="p">:</span>
+        <span class="n">scale_data</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">else</span> <span class="p">:</span>
+        <span class="n">scale_data</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;scale_data&#39;</span><span class="p">)</span>
+        
+    <span class="k">if</span> <span class="s1">&#39;center&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="p">:</span>
+        <span class="n">center</span> <span class="o">=</span> <span class="s1">&#39;mean&#39;</span>
+    <span class="k">else</span> <span class="p">:</span>
+        <span class="n">center</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;center&#39;</span><span class="p">)</span>
+        
+            
+    <span class="n">Xn</span> <span class="o">=</span> <span class="n">convert_X_input</span><span class="p">(</span><span class="n">Xn</span><span class="p">)</span>
+    <span class="n">y</span>  <span class="o">=</span> <span class="n">convert_y_input</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>  
+    <span class="n">n</span><span class="p">,</span><span class="n">p</span> <span class="o">=</span> <span class="n">Xn</span><span class="o">.</span><span class="n">shape</span>
+    
+    <span class="n">diff_b</span><span class="o">=</span> <span class="p">[]</span>
+    <span class="n">mean_diff</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;possible dim&#39;</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+        <span class="n">sdr</span> <span class="o">=</span> <span class="n">sudire</span><span class="p">(</span><span class="n">sufdirmeth</span><span class="p">,</span> <span class="n">center_data</span><span class="o">=</span> <span class="n">center_data</span><span class="p">,</span>
+                     <span class="n">scale_data</span><span class="o">=</span><span class="n">scale_data</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="n">center</span><span class="p">,</span>
+                     <span class="n">n_slices</span><span class="o">=</span><span class="n">n_slices</span><span class="p">,</span> <span class="n">n_components</span> <span class="o">=</span> <span class="n">k</span><span class="p">)</span>
+        <span class="n">sdr</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">Xn</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">projMat</span> <span class="o">=</span> <span class="n">sdr</span><span class="o">.</span><span class="n">proj_mat_</span>
+        
+        <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">B</span><span class="p">)</span> <span class="p">:</span>  
+            <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="n">n</span><span class="p">)</span>
+            <span class="n">X_b</span> <span class="o">=</span> <span class="n">Xn</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">sdr_b</span> <span class="o">=</span> <span class="n">sudire</span><span class="p">(</span><span class="n">sufdirmeth</span><span class="p">,</span> <span class="n">center_data</span><span class="o">=</span> <span class="n">center_data</span><span class="p">,</span>
+                           <span class="n">scale_data</span><span class="o">=</span><span class="n">scale_data</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="n">center</span><span class="p">,</span>
+                          <span class="n">n_slices</span> <span class="o">=</span> <span class="n">n_slices</span><span class="p">,</span> <span class="n">n_components</span> <span class="o">=</span> <span class="n">k</span><span class="p">)</span>
+            <span class="n">sdr_b</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_b</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">)</span>
+            <span class="n">projMat_b</span> <span class="o">=</span> <span class="n">sdr_b</span><span class="o">.</span><span class="n">proj_mat_</span>
+            <span class="n">uh</span><span class="p">,</span><span class="n">sh</span><span class="p">,</span><span class="n">vh</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">projMat</span><span class="o">-</span><span class="n">projMat_b</span><span class="p">)</span>
+            <span class="n">diff_b</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">sh</span><span class="p">))</span>
+            
+        <span class="n">mean_diff</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">diff_b</span><span class="p">))</span>   
+    <span class="k">return</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">mean_diff</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">mean_diff</span><span class="p">)</span></div>
+
+ 
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Sven Serneels and Emmanuel Jordy Menvouta.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
