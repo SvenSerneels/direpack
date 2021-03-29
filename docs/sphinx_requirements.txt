@@ -1,0 +1,5 @@
+
+####### requirements for sphinx#######
+###### Requirements without Version Specifiers ######
+
+sphinx_math_dollar
