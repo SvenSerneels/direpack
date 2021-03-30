@@ -1,5 +1,0 @@
-.. _Cross-validation and plotting:
-
-#############################
-Cross-validation and plotting
-#############################
