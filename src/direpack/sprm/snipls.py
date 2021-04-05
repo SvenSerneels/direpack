@@ -26,8 +26,9 @@ class snipls(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
         I. Hoffmann, P. Filzmoser, S. Serneels, K. Varmuza, 
         Journal of Chemometrics, 30 (2016), 153-162.
     
-     Parameters
+    Parameters
     -----------
+    
     eta : float.
          Sparsity parameter in [0,1)
 

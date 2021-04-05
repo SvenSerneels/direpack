@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Wed Mar 25 09:01:53 2020
 
-@author: Sven Serneels, Ponalytics, Mar 2020. 
-"""
+# Created on Wed Mar 25 09:01:53 2020
+
+# @author: Sven Serneels, Ponalytics, Mar 2020. 
+
 
 __all__ = ['GenSpatialSignPrePprocessor','gen_ss_pp','gen_ss_covmat']
 

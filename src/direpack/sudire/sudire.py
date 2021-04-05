@@ -106,6 +106,21 @@ class sudire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
         
         return_scaling_object: bool. 
                                 If True, the scaling object will be return after the dimension reduction. 
+
+    Attributes
+    ----------
+    Attributes always provided 
+        -  `x_loadings_`: Estimated basis of the central subspace 
+        -  `x_scores_`: The projected X data. 
+        -  `x_loc_`:  location estimate for X 
+        -  `x_sca_`:  scale estimate for X
+        - ` ols_obj` : fitted OLS objected
+        -  `y_loc_`: y location estimate
+        -  `y_sca_`: y scale estimate
+
+    Attributes created only when corresponding input flags are `True`:
+        -   `whitening_`: whitened data matrix (usually denoted K)
+        -   `scaling_object_`: scaling object from `VersatileScaler`  
         
     
         

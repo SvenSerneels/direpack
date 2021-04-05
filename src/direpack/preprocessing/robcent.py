@@ -1,28 +1,28 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
+# Created on Sun Feb 4 2018
+# Updated on Sun Dec 16 2018
+# Refactored on Sat Dec 21 2019
+# Refactored on Sat Mar 28 2020
+
+# Class for classical and robust centering and scaling of input data for 
+# regression and machine learning 
+
+# Version 2.0: Code entirely restructured compared to version 1.0. 
+# Code made consistent with sklearn logic: fit(data,params) yields results. 
+# Code makes more effciient use of numpy builtin estimators.
+# Version 3.0:
+# Code now takes strings or functions as input to centring and scaling. 
+# Utility functions have been moved to _preproc_utilities.py 
+# Code now supplied for l1median cetring, with options to use different 
+# scipy.optimize optimization algorithms
+# Version 4.0: 
+# Made the API compatible for ScikitLearn pipelines. However, some nonstandard 
+# functions and output remain for backwards compatibility. Functionality for
+# sparse matrices still has to be implemented.  
+
 """
-Created on Sun Feb 4 2018
-Updated on Sun Dec 16 2018
-Refactored on Sat Dec 21 2019
-Refactored on Sat Mar 28 2020
-
-Class for classical and robust centering and scaling of input data for 
-regression and machine learning 
-
-Version 2.0: Code entirely restructured compared to version 1.0. 
-Code made consistent with sklearn logic: fit(data,params) yields results. 
-Code makes more effciient use of numpy builtin estimators.
-Version 3.0:
-Code now takes strings or functions as input to centring and scaling. 
-Utility functions have been moved to _preproc_utilities.py 
-Code now supplied for l1median cetring, with options to use different 
-scipy.optimize optimization algorithms
-Version 4.0: 
-Made the API compatible for ScikitLearn pipelines. However, some nonstandard 
-functions and output remain for backwards compatibility. Functionality for
-sparse matrices still has to be implemented.  
-
-
 Parameters
 ----------
     `center`: str or callable, location estimator. String has to be name of the 

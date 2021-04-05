@@ -82,28 +82,51 @@ class sprm(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
          tolerance for convergence in M algorithm 
 
     start_cutoff_mode : str,
-                        values:'specific' will set starting value cutoffs specific to X and y (preferred); 
-                            any other value will set X and y stating cutoffs identically. 
+                        values:
+                        'specific' will set starting value cutoffs specific to X and y (preferred); 
+                        any other value will set X and y stating cutoffs identically. 
                             The latter yields identical results to the SPRM R implementation available from
                             CRAN.
     start_X_init: str,
                  values:
-                    'pcapp' will include a PCA/broken stick projection to 
-                            calculate the staring weights, else just based on X;
-                    any other value will calculate the X starting values based on the X
-                            matrix itself. This is less stable for very flat data (p >> n), 
-                            yet yields identical results to the SPRM R implementation 
-                            available from CRAN.   
+                    'pcapp' will include a PCA/broken stick projection to  calculate the staring weights, else just based on X;
+                        any other value will calculate the X starting values based on the X matrix itself. This is less stable for very flat data (p >> n), yet yields identical results to the SPRM R implementation available from CRAN.   
     columns : (def false) Either boolean, list, numpy array or pandas Index
                 if False, no column names supplied
                 if True, 
-                    if X data are supplied as a pandas data frame, will extract column 
-                        names from the frane
+                    if X data are supplied as a pandas data frame, will extract column names from the frame
                     throws an error for other data input types
                 if a list, array or Index (will only take length x_data.shape[1]), 
-                    the column names of the x_data supplied in this list, 
+                 the column names of the x_data supplied in this list, 
                     will be printed in verbose mode
     copy : (def True) boolean, whether to copy data
+
+    Attributes
+    ---------------
+    Attributes always provided 
+
+        -  `x_weights_`: X block PLS weighting vectors (usually denoted W)
+        -  `x_loadings_`: X block PLS loading vectors (usually denoted P)
+        -  `C_`: vector of inner relationship between response and latent variablesblock re
+        -  `x_scores_`: X block PLS score vectors (usually denoted T)
+        -  `coef_`: vector of regression coefficients 
+        -  `intercept_`: intercept
+        -  `coef_scaled_`: vector of scaled regression coeeficients (when scaling option used)
+        -  `intercept_scaled_`: scaled intercept
+        -  `residuals_`: vector of regression residuals
+        -  `x_ev_`: X block explained variance per component
+        -  `y_ev_`: y block explained variance 
+        -  `fitted_`: fitted response
+        -  `x_Rweights_`: X block SIMPLS style weighting vectors (usually denoted R)
+        -  `x_caseweights_`: X block case weights
+        -  `y_caseweights_`: y block case weights
+        -  `caseweights_`: combined case weights
+        -  `colret_`: names of variables retained in the sparse model
+        -  `x_loc_`: X block location estimate 
+        -  `y_loc_`: y location estimate
+        -  `x_sca_`: X block scale estimate
+        -  `y_sca_`: y scale estimate
+        -  `non_zero_scale_vars_`: indicator vector of variables in X with nonzero scale
 
     
     """
@@ -215,7 +238,7 @@ class sprm(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
                 self.columns = self.columns[vars_to_keep]
             p = len(vars_to_keep)
             if (self.n_components > p):
-                raise MyException(f"Upon removal of zero scale variables, the number of components is too large. Please reduce to {p} maximally.")
+                raise MyException("Upon removal of zero scale variables, the number of components is too large. Please reduce to {p} maximally.")
         
         self.non_zero_scale_vars_ = vars_to_keep
 

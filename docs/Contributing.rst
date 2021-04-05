@@ -30,8 +30,8 @@ An article with further information on the package is available. Menvouta, E. J.
 Contacts
 ================
 
-* Dr Sven Serneels is Sr. Director of Data Science at  Aspen Technology and can be contacted at svenserneels@gmail.com.
+* Dr Sven Serneels is Sr. Director of Data Science at  Aspen Technology and can be contacted at svenserneel (at) gmail.com.
 
-* Emmanuel Jordy Menvouta is a PhD researcher in Statistics and Data Science at KU Leuven and can be contacted at emmanueljordy.menvoutankpwele@kuleuven.be. 
+* Emmanuel Jordy Menvouta is a PhD researcher in Statistics and Data Science at KU Leuven and can be contacted at emmanueljordy.menvoutankpwele (at) kuleuven.be. 
 
-* Prof Tim Verdonck is Professor of Statistics and Data Science at University of Antwerp and KU Leuven. He can be reached at tim.verdonck@uantwerp.be.
+* Prof Tim Verdonck is Professor of Statistics and Data Science at University of Antwerp and KU Leuven. He can be reached at tim.verdonck (at) uantwerp.be.
