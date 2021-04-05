@@ -1,5 +1,6 @@
 .. _ppdire:
 
+
 ################
 ppdire
 ################
@@ -80,7 +81,9 @@ Usage
 
         .. automethod:: transform
 
-        .. automethod:: predict    
+        .. automethod:: predict  
+
+    .. autoattribute:: ppdire  
 
 .. automodule:: direpack.dicomo.dicomo
 

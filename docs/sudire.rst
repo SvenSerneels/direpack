@@ -1,5 +1,7 @@
 .. _sudire:
 
+
+
 ################
 sudire
 ################
@@ -66,7 +68,9 @@ Usage
 
         .. automethod:: transform
 
-        .. automethod:: predict    
+        .. automethod:: predict  
+
+    .. autoattribute:: sudire   
 
     .. autofunction:: estimate_structural_dim
 
