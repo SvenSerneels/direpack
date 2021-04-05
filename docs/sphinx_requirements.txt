@@ -3,3 +3,5 @@
 ###### Requirements without Version Specifiers ######
 
 sphinx_math_dollar
+sklearn
+direpack

@@ -75,7 +75,11 @@ Usage
 
         .. automethod:: transform
 
-        .. automethod:: predict    
+        .. automethod:: predict 
+
+    .. autoattribute:: sprm 
+
+       
 
 
 .. automodule:: direpack.sprm.snipls

@@ -46,7 +46,7 @@ class ppdire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
     order statistics of any kind, such as ranks, trimming, winsorizing, or 
     empirical quantiles.  
         
-     Parameters
+    Parameters
     ------------ 
 
         projection_index : function or class. 
@@ -105,7 +105,37 @@ class ppdire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
                     Set to True prints the iteration number. 
 
         return_scaling_object : bool.
-                                If Trure, the rescaling object will be returned.  
+                                If True, the rescaling object will be returned. 
+
+    Attributes
+    ------------ 
+        Attributes always provided 
+        -  `x_weights_`: X block PPDIRE weighting vectors (usually denoted W)
+        -  `x_loadings_`: X block PPDIRE loading vectors (usually denoted P)
+        -  `x_scores_`: X block PPDIRE score vectors (usually denoted T)
+        -  `x_ev_`: X block explained variance per component
+        -  `x_Rweights_`: X block SIMPLS style weighting vectors (usually denoted R)
+        -  `x_loc_`: X block location estimate 
+        -  `x_sca_`: X block scale estimate
+        -  `crit_values_`: vector of evaluated values for the optimization objective. 
+        -  `Maxobjf_`: vector containing the optimized objective per component. 
+
+        Attributes created when more than one block of data is provided: 
+        -  `C_`: vector of inner relationship between response and latent variables block
+        -  `coef_`: vector of regression coefficients, if second data block provided 
+        -  `intercept_`: intercept
+        -  `coef_scaled_`: vector of scaled regression coefficients (when scaling option used)
+        -  `intercept_scaled_`: scaled intercept
+        -  `residuals_`: vector of regression residuals
+        -  `y_ev_`: y block explained variance 
+        -  `fitted_`: fitted response
+        -  `y_loc_`: y location estimate
+        -  `y_sca_`: y scale estimate
+
+        Attributes created only when corresponding input flags are `True`:
+        -   `whitening_`: whitened data matrix (usually denoted K)
+        -   `mixing_`: mixing matrix estimate
+        -   `scaling_object_`: scaling object from `VersatileScaler`
 
         
     The grid optimization algorithm for projection pursuit implemented here, 
