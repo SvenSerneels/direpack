@@ -60,14 +60,10 @@ Documentation
 =============
 
 - Detailed documentation can be found in the [ReadTheDocs page](https://direpack.readthedocs.io/en/latest/index.html). 
-- A more detailed description on the background is presented in the [`direpack` vignette](https://arxiv.org/abs/2006.01635). 
+- A more extensive description on the background is presented in the [`direpack` vignette](https://arxiv.org/abs/2006.01635). 
 - Examples on how to use each of the `dicomo`, `ppdire`, `sprm` and `sudire` classes are presented as Jupyter notebooks in the [examples](https://github.com/SvenSerneels/direpack/blob/master/examples) folder
-- Furthemore, the `docs` folder contains a few markdown files on usage of the classes. 
+- Furthemore, the [docs](https://github.com/SvenSerneels/direpack/blob/master/docs) folder contains a few markdown files on usage of the classes. 
 
-
-Examples
-========
-Jupyter Notebooks with Examples are provided for each of the classes in the `examples` folder.
   
         
 References
