@@ -5,13 +5,12 @@ This package delivers a `scikit-learn` compatible Python 3 package for sundry st
 a focus on dimension reduction. 
 
 The categories of methods delivered in this package, are: 
-- Projection pursuit dimension reduction (`ppdire` folder; cf. [ppdire Documentation file](https://github.com/SvenSerneels/direpack/blob/master/docs/ppdire.md) and [ppdire Examples Notebook](https://github.com/SvenSerneels/direpack/blob/master/examples/ppdire_example.ipynb))
-- Sufficient dimension reduction (`sudire` folder; cf. [sudire Documentation file](https://github.com/SvenSerneels/direpack/blob/master/docs/sudire.md) and [sudire Examples Notebook](https://github.com/SvenSerneels/direpack/blob/master/examples/sudire_example.ipynb)))
-- Robust M-estimators for dimension reduction (`sprm` folder; cf. [SPRM Documentation file](https://github.com/SvenSerneels/direpack/blob/master/docs/sprm.md) and [SPRM Examples Notebook](https://github.com/SvenSerneels/direpack/blob/master/examples/sprm_example.ipynb))
+- Projection pursuit dimension reduction (`ppdire`) 
+- Sufficient dimension reduction (`sudire`)
+- Robust M-estimators for dimension reduction (`sprm`)
+each of which are presented as `scikit-learn` compatible objects in the corresponding folders.
 
-Further documentation can be found in the [`direpack` vignette](https://arxiv.org/abs/2006.01635). 
-
-We hope that this package leads to scientific success. If it does so, we kindly ask to cite the `direpack` publication \[0\], as well as the original publication of the corresponding method.  
+We hope that this package leads to scientific success. If it does so, we kindly ask to cite the `direpack` vignette \[0\], as well as the original publication of the corresponding method.  
 
 The package also contains a set of tools for pre- and postprocessing: 
 - The `preprocessing` folder provides classical and robust centring and scaling, as well as spatial sign transforms \[4\]
@@ -59,7 +58,11 @@ The package is distributed through PyPI, so install through:
         
 Documentation
 =============
-Detailed documentation on how to use the classes is provided in the `docs` folder per class.
+
+- Detailed documentation can be found in the [ReadTheDocs page](https://direpack.readthedocs.io/en/latest/index.html). 
+- A more detailed description on the background is presented in the [`direpack` vignette](https://arxiv.org/abs/2006.01635). 
+- Examples on how to use each of the `dicomo`, `ppdire`, `sprm` and `sudire` classes are presented as Jupyter notebooks in the [examples](https://github.com/SvenSerneels/direpack/blob/master/examples) folder
+- Furthemore, the `docs` folder contains a few markdown files on usage of the classes. 
 
 
 Examples
