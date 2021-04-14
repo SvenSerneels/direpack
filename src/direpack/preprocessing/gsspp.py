@@ -23,21 +23,24 @@ class GenSpatialSignPrePprocessor(TransformerMixin,BaseEstimator):
     Generalized Spatial Sign Pre-Processing as a scikit-learn compatible object
     that can be used in ML pipelines. 
     
-    Inputs: 
-        center: str or function, location estimator for centring.
-                str options: 'mean', 'median', 'l1median', 'kstepLTS', 'None' 
-        fun: str or function, radial transformation function,
-                str options: 'ss' (the non-generalized spatial sign, equivalent
-                to sklearn's Normalizer), 'ball', 'shell', 'quad' (quadratic), 
-                'winsor', or 'linear_redescending'
-    Methods: sklearn API: `fit(X)`, `transform(X)` and `fit_transform(X)` with 
-        X: Data matrix 
+    Parameters
+    ---------- 
+        center: str or function, 
+            location estimator for centring.str options: 'mean', 'median', 'l1median', 'kstepLTS', 'None' 
+
+        fun: str or function, 
+            radial transformation function, str options: 'ss' (the non-generalized spatial sign, equivalent to sklearn's Normalizer), 'ball', 'shell', 'quad' (quadratic), 'winsor', or 'linear_redescending'
+            Methods: sklearn API: `fit(X)`, `transform(X)` and `fit_transform(X)` with 
+
         
-    Attributes: 
-        `'gss_'`: the generalized spatial signs 
-        `'Xm_'`: the centred data 
-        `'centring_'`: VersatileScaler centring object 
-        `'X_gss_pp_'`: Data Ppreprocessed by Generalized Spatial Sign
+    Attributes
+    ---------- 
+        Attributes always provided : 
+
+        -  gss_ : the generalized spatial signs 
+        -  Xm_ : the centred data 
+        -  centring_ : VersatileScaler centring object 
+        -  X_gss_pp_ : Data Ppreprocessed by Generalized Spatial Sign
     """    
 
     def __init__(self,center='l1median',fun='linear_redescending'):
