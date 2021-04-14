@@ -80,6 +80,7 @@ Version 1.0
 - 1.0.4: unit tests included
 - 1.0.5: `sudire` notebook adapted
 - 1.0.9: function to calculate the martingale difference divergence matrix (MDDM) added in `_dicomo_utils.py` 
+- 1.0.11: documentation updated to accommodate for go-live of readthedocs page
 
 
 
