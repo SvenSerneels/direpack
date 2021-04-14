@@ -44,7 +44,15 @@ class ppdire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
     it will only provide correct results for classical projection indices. The
     native grid algorithm should be used when the projection index involves 
     order statistics of any kind, such as ranks, trimming, winsorizing, or 
-    empirical quantiles.  
+    empirical quantiles. The grid optimization algorithm for projection pursuit implemented here, 
+    was outlined in: 
+        
+        Filzmoser, P., Serneels, S., Croux, C. and Van Espen, P.J., 
+        Robust multivariate methods: The projection pursuit approach,
+        in: From Data and Information Analysis to Knowledge Engineering,
+        Spiliopoulou, M., Kruse, R., Borgelt, C., Nuernberger, A. and Gaul, W., eds., 
+        Springer Verlag, Berlin, Germany,
+        2006, pages 270--277.
         
     Parameters
     ------------ 
@@ -109,7 +117,7 @@ class ppdire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
 
     Attributes
     ------------ 
-        Attributes always provided 
+    Attributes always provided 
         -  `x_weights_`: X block PPDIRE weighting vectors (usually denoted W)
         -  `x_loadings_`: X block PPDIRE loading vectors (usually denoted P)
         -  `x_scores_`: X block PPDIRE score vectors (usually denoted T)
@@ -120,7 +128,7 @@ class ppdire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
         -  `crit_values_`: vector of evaluated values for the optimization objective. 
         -  `Maxobjf_`: vector containing the optimized objective per component. 
 
-        Attributes created when more than one block of data is provided: 
+    Attributes created when more than one block of data is provided: 
         -  `C_`: vector of inner relationship between response and latent variables block
         -  `coef_`: vector of regression coefficients, if second data block provided 
         -  `intercept_`: intercept
@@ -132,23 +140,14 @@ class ppdire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
         -  `y_loc_`: y location estimate
         -  `y_sca_`: y scale estimate
 
-        Attributes created only when corresponding input flags are `True`:
+    Attributes created only when corresponding input flags are `True`:
         -   `whitening_`: whitened data matrix (usually denoted K)
         -   `mixing_`: mixing matrix estimate
         -   `scaling_object_`: scaling object from `VersatileScaler`
 
         
-    The grid optimization algorithm for projection pursuit implemented here, 
-    was outlined in: 
-        
-        Filzmoser, P., Serneels, S., Croux, C. and Van Espen, P.J., 
-        Robust multivariate methods: The projection pursuit approach,
-        in: From Data and Information Analysis to Knowledge Engineering,
-        Spiliopoulou, M., Kruse, R., Borgelt, C., Nuernberger, A. and Gaul, W., eds., 
-        Springer Verlag, Berlin, Germany,
-        2006, pages 270--277.
-        
-    The 'fit' function will take a set of optional input arguments. 
+
+    
 
     
     """

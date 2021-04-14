@@ -48,14 +48,24 @@ These authors examine a set of different functions that can be plugged into the 
 Usage
 =========
 
-.. automodule:: direpack.preprocessing.robcent
-
-    .. autoclass:: VersatileScaler
 
 
-.. automodule:: direpack.preprocessing.gsspp
+.. currentmodule:: direpack.preprocessing.robcent
 
-    .. autoclass:: GenSpatialSignPrePprocessor
+.. autosummary::
+    :toctree: generated/
+        
+    VersatileScaler
+
+.. currentmodule:: direpack.preprocessing.gsspp
+
+.. autosummary::
+    :toctree: generated/
+        
+    GenSpatialSignPrePprocessor
+
+
+
 
 
 

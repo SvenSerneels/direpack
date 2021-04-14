@@ -1,4 +1,5 @@
 .. _sprm:
+.. currentmodule:: direpack.sprm.sprm
 
 ################
 sprm
@@ -67,30 +68,21 @@ Consistent with robust M estimation, it can be calculated through iteratively re
 Usage
 ===========
 
-.. automodule:: direpack.sprm.sprm
+.. currentmodule:: direpack
 
-    .. autoclass:: sprm
-
-        .. automethod:: fit 
-
-        .. automethod:: transform
-
-        .. automethod:: predict 
-
-    .. autoattribute:: sprm 
+.. autosummary::
+    :toctree: generated/
+        
+    sprm
 
        
 
+.. autosummary::
+    :toctree: generated/
 
-.. automodule:: direpack.sprm.snipls
+    snipls
 
-    .. autoclass:: snipls
 
-        .. automethod:: fit 
-
-        .. automethod:: transform
-
-        .. automethod:: predict    
 
 
 
