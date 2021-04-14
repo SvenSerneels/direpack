@@ -10,7 +10,7 @@ __name__ = "sprm"
 __author__ = "Sven Serneels"
 __license__ = "MIT"
 __version__ = "0.7.4"
-__date__ = "2020-12-24"
+__date__ = "2021-07-04"
 
 
 
