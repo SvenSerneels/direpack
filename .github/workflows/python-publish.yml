@@ -42,4 +42,4 @@ jobs:
       run: |
         $CONDA/bin/python -m pip install setuptools wheel twine
         $CONDA/bin/python setup.py sdist bdist_wheel
-        twine upload dist/*
+        $CONDA/bin/twine upload dist/*
