@@ -650,7 +650,7 @@ def estimate_structural_dim(sudiremeth, Xn, y, B, *args,**kwargs):
     Parameters
     ----------
 
-        sudiermeth : str
+        sudiremeth : str
                     the SDR method to use in the estimation.
 
         X :  numpy array or dataframe
@@ -709,7 +709,7 @@ def estimate_structural_dim(sudiremeth, Xn, y, B, *args,**kwargs):
     mean_diff = []
     for k in range(1,p+1):
         print('possible dim', k)
-        sdr = sudire(sufdirmeth, center_data= center_data,
+        sdr = sudire(sudiremeth, center_data= center_data,
                      scale_data=scale_data, center=center,
                      n_slices=n_slices, n_components = k)
         sdr.fit(Xn, y=y)
@@ -718,7 +718,7 @@ def estimate_structural_dim(sudiremeth, Xn, y, B, *args,**kwargs):
         for b in range(B) :  
             idx = np.random.randint(0,n,n)
             X_b = Xn[idx, :].copy()
-            sdr_b = sudire(sufdirmeth, center_data= center_data,
+            sdr_b = sudire(sudiremeth, center_data= center_data,
                            scale_data=scale_data, center=center,
                           n_slices = n_slices, n_components = k)
             sdr_b.fit(X_b,y=y)

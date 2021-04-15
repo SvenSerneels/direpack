@@ -56,6 +56,12 @@ The package is distributed through PyPI, so install through:
         
         pip install direpack
         
+Note that some of the key methods in the `sudire` subpackage rely on the IPOPT 
+optimization package, which according to their recommendation, can best be installed
+directly as: 
+
+        conda install -c conda-forge cyipopt
+        
 Documentation
 =============
 
