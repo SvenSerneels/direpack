@@ -37,7 +37,7 @@ jobs:
       run: conda list
     - name: install ipopt
       run: |
-        $CONDA/bin/conda conda install -c conda-forge cyipopt
+        $CONDA/bin/conda install -c conda-forge cyipopt
     - name: Lint with flake8
       run: |
         $CONDA/bin/conda install flake8
