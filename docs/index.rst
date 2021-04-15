@@ -18,7 +18,7 @@ The package is distributed through PyPI, so use::
 
 Examples
 ===============
-Example notebooks have been produced to showcase the use `ppdire <https://github.com/SvenSerneels/direpack/blob/master/examples/ppdire_example.ipynb>`_,  `sprm <https://github.com/SvenSerneels/direpack/blob/master/examples/sprm_example.ipynb>`_ and `sudire <https://github.com/SvenSerneels/direpack/blob/master/examples/sudire_example.ipynb>`_  for statistical dimension reduction. 
+Example notebooks have been produced to showcase the use of direpack for statistical dimension reduction. These notebooks contain a  `ppdire example <https://github.com/SvenSerneels/direpack/blob/master/examples/ppdire_example.ipynb>`_ ,  `sprm example <https://github.com/SvenSerneels/direpack/blob/master/examples/sprm_example.ipynb>`_  and a `sudire example <https://github.com/SvenSerneels/direpack/blob/master/examples/sudire_example.ipynb>`_ . 
 
 
 

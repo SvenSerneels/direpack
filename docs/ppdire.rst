@@ -71,23 +71,17 @@ which again leads to well-established methods such as principal component regres
 Usage
 ===========
 
-.. automodule:: direpack.ppdire.ppdire
+.. currentmodule:: direpack
 
-    .. autoclass:: ppdire
+.. autosummary::
+    :toctree: generated/
+        
+    ppdire
 
-        .. automethod:: fit 
-
-        .. automethod:: get_params
-
-        .. automethod:: transform
-
-        .. automethod:: predict  
-
-    .. autoattribute:: ppdire  
-
-.. automodule:: direpack.dicomo.dicomo
-
-    .. autoclass:: dicomo
+.. autosummary::
+    :toctree: generated/
+        
+    dicomo
 
 
 

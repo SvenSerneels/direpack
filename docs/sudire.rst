@@ -58,21 +58,12 @@ is independent of $\mathbf{Y}$. Currently implemented $\mathfrak{P}$ statistics 
 Usage
 ===========
 
-.. automodule:: direpack.sudire.sudire
+.. currentmodule:: direpack.sudire
 
-    .. autoclass:: sudire
-
-        .. automethod:: fit 
-
-        .. automethod:: get_params
-
-        .. automethod:: transform
-
-        .. automethod:: predict  
-
-    .. autoattribute:: sudire   
-
-    .. autofunction:: estimate_structural_dim
+.. autosummary::
+    :toctree: generated/
+        
+    sudire
 
 
 

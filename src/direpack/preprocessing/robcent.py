@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
+#@author: Sven Serneels, Ponalytics
 # Created on Sun Feb 4 2018
 # Updated on Sun Dec 16 2018
 # Refactored on Sat Dec 21 2019
 # Refactored on Sat Mar 28 2020
+
 
 # Class for classical and robust centering and scaling of input data for 
 # regression and machine learning 
@@ -22,58 +23,27 @@
 # functions and output remain for backwards compatibility. Functionality for
 # sparse matrices still has to be implemented.  
 
-"""
-Parameters
-----------
-    `center`: str or callable, location estimator. String has to be name of the 
-            function to be used, or 'None'. 
-    `scale`: str or callable, scale estimator
-    `trimming`: trimming percentage to be used in location and scale estimation. 
 
-Methods
--------
-    `fit(X)`: Will estimate location and scale using the estimators specified
-        in 'center' and 'scale', with a certain trimming fraction when applicable. 
-    `transform(X)`: Will scale X about estimated location and scale. Stores the
-        result as 'Xs_`
-    `fit_transform(X)`: both of the above
-    `predict(X)`: Same as `transform`, but does not store the result (different
-        from sklearn, can be convenient for some ML tools) 
-    `inverse_transform()`: transform the scaled data frame back to the original
-        scale. When no input provided, will use the scaled `datas_` in the 
-        object. 
-            
-Arguments for methods: 
-    `X`: array-like, n x p, the data.
-    `trimming`: float, fraction to be trimmed (must be in (0,1)). 
-    
-Ancillary functions in _preproc_utilities.py:
-`scale_data(X,m,s)`: centers and scales X on center m (as vector) and 
-            scale s (as vector).
-`mean(X,trimming)`: Column-wise mean.
-`median(X)`: Column-wise median.
-`l1median(X)`: L1 or spatial median. Optional arguments: 
-    `x0`: starting point for optimization, defaults to column wise median  
-    `method`: optimization algorithm, defaults to 'SLSQP' 
-    `tol`: tolerance, defaults to 1e-8
-    `options`: list of options for `scipy.optimize.minimize`
-`kstepLTS(X): k-step LTS estimator of location.
-    `maxit`: int, number of iterations to compute maximally 
-    `tol`: float, tolerance for convergence
-`std(X,trimming)`: Column-wise std.
-`mad(X,c)`: Column-wise median absolute deviation, with consistency factor c.
-`scaleTau2(x0, c1 = 4.5, c2 = 3, consistency = True)`: Tau estimator of scale 
-    with consistency parameters c1 and c2 and option for consistency correction
-    (True, False or 'finiteSample')
+# Ancillary functions in _preproc_utilities.py:
 
-             
-Remarks
--------
-Options for classical estimators 'mean' and 'std' also give access to robust 
-trimmed versions.
+#         -   `scale_data(X,m,s)`: centers and scales X on center m (as vector) and scale s (as vector).
+#         -   `mean(X,trimming)`: Column-wise mean.
+#         -   `median(X)`: Column-wise median.
+#         -   `l1median(X)`: L1 or spatial median. Optional arguments: 
+#         -   `x0`: starting point for optimization, defaults to column wise median  
+#         -   `method`: optimization algorithm, defaults to 'SLSQP' 
+#         -   `tol`: tolerance, defaults to 1e-8
+#         -   `options`: list of options for `scipy.optimize.minimize`
+#         -   `kstepLTS(X): k-step LTS estimator of location.
+#         -   `maxit`: int, number of iterations to compute maximally 
+#         -   `tol`: float, tolerance for convergence
+#         -   `std(X,trimming)`: Column-wise std.
+#         -   `mad(X,c)`: Column-wise median absolute deviation, with consistency factor c.
+#         -   `scaleTau2(x0, c1 = 4.5, c2 = 3, consistency = True)`: Tau estimator of scale 
+#             with consistency parameters c1 and c2 and option for consistency correction
+#             (True, False or 'finiteSample')
 
-@author: Sven Serneels, Ponalytics
-"""
+
 
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
@@ -89,6 +59,32 @@ from ._preproc_utilities import _check_trimming
 __all__ = ['VersatileScaler','robcent','versatile_scale']
 
 class VersatileScaler(_BaseComposition,TransformerMixin,BaseEstimator):
+
+    """
+    Parameters
+    ----------
+        `center`: str or callable, location estimator. String has to be name of the 
+                function to be used, or 'None'. 
+        `scale`: str or callable, scale estimator
+        `trimming`: trimming percentage to be used in location and scale estimation. 
+
+
+    Attributes
+    ----------   
+    Arguments for methods: 
+        -   `X`: array-like, n x p, the data.
+        -   `trimming`: float, fraction to be trimmed (must be in (0,1)). 
+        
+    
+
+                
+    Remarks
+    -------
+    Options for classical estimators 'mean' and 'std' also give access to robust 
+    trimmed versions.
+
+
+"""
     
     def __init__(self,center='mean',scale='std',trimming=0):
         
