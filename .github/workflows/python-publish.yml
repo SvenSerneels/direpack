@@ -26,7 +26,6 @@ jobs:
         python -m pip install sklearn
         python -m pip install scikit-learn
         python -m pip install pandas 
-        pip install setuptools wheel twine
     - name: Conda info
       shell: bash -l {0}
       run: conda info
@@ -41,5 +40,6 @@ jobs:
         TWINE_USERNAME: ${{ secrets.PYPIUID }}
         TWINE_PASSWORD: ${{ secrets.PYPIPWD }}
       run: |
+        $CONDA/bin/python -m pip install setuptools wheel twine
         $CONDA/bin/python setup.py sdist bdist_wheel
         twine upload dist/*
