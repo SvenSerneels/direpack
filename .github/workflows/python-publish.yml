@@ -41,5 +41,5 @@ jobs:
         TWINE_USERNAME: ${{ secrets.PYPIUID }}
         TWINE_PASSWORD: ${{ secrets.PYPIPWD }}
       run: |
-         $CONDA/bin/python setup.py sdist bdist_wheel
+        $CONDA/bin/python setup.py sdist bdist_wheel
         twine upload dist/*
