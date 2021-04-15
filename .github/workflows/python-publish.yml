@@ -27,6 +27,15 @@ jobs:
         python -m pip install scikit-learn
         python -m pip install pandas 
         pip install setuptools wheel twine
+    - name: Conda info
+      shell: bash -l {0}
+      run: conda info
+    - name: Conda list
+      shell: pwsh
+      run: conda list
+    - name: install ipopt
+      run: |
+        $CONDA/bin/conda install -c conda-forge cyipopt
     - name: Build and publish
       env:
         TWINE_USERNAME: ${{ secrets.PYPIUID }}
