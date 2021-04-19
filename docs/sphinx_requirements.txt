@@ -6,3 +6,4 @@ sphinx_math_dollar
 sklearn
 direpack
 sympy
+Ball
