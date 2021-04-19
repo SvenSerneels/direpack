@@ -13,6 +13,7 @@ from scipy.linalg import orth
 import warnings
 from scipy.stats import trim_mean
 import dcor as dc
+import Ball
 import statsmodels.api as sm
 import inspect
 from ..ipopt_temp.ipopt_wrapper import minimize_ipopt
