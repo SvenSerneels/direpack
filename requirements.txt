@@ -15,6 +15,7 @@ dcor
 sympy
 scikit-learn
 pandas
+Ball
 
 #
 ###### Requirements with Version Specifiers ######
