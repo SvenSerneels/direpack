@@ -465,7 +465,7 @@ def IHT(x,y,d,center_data=True, scale_data=True):
 #     h=args[2]
 #     beta = np.reshape(beta,(-1,h),order = 'F')
 #     X_dat = np.matmul(X, beta)
-#     #res = Ball.bcov_test(X_dat,Y,num_permutations=0)[0] 
+#     res = Ball.bcov_test(X_dat,Y,num_permutations=0)[0] 
 #     return(-10*res)  
     
     
