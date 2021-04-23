@@ -455,18 +455,18 @@ def IHT(x,y,d,center_data=True, scale_data=True):
     else : 
         return(eig_vecs[:, 0:d])
         
-def ballcov_func(beta, *args):
-    """
-    Objective function  for BCOV-SDR.
-    Will only work after uncommenting the import Ball statement above
-    """
+# def ballcov_func(beta, *args):
+#     """
+#     Objective function  for BCOV-SDR.
+#     Will only work after uncommenting the import Ball statement above
+#     """
     
-    X= args[0]
-    Y= args[1]
-    h=args[2]
-    beta = np.reshape(beta,(-1,h),order = 'F')
-    X_dat = np.matmul(X, beta)
-    res = Ball.bcov_test(X_dat,Y,num_permutations=0)[0] 
-    return(-10*res)
+#     X= args[0]
+#     Y= args[1]
+#     h=args[2]
+#     beta = np.reshape(beta,(-1,h),order = 'F')
+#     X_dat = np.matmul(X, beta)
+#     res = Ball.bcov_test(X_dat,Y,num_permutations=0)[0] 
+#     return(-10*res)
     
     
