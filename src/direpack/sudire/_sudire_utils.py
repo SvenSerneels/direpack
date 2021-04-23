@@ -10,6 +10,7 @@ import numpy as np
 from ..dicomo._dicomo_utils import *
 import scipy.spatial as spp
 import pandas as pd
+#import Ball
 import sympy
 from ..utils.utils import MyException
 
@@ -466,6 +467,6 @@ def IHT(x,y,d,center_data=True, scale_data=True):
 #     beta = np.reshape(beta,(-1,h),order = 'F')
 #     X_dat = np.matmul(X, beta)
 #     res = Ball.bcov_test(X_dat,Y,num_permutations=0)[0] 
-#     return(-10*res)  
+#     return(-10*res)
     
     
