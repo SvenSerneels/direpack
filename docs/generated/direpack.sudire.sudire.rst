@@ -1,7 +1,7 @@
 sudire API
 ======================
 
-.. automodule:: direpack.sudire.sudire
+.. automodule:: direpack
 
 
 .. autoclass:: sudire

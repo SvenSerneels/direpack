@@ -62,8 +62,12 @@ Usage
 
 .. autosummary::
     :toctree: generated/
+    :caption: Sudire
         
-    sudire
+    sudire.sudire.sudire
+    
+
+    
 
 
 
