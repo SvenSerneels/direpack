@@ -1,15 +1,18 @@
-sudire API
-======================
+﻿direpack.sudire.sudire.sudire
+=============================
 
-.. automodule:: direpack.sudire.sudire
-
+.. currentmodule:: direpack.sudire.sudire
 
 .. autoclass:: sudire
 
+   
+   .. automethod:: __init__
+
+   
    .. rubric:: Methods
 
    .. autosummary::
-
+   
       ~sudire.__init__
       ~sudire.fit
       ~sudire.fit_transform
@@ -18,13 +21,8 @@ sudire API
       ~sudire.score
       ~sudire.set_params
       ~sudire.transform
-
    
-   .. rubric:: Functions
-
-   .. autosummary::
    
-      estimate_structural_dim
 
    
    

@@ -1,0 +1,17 @@
+name: RobDimRed-rtd
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python =3.7
+  - pip
+  - cyipopt
+  - sphinx-math-dollar
+  - scikit-learn
+  - numpy
+  - matplotlib
+  - pandas 
+  - statsmodels
+  - dcor
+  - sympy
+

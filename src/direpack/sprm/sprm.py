@@ -453,6 +453,9 @@ class sprm(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
         return(np.matmul(Xnc,self.x_Rweights_))
         
     def weightnewx(self,Xn):
+        """
+        Calculate case weights for new data based on the projection in the SPRM score space
+        """
         n,p,Xn = _predict_check_input(Xn)
         (n,p) = Xn.shape
         if p!= self.X.shape[1]:
@@ -477,6 +480,9 @@ class sprm(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
         return(wtn)
         
     def valscore(self,Xn,yn,scoring):
+        """
+        Specific score function for validation data
+        """
         n,p,Xn = _predict_check_input(Xn)
         (n,p) = Xn.shape
         if p!= self.X.shape[1]:

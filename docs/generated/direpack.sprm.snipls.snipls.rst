@@ -1,11 +1,12 @@
-snipls API
-===============
+﻿direpack.sprm.snipls.snipls
+===========================
 
-.. currentmodule:: direpack
+.. currentmodule:: direpack.sprm.snipls
 
 .. autoclass:: snipls
 
    
+   .. automethod:: __init__
 
    
    .. rubric:: Methods
