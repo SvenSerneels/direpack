@@ -1,4 +1,4 @@
-VersatileScaler API
+﻿direpack.preprocessing.robcent.VersatileScaler
 ==============================================
 
 .. currentmodule:: direpack.preprocessing.robcent
@@ -6,6 +6,7 @@ VersatileScaler API
 .. autoclass:: VersatileScaler
 
    
+   .. automethod:: __init__
 
    
    .. rubric:: Methods

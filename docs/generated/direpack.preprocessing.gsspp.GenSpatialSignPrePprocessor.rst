@@ -1,4 +1,4 @@
-GenSpatialSignPrePprocessor API
+﻿direpack.preprocessing.gsspp.GenSpatialSignPrePprocessor
 ========================================================
 
 .. currentmodule:: direpack.preprocessing.gsspp
@@ -6,6 +6,7 @@ GenSpatialSignPrePprocessor API
 .. autoclass:: GenSpatialSignPrePprocessor
 
    
+   .. automethod:: __init__
 
    
    .. rubric:: Methods
