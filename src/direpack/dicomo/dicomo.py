@@ -104,6 +104,14 @@ class dicomo(_BaseComposition,BaseEstimator):
         
         
     def fit(self,x,**kwargs):
+        """
+        Fit a dicomo model
+
+        Parameters
+        ------------
+            X : numpy array or pandas DataFrame
+                input data
+        """
         
         
         if 'trimming' not in kwargs:
