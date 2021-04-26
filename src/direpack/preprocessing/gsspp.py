@@ -17,7 +17,7 @@ from ._gsspp_utils import *
 from ._gsspp_utils import _norms, _gsspp
 
     
-class GenSpatialSignPrePprocessor(TransformerMixin,BaseEstimator):
+class GenSpatialSignPreProcessor(TransformerMixin,BaseEstimator):
     
     """
     Generalized Spatial Sign Pre-Processing as a scikit-learn compatible object
