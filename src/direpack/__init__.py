@@ -10,7 +10,7 @@ __name__ = "direpack"
 __author__ = "Sven Serneels"
 __license__ = "MIT"
 __version__ = "1.0.13"
-__date__ = "2021-04-15"
+__date__ = "2021-04-25"
 
 # The commented lines can be uncommented if IPOPT has been installed independently.  
 
