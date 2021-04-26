@@ -62,7 +62,7 @@ Usage
 .. autosummary::
     :toctree: generated/
         
-    GenSpatialSignPrePprocessor
+    GenSpatialSignPreProcessor
 
 
 

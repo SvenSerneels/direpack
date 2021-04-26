@@ -97,8 +97,6 @@ Dependencies
 
 - `pandas`
 - `numpy`
-- `matplotlib.pyplot`
-- for plotting cross-validation results: `sklearn.model_selection.GridSearchCV`
 
 
 References
