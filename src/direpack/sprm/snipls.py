@@ -49,10 +49,11 @@ class snipls(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
 
     copy : (def True): boolean,
              whether to copy data.  Note : copy not yet aligned with sklearn def  - we always copy  
+    
              
     Attributes
-    ---------------
-    Attributes always provided 
+    ------------
+    Attributes always provided:
 
         -  `x_weights_`: X block PLS weighting vectors (usually denoted W)
         -  `x_loadings_`: X block PLS loading vectors (usually denoted P)
@@ -73,7 +74,6 @@ class snipls(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
         -  `x_sca_`: X block scale estimate
         -  `y_sca_`: y scale estimate
         -  `centring_`: scaling object used internally (from `VersatileScaler`)
-    
     
     """
     
