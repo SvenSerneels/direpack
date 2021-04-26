@@ -82,23 +82,13 @@ class sprm(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
          tolerance for convergence in M algorithm 
 
     start_cutoff_mode : str,
-                        values:
-                        'specific' will set starting value cutoffs specific to X and y (preferred); 
-                        any other value will set X and y stating cutoffs identically. 
-                            The latter yields identical results to the SPRM R implementation available from
-                            CRAN.
+                    values:'specific' will set starting value cutoffs specific to X and y (preferred); any other value will set X and y stating cutoffs identically. The latter yields identical results to the SPRM R implementation available from CRAN.
     start_X_init: str,
-                 values:
-                    'pcapp' will include a PCA/broken stick projection to  calculate the staring weights, else just based on X;
-                        any other value will calculate the X starting values based on the X matrix itself. This is less stable for very flat data (p >> n), yet yields identical results to the SPRM R implementation available from CRAN.   
+                 values: 'pcapp' will include a PCA/broken stick projection to  calculate the staring weights, else just based on X; any other value will calculate the X starting values based on the X matrix itself. This is less stable for very flat data (p >> n), yet yields identical results to the SPRM R implementation available from CRAN.   
+
     columns : (def false) Either boolean, list, numpy array or pandas Index
-                if False, no column names supplied
-                if True, 
-                    if X data are supplied as a pandas data frame, will extract column names from the frame
-                    throws an error for other data input types
-                if a list, array or Index (will only take length x_data.shape[1]), 
-                 the column names of the x_data supplied in this list, 
-                    will be printed in verbose mode
+                if False, no column names supplied; if True, if X data are supplied as a pandas data frame, will extract column names from the frame throws an error for other data input types if a list, array or Index (will only take length x_data.shape[1]), the column names of the x_data supplied in this list, will be printed in verbose mode. 
+
     copy : (def True) boolean, whether to copy data
 
     Attributes

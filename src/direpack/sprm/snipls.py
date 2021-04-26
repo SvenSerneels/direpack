@@ -28,7 +28,7 @@ class snipls(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
     
     Parameters
     -----------
-    
+
     eta : float.
          Sparsity parameter in [0,1)
 
@@ -38,16 +38,8 @@ class snipls(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
     verbose: Boolean (def true)
                 to print intermediate set of columns retained
 
-    columns : Either boolean, list, numpy array or pandas Index
-                (def false)
-                if False, no column names supplied
-                if True, 
-                    if X data are supplied as a pandas data frame, will extract column 
-                        names from the frane
-                    throws an error for other data input types
-                if a list, array or Index (will only take length x_data.shape[1]), 
-                    the column names of the x_data supplied in this list, 
-                    will be printed in verbose mode
+    columns : Either boolean, list, numpy array or pandas Index (def false)
+                if False, no column names supplied; if True, if X data are supplied as a pandas data frame, will extract column names from the frame throws an error for other data input types if a list, array or Index (will only take length x_data.shape[1]), the column names of the x_data supplied in this list, will be printed in verbose mode.
 
     centre : str, 
                 type of centring (`'mean'` [recommended], `'median'` or `'l1median'`), 

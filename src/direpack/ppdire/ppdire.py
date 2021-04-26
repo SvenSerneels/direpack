@@ -85,9 +85,7 @@ class ppdire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
                                 further constraints to be passed on to the optimizer function.
 
         regopt : str. 
-                regression option for regression step y~T. Can be set
-                        to 'OLS' (default), 'robust' (will run sprm.rm) or 'quantile' 
-                        (statsmodels.regression.quantreg). 
+                regression option for regression step y~T. Can be set to 'OLS' (default), 'robust' (will run sprm.rm) or 'quantile' (statsmodels.regression.quantreg). 
 
         center : str, 
                 how to center the data. options accepted are options from sprm.preprocessing 
@@ -145,10 +143,6 @@ class ppdire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
         -   `mixing_`: mixing matrix estimate
         -   `scaling_object_`: scaling object from `VersatileScaler`
 
-        
-
-    
-
     
     """
 
@@ -202,7 +196,13 @@ class ppdire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
     def fit(self,X,*args,**kwargs):
         
         """
-        
+            Fit a projection pursuit dimension reduction model. 
+
+            Parameters
+            ------------ 
+                
+                X : numpy array 
+                    Input data.
         
         """
 

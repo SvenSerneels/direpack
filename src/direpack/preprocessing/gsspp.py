@@ -35,12 +35,12 @@ class GenSpatialSignPrePprocessor(TransformerMixin,BaseEstimator):
         
     Attributes
     ---------- 
-        Attributes always provided : 
+    Attributes always provided : 
 
-        -  gss_ : the generalized spatial signs 
-        -  Xm_ : the centred data 
-        -  centring_ : VersatileScaler centring object 
-        -  X_gss_pp_ : Data Ppreprocessed by Generalized Spatial Sign
+        -  `gss_` : the generalized spatial signs 
+        -  `Xm_` : the centred data 
+        -  `centring_` : VersatileScaler centring object 
+        -  `X_gss_pp_` : Data preprocessed by Generalized Spatial Sign
     """    
 
     def __init__(self,center='l1median',fun='linear_redescending'):
