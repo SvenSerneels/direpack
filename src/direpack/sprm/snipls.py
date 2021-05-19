@@ -28,7 +28,7 @@ class snipls(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
     
     Parameters
     -----------
-    
+
     eta : float.
          Sparsity parameter in [0,1)
 
@@ -38,16 +38,8 @@ class snipls(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
     verbose: Boolean (def true)
                 to print intermediate set of columns retained
 
-    columns : Either boolean, list, numpy array or pandas Index
-                (def false)
-                if False, no column names supplied
-                if True, 
-                    if X data are supplied as a pandas data frame, will extract column 
-                        names from the frane
-                    throws an error for other data input types
-                if a list, array or Index (will only take length x_data.shape[1]), 
-                    the column names of the x_data supplied in this list, 
-                    will be printed in verbose mode
+    columns : Either boolean, list, numpy array or pandas Index (def false)
+                if False, no column names supplied; if True, if X data are supplied as a pandas data frame, will extract column names from the frame throws an error for other data input types if a list, array or Index (will only take length x_data.shape[1]), the column names of the x_data supplied in this list, will be printed in verbose mode.
 
     centre : str, 
                 type of centring (`'mean'` [recommended], `'median'` or `'l1median'`), 
@@ -58,6 +50,30 @@ class snipls(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
     copy : (def True): boolean,
              whether to copy data.  Note : copy not yet aligned with sklearn def  - we always copy  
     
+             
+    Attributes
+    ------------
+    Attributes always provided:
+
+        -  `x_weights_`: X block PLS weighting vectors (usually denoted W)
+        -  `x_loadings_`: X block PLS loading vectors (usually denoted P)
+        -  `C_`: vector of inner relationship between response and latent variablesblock re
+        -  `x_scores_`: X block PLS score vectors (usually denoted T)
+        -  `coef_`: vector of regression coefficients 
+        -  `intercept_`: intercept
+        -  `coef_scaled_`: vector of scaled regression coeeficients (when scaling option used)
+        -  `intercept_scaled_`: scaled intercept
+        -  `residuals_`: vector of regression residuals
+        -  `x_ev_`: X block explained variance per component
+        -  `y_ev_`: y block explained variance 
+        -  `fitted_`: fitted response
+        -  `x_Rweights_`: X block SIMPLS style weighting vectors (usually denoted R)
+        -  `colret_`: names of variables retained in the sparse model
+        -  `x_loc_`: X block location estimate 
+        -  `y_loc_`: y location estimate
+        -  `x_sca_`: X block scale estimate
+        -  `y_sca_`: y scale estimate
+        -  `centring_`: scaling object used internally (from `VersatileScaler`)
     
     """
     

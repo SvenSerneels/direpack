@@ -56,29 +56,11 @@ class dicomo(_BaseComposition,BaseEstimator):
         center : str 
                  internal centring used in calculation. Options are `mean` or `median`.  
 
-        Attributes:
-            Always provided: 
-            `moment_`: The resulting (co-)moment
-            Depending on the options picked, intermediate results are stored as well, 
-            such as `x_moment_`, `y_moment_` or `co_moment_`
-    
-        Methods
-            `fit(X, *args, **kwargs)`: fit model 
+    Attributes
+    ------------
+    Attributes always provided: 
 
-        Remarks:
-        The `fit` function takes several optional input arguments. These are options that 
-        apply to individual settings: 
-            `biascorr`, Bool, when `True`, correct for bias. For classical product-moment statistics, this 
-                is the small sample correction. For energy statistics, this leads to the estimates 
-                that are unbiased in high dimension
-                (but not preferred in low dimension). 
-            `alpha`, float, parameter for continuum association. Has no effect for other options.  
-            `option`, int, determines which higher order co-moment to calculate, 
-                e.g. for co-skewness, `option=1` calculates CoS(x,x,y)
-            `order`, int, which order (co-)moment to calculate. Can be overruled by `mode`, 
-                e.g. if `mode='var'`, `order` is set to 2. 
-            `calcmode`, str, to use the efficient or naive algorithm to calculate distance statistics. Defaults to `fast` when available. 
-
+        - `moment_`: The resulting (co-)moment Depending on the options picked, intermediate results are stored as well, such as `x_moment_`, `y_moment_` or `co_moment_`
     
     """
     
@@ -111,6 +93,21 @@ class dicomo(_BaseComposition,BaseEstimator):
         ------------
             X : numpy array or pandas DataFrame
                 input data
+
+
+        Remarks:
+        The `fit` function takes several optional input arguments. These are options that 
+        apply to individual settings: 
+            `biascorr`, Bool, when `True`, correct for bias. For classical product-moment statistics, this 
+                is the small sample correction. For energy statistics, this leads to the estimates 
+                that are unbiased in high dimension
+                (but not preferred in low dimension). 
+            `alpha`, float, parameter for continuum association. Has no effect for other options.  
+            `option`, int, determines which higher order co-moment to calculate, 
+                e.g. for co-skewness, `option=1` calculates CoS(x,x,y)
+            `order`, int, which order (co-)moment to calculate. Can be overruled by `mode`, 
+                e.g. if `mode='var'`, `order` is set to 2. 
+            `calcmode`, str, to use the efficient or naive algorithm to calculate distance statistics. Defaults to `fast` when available.
         """
         
         

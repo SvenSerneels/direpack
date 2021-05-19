@@ -9,13 +9,13 @@ Created on Sun Jul 22 12:17:17 2018
 __name__ = "direpack"
 __author__ = "Sven Serneels"
 __license__ = "MIT"
-__version__ = "1.0.13"
-__date__ = "2021-04-25"
+__version__ = "1.0.17"
+__date__ = "2021-04-26"
 
 # The commented lines can be uncommented if IPOPT has been installed independently.  
 
 from .preprocessing.robcent import VersatileScaler, versatile_scale
-from .preprocessing.gsspp import GenSpatialSignPrePprocessor, gen_ss_pp, gen_ss_covmat
+from .preprocessing.gsspp import GenSpatialSignPreProcessor, gen_ss_pp, gen_ss_covmat
 from .sprm.sprm import sprm
 from .sprm.snipls import snipls
 from .sprm.rm import rm

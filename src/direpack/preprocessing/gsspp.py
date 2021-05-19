@@ -16,11 +16,12 @@ from ..utils.utils import _check_input
 from ._gsspp_utils import *
 from ._gsspp_utils import _norms, _gsspp
 
+__all__ = ['GenSpatialSignPreProcessor', 'gen_ss_covmat', 'gen_ss_pp']
     
-class GenSpatialSignPrePprocessor(TransformerMixin,BaseEstimator):
+class GenSpatialSignPreProcessor(TransformerMixin,BaseEstimator):
     
     """
-    Generalized Spatial Sign Pre-Processing as a scikit-learn compatible object
+    GenSpatialSignPreProcessor Generalized Spatial Sign Pre-Processing as a scikit-learn compatible object
     that can be used in ML pipelines. 
     
     Parameters
@@ -35,12 +36,12 @@ class GenSpatialSignPrePprocessor(TransformerMixin,BaseEstimator):
         
     Attributes
     ---------- 
-        Attributes always provided : 
+    Attributes always provided : 
 
-        -  gss_ : the generalized spatial signs 
-        -  Xm_ : the centred data 
-        -  centring_ : VersatileScaler centring object 
-        -  X_gss_pp_ : Data Ppreprocessed by Generalized Spatial Sign
+        -  `gss_` : the generalized spatial signs 
+        -  `Xm_` : the centred data 
+        -  `centring_` : VersatileScaler centring object 
+        -  `X_gss_pp_` : Data preprocessed by Generalized Spatial Sign
     """    
 
     def __init__(self,center='l1median',fun='linear_redescending'):

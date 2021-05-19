@@ -61,6 +61,8 @@ __all__ = ['VersatileScaler','robcent','versatile_scale']
 class VersatileScaler(_BaseComposition,TransformerMixin,BaseEstimator):
 
     """
+    VersatileScaler Center and Scale data about classical or robust location and scale estimates  
+    
     Parameters
     ----------
         `center`: str or callable, location estimator. String has to be name of the 
