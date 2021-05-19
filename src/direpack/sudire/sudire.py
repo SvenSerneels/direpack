@@ -354,26 +354,36 @@ class sudire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
                    
         if(self.sudiremeth == 'sir'):
             P = SIR(Xs, ys, self.n_slices,self.n_components,self.center_data, self.scale_data)
+            if self.scale_data:
+                P = np.matmul(N2,P)
             projMat = np.matmul(np.matmul(P,inv(np.matmul(P.T,P))),P.T)
             T = np.matmul(self.X0, P)
             
         elif(self.sudiremeth =='save'):
             P = SAVE(Xs, ys, self.n_slices,self.n_components,self.center_data, self.scale_data)
+            if self.scale_data:
+                P = np.matmul(N2,P)
             projMat = np.matmul(np.matmul(P,inv(np.matmul(P.T,P))),P.T)
             T = np.matmul(self.X0, P)
             
         elif(self.sudiremeth == 'dr') : 
             P = DR(Xs, ys, self.n_slices,self.n_components,self.center_data, self.scale_data)
+            if self.scale_data:
+                P = np.matmul(N2,P)
             projMat = np.matmul(np.matmul(P,inv(np.matmul(P.T,P))),P.T)
             T = np.matmul(self.X0, P)
             
         elif(self.sudiremeth == 'phd'):
             P = PHD(Xs, ys,self.n_components,self.center_data, self.scale_data)
+            if self.scale_data:
+                P = np.matmul(N2,P)
             projMat = np.matmul(np.matmul(P,inv(np.matmul(P.T,P))),P.T)
             T = np.matmul(self.X0, P)
             
         elif(self.sudiremeth == 'iht'):
             P = IHT(Xs, ys,self.n_components,self.center_data, self.scale_data)
+            if self.scale_data:
+                P = np.matmul(N2,P)
             projMat = np.matmul(np.matmul(P,inv(np.matmul(P.T,P))),P.T)
             T = np.matmul(self.X0, P)
             
