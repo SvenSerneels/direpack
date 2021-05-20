@@ -11,6 +11,7 @@ from ..preprocessing.robcent import VersatileScaler
 from ._sudire_utils import * 
 from scipy.linalg import orth
 import warnings
+import statsmodels.robust.scale as srs
 from scipy.stats import trim_mean
 import dcor as dc
 #import Ball
@@ -354,26 +355,36 @@ class sudire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
                    
         if(self.sudiremeth == 'sir'):
             P = SIR(Xs, ys, self.n_slices,self.n_components,self.center_data, self.scale_data)
+            if self.scale_data:
+                P = np.matmul(N2,P)
             projMat = np.matmul(np.matmul(P,inv(np.matmul(P.T,P))),P.T)
             T = np.matmul(self.X0, P)
             
         elif(self.sudiremeth =='save'):
             P = SAVE(Xs, ys, self.n_slices,self.n_components,self.center_data, self.scale_data)
+            if self.scale_data:
+                P = np.matmul(N2,P)
             projMat = np.matmul(np.matmul(P,inv(np.matmul(P.T,P))),P.T)
             T = np.matmul(self.X0, P)
             
         elif(self.sudiremeth == 'dr') : 
             P = DR(Xs, ys, self.n_slices,self.n_components,self.center_data, self.scale_data)
+            if self.scale_data:
+                P = np.matmul(N2,P)
             projMat = np.matmul(np.matmul(P,inv(np.matmul(P.T,P))),P.T)
             T = np.matmul(self.X0, P)
             
         elif(self.sudiremeth == 'phd'):
             P = PHD(Xs, ys,self.n_components,self.center_data, self.scale_data)
+            if self.scale_data:
+                P = np.matmul(N2,P)
             projMat = np.matmul(np.matmul(P,inv(np.matmul(P.T,P))),P.T)
             T = np.matmul(self.X0, P)
             
         elif(self.sudiremeth == 'iht'):
             P = IHT(Xs, ys,self.n_components,self.center_data, self.scale_data)
+            if self.scale_data:
+                P = np.matmul(N2,P)
             projMat = np.matmul(np.matmul(P,inv(np.matmul(P.T,P))),P.T)
             T = np.matmul(self.X0, P)
             
@@ -382,13 +393,19 @@ class sudire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
             
              ## choose starting value for DCOV-SDR
             if self.optimizer_start is None :
-                save_start=SAVE(Xs,ys,3,self.n_components)
-                sir_start=SIR(Xs, ys,6,self.n_components)
+                save_start=SAVE(Xs,ys,3,self.n_components,self.center_data, self.scale_data)
+                if self.scale_data:
+                    save_start = np.matmul(N2,save_start)
+                sir_start=SIR(Xs, ys,6,self.n_components,self.center_data, self.scale_data)
+                if self.scale_data:
+                    sir_start = np.matmul(N2,sir_start)
                 beta_save= orth(save_start)
                 dc_save = dc.distance_covariance_sqr(np.matmul(Xs,beta_save),y)       
                 beta_sir = orth(sir_start)
                 dc_sir = dc.distance_covariance_sqr(np.matmul(Xs,beta_sir),y)
-                DR_start = DR(Xs,y,6,self.n_components)
+                DR_start = DR(Xs,y,6,self.n_components,self.center_data, self.scale_data)
+                if self.scale_data:
+                    DR_start = np.matmul(N2, DR_start)
                 beta_DR = orth(DR_start)
                 dc_DR = dc.distance_covariance_sqr(np.matmul(Xs,beta_DR),y)
                 if(dc_save >= dc_sir and dc_save >= dc_DR) : 
