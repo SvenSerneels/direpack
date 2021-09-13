@@ -34,6 +34,7 @@ jobs:
         $CONDA/bin/conda install -c conda-forge numpy
         $CONDA/bin/conda install -c conda-forge statsmodels
         $CONDA/bin/conda install -c conda-forge dcor
+        $CONDA/bin/conda install -c conda-forge sympy
     - name: Conda info
       shell: bash -l {0}
       run: conda info
