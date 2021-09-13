@@ -28,7 +28,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        if [ -f requirements.txt ]; then $CONDA/bin/conda install -r requirements.txt; fi
         $CONDA/bin/conda install -c conda-forge scikit-learn
     - name: Conda info
       shell: bash -l {0}
