@@ -11,5 +11,5 @@ Edits by Sven Serneels.
 __name__ = "sudire"
 __author__ = "Emmanuel Jordy Menvouta"
 __license__ = "MIT"
-__version__ = "0.1.3"
-__date__ = "2021-04-25"
+__version__ = "0.1.4"
+__date__ = "2021-05-20"

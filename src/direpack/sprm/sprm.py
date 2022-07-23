@@ -32,7 +32,7 @@ from ..preprocessing.robcent import VersatileScaler
 from .snipls import snipls
 from ..utils.utils import MyException,_predict_check_input,_check_input
 from ._m_support_functions import *
-from ..preprocessing._preproc_utilities import scale_data
+from ..preprocessing._preproc_utilities import scale_data, mad
 
 class sprm(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
     
@@ -197,6 +197,12 @@ class sprm(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
         ny = y.shape[0]
         if ny != n:
             raise MyException("Number of cases in y and X must be identical.")
+            
+        if self.scale == 'scaleTau2':
+            if (mad(X)==0).any():
+                # kstepLTS divides by MAD. Zero MAD leads to nan -> detect zero MAD, scale by MAD and remove zero MAD variable. 
+                self.scale = 'mad'
+                warnings.warn('Scale set to `mad`')
 
         scaling = VersatileScaler(center=self.centre, scale=self.scale)
         Xs = scaling.fit_transform(X).astype('float64')
