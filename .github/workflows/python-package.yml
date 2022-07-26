@@ -15,7 +15,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
+<<<<<<< HEAD
         python-version: [ 3.7, 3.8,3.9, "3.10"]
+=======
+        python-version: [3.7, 3.8, 3.9, "3.10"]
+>>>>>>> 01479fdd2b74d4b92bcc61ee72299bd68b244a54
 
     steps:
     - uses: actions/checkout@v2
@@ -28,7 +32,14 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        # if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        $CONDA/bin/conda install -c conda-forge scikit-learn
+        $CONDA/bin/conda install -c conda-forge pandas
+        $CONDA/bin/conda install -c conda-forge numpy
+        $CONDA/bin/conda install -c conda-forge statsmodels
+        $CONDA/bin/conda install -c conda-forge dcor
+        $CONDA/bin/conda install -c conda-forge sympy
+        $CONDA/bin/conda install -c conda-forge matplotlib
     - name: Conda info
       shell: bash -l {0}
       run: conda info
