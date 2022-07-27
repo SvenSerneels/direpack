@@ -83,8 +83,8 @@ class Testdicomo(unittest.TestCase):
         """ Tests function  to compute energy statistics"""
         
         self.est.set_params(est='distance',mode='var')
-        self.assertAlmostEquals(self.est.fit(self.x,biascorr=False),dc.distance_stats(self.x,self.x)[0])
-        self.assertAlmostEquals(self.est.fit(self.x,biascorr=True),np.sqrt(dc.u_distance_stats_sqr(self.x,self.x)[0]))      
+        self.assertAlmostEquals(self.est.fit(self.x,biascorr=False),dc.distance_stats(self.x,self.x).covariance_xy)
+        self.assertAlmostEquals(self.est.fit(self.x,biascorr=True),np.sqrt(dc.u_distance_stats_sqr(self.x,self.x).covariance_xy))      
         self.est.set_params(mode='com')
         self.assertAlmostEquals(self.est.fit(self.x,y=self.y,biascorr=False),dc.distance_covariance(self.x,self.y))
         self.est.set_params(mode='mdd')
