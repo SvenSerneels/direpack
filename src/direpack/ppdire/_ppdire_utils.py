@@ -3,25 +3,26 @@
 """
 Created on Thu Jan 2 2020
 
-@author: Sven Serneels, Ponalytics. 
+@author: Sven Serneels. 
 """
 
 import numpy as np
 import pandas as ps
 
 
-def pp_objective(x,est,X,opt_args):
-    
+def pp_objective(x, est, X, opt_args):
+
     """
     Optimization objective for ppdire 
     
     """
-    
-    n = len(x)
-    x = np.matrix(x).reshape((n,1))
-    return(-est.fit(np.matmul(X,x),**opt_args))
 
-def gridplane(X,most,pi_arguments={},**kwargs):
+    n = len(x)
+    x = np.matrix(x).reshape((n, 1))
+    return -est.fit(np.matmul(X, x), **opt_args)
+
+
+def gridplane(X, most, pi_arguments={}, **kwargs):
 
     """
     Function for grid search in a plane in two dimensions
@@ -45,66 +46,70 @@ def gridplane(X,most,pi_arguments={},**kwargs):
     Note: this function is written exclusively to be called from within the ppdire class
     
     """
-    
-            
-    if (('biascorr' not in kwargs) and ('biascorr' not in pi_arguments)):
+
+    if ("biascorr" not in kwargs) and ("biascorr" not in pi_arguments):
         biascorr = False
     else:
-        biascorr = kwargs.get('biascorr')
-    
+        biascorr = kwargs.get("biascorr")
+
     if len(pi_arguments) == 0:
-        
+
         pi_arguments = {
-                        'alpha': 0,
-                        'ndir': 1000,
-                        'trimming': 0,
-                        'biascorr': biascorr, 
-                        'dmetric' : 'euclidean',
-                        'alphamat': None,
-                        'optrange': (-1,1),
-                        'square_pi': False
-                        }
-        
-    if ('y' in kwargs):
-        y = kwargs.pop('y')
-        pi_arguments['y'] = y
-        
-    optrange = pi_arguments['optrange']
+            "alpha": 0,
+            "ndir": 1000,
+            "trimming": 0,
+            "biascorr": biascorr,
+            "dmetric": "euclidean",
+            "alphamat": None,
+            "optrange": (-1, 1),
+            "square_pi": False,
+        }
+
+    if "y" in kwargs:
+        y = kwargs.pop("y")
+        pi_arguments["y"] = y
+
+    optrange = pi_arguments["optrange"]
     optmax = optrange[1]
-    
-    alphamat = kwargs.pop('alphamat',pi_arguments['alphamat'])
-    if (alphamat != None):
+
+    alphamat = kwargs.pop("alphamat", pi_arguments["alphamat"])
+    if alphamat != None:
         optrange = np.sign(optrange)
         stop0s = np.arcsin(optrange[0])
         stop1s = np.arcsin(optrange[1])
         stop1c = np.arccos(optrange[0])
         stop0c = np.arccos(optrange[1])
-        anglestart = max(stop0c,stop0s)
-        anglestop = max(stop1c,stop1s)
-        nangle = np.linspace(anglestart,anglestop,pi_arguments['ndir'],endpoint=False)            
+        anglestart = max(stop0c, stop0s)
+        anglestop = max(stop1c, stop1s)
+        nangle = np.linspace(
+            anglestart, anglestop, pi_arguments["ndir"], endpoint=False
+        )
         alphamat = np.matrix([np.cos(nangle), np.sin(nangle)])
         if optmax != 1:
             alphamat *= optmax
-    
-    tj = X*alphamat
-    if pi_arguments['square_pi']:
-        meas = [most.fit(tj[:,i],**pi_arguments)**2 
-        for i in np.arange(0,pi_arguments['ndir'])]
+
+    tj = X * alphamat
+    if pi_arguments["square_pi"]:
+        meas = [
+            most.fit(tj[:, i], **pi_arguments) ** 2
+            for i in np.arange(0, pi_arguments["ndir"])
+        ]
     else:
-        meas = [most.fit(tj[:,i],**pi_arguments) 
-        for i in np.arange(0,pi_arguments['ndir'])]
-        
+        meas = [
+            most.fit(tj[:, i], **pi_arguments)
+            for i in np.arange(0, pi_arguments["ndir"])
+        ]
+
     maximo = np.max(meas)
     indmax = np.where(meas == maximo)[0]
-    if len(indmax)>0:
+    if len(indmax) > 0:
         indmax = indmax[0]
-    wi = alphamat[:,indmax]
-    
-    return(wi,maximo)
-    
-    
+    wi = alphamat[:, indmax]
 
-def gridplane_2(X,most,q,div,pi_arguments={},**kwargs):
+    return (wi, maximo)
+
+
+def gridplane_2(X, most, q, div, pi_arguments={}, **kwargs):
 
     """
     Function for refining a grid search in a plane in two dimensions
@@ -132,57 +137,60 @@ def gridplane_2(X,most,q,div,pi_arguments={},**kwargs):
     Note: this function is written to be called from within the ppdire class
     
     """
-            
-    if (('biascorr' not in kwargs) and ('biascorr' not in pi_arguments)):
+
+    if ("biascorr" not in kwargs) and ("biascorr" not in pi_arguments):
         biascorr = False
     else:
-        biascorr = kwargs.get('biascorr')
-        
+        biascorr = kwargs.get("biascorr")
+
     if len(pi_arguments) == 0:
-        
+
         pi_arguments = {
-                        'alpha': 0,
-                        'ndir': 1000,
-                        'trimming': 0,
-                        'biascorr': biascorr, 
-                        'dmetric' : 'euclidean',
-                        'alphamat': None,
-                        'optrange': (-1,1),
-                        'square_pi': False
-                        }
+            "alpha": 0,
+            "ndir": 1000,
+            "trimming": 0,
+            "biascorr": biascorr,
+            "dmetric": "euclidean",
+            "alphamat": None,
+            "optrange": (-1, 1),
+            "square_pi": False,
+        }
 
-        
-    if 'y' in kwargs:
-        y = kwargs.pop('y')
-        pi_arguments['y'] = y
+    if "y" in kwargs:
+        y = kwargs.pop("y")
+        pi_arguments["y"] = y
 
-    optrange = pi_arguments['optrange']
+    optrange = pi_arguments["optrange"]
     optmax = optrange[1]
-   
-    alphamat = kwargs.pop('alphamat',pi_arguments['alphamat'])
+
+    alphamat = kwargs.pop("alphamat", pi_arguments["alphamat"])
     if (alphamat != None).any():
-        anglestart = min(pi_arguments['_stop0c'],pi_arguments['_stop0s'])
-        anglestop = min(pi_arguments['_stop1c'],pi_arguments['_stop1s'])
-        nangle = np.linspace(anglestart,anglestop,pi_arguments['ndir'],endpoint=True)
+        anglestart = min(pi_arguments["_stop0c"], pi_arguments["_stop0s"])
+        anglestop = min(pi_arguments["_stop1c"], pi_arguments["_stop1s"])
+        nangle = np.linspace(anglestart, anglestop, pi_arguments["ndir"], endpoint=True)
         alphamat = np.matrix([np.cos(nangle), np.sin(nangle)])
         if optmax != 1:
             alphamat *= optmax
     alpha1 = alphamat
-    divisor = np.sqrt(1 + 2*np.multiply(alphamat[0,:],alphamat[1,:])*q[0])
-    alpha1 = np.divide(alphamat,np.repeat(divisor,2,0))
-    tj = X*alpha1
-    
-    if pi_arguments['square_pi']:
-        meas = [most.fit(tj[:,i],**pi_arguments)**2 
-        for i in np.arange(0,pi_arguments['ndir'])]
+    divisor = np.sqrt(1 + 2 * np.multiply(alphamat[0, :], alphamat[1, :]) * q[0])
+    alpha1 = np.divide(alphamat, np.repeat(divisor, 2, 0))
+    tj = X * alpha1
+
+    if pi_arguments["square_pi"]:
+        meas = [
+            most.fit(tj[:, i], **pi_arguments) ** 2
+            for i in np.arange(0, pi_arguments["ndir"])
+        ]
     else:
-        meas = [most.fit(tj[:,i],**pi_arguments) 
-        for i in np.arange(0,pi_arguments['ndir'])]
+        meas = [
+            most.fit(tj[:, i], **pi_arguments)
+            for i in np.arange(0, pi_arguments["ndir"])
+        ]
 
     maximo = np.max(meas)
     indmax = np.where(meas == maximo)[0]
-    if len(indmax)>0:
+    if len(indmax) > 0:
         indmax = indmax[0]
-    wi = alpha1[:,indmax]
-    
-    return(wi,maximo)
+    wi = alpha1[:, indmax]
+
+    return (wi, maximo)
