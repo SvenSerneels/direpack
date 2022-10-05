@@ -146,6 +146,7 @@ class sudire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
                  dmetric = 'euclidean',
                  fit_ols = True,
                  copy=True,
+                 response_type = 'continuous',
                  verbose=True, 
                  return_scaling_object=True):
         # Called arguments
@@ -165,6 +166,7 @@ class sudire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
         self.dmetric = dmetric
         self.fit_ols = fit_ols
         self.copy = copy
+        self.response_type = response_type
         self.verbose = verbose
         self.return_scaling_object = return_scaling_object
         
@@ -354,21 +356,21 @@ class sudire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
         
                    
         if(self.sudiremeth == 'sir'):
-            P = SIR(Xs, ys, self.n_slices,self.n_components,self.center_data, self.scale_data)
+            P = SIR(Xs, ys, self.n_slices,self.n_components,self.response_type,self.center_data, self.scale_data)
             if self.scale_data:
                 P = np.matmul(N2,P)
             projMat = np.matmul(np.matmul(P,inv(np.matmul(P.T,P))),P.T)
             T = np.matmul(self.X0, P)
             
         elif(self.sudiremeth =='save'):
-            P = SAVE(Xs, ys, self.n_slices,self.n_components,self.center_data, self.scale_data)
+            P = SAVE(Xs, ys, self.n_slices,self.n_components,self.response_type,self.center_data, self.scale_data)
             if self.scale_data:
                 P = np.matmul(N2,P)
             projMat = np.matmul(np.matmul(P,inv(np.matmul(P.T,P))),P.T)
             T = np.matmul(self.X0, P)
             
         elif(self.sudiremeth == 'dr') : 
-            P = DR(Xs, ys, self.n_slices,self.n_components,self.center_data, self.scale_data)
+            P = DR(Xs, ys, self.n_slices,self.n_components,self.response_type,self.center_data, self.scale_data)
             if self.scale_data:
                 P = np.matmul(N2,P)
             projMat = np.matmul(np.matmul(P,inv(np.matmul(P.T,P))),P.T)
