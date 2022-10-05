@@ -5,14 +5,12 @@
 
 # ppdire - Projection pursuit dimension reduction
 
-# @author: Sven Serneels (Ponalytics)
-
-
+# @author: Sven Serneels
 import numpy as np
 from statsmodels.regression.quantile_regression import QuantReg
 import statsmodels.robust as srs
 import scipy.stats as sps
-from scipy.linalg import pinv2
+from scipy.linalg import pinv
 from scipy.optimize import minimize
 import copy
 from sklearn.utils.metaestimators import _BaseComposition
@@ -638,7 +636,7 @@ class ppdire(_BaseComposition, BaseEstimator, TransformerMixin, RegressorMixin):
             # Calculate R-Weights
             R = np.dot(
                 W[:, 0 : (i + 1)],
-                pinv2(
+                pinv(
                     np.dot(P[:, 0 : (i + 1)].T, W[:, 0 : (i + 1)]), check_finite=False
                 ),
             )
