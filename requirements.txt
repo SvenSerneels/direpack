@@ -4,7 +4,7 @@
 ###### Requirements without Version Specifiers ######
 numpy
 matplotlib
-scipy
+scipy >= 1.9.0
 sklearn
 pandas
 statsmodels

@@ -1,29 +1,32 @@
 # -*- coding: utf-8 -*-
-"""
-"""
 
 import numpy as np
-from scipy.linalg import  inv, sqrtm
+from scipy.linalg import inv, sqrtm
 import copy
 from sklearn.utils.metaestimators import _BaseComposition
-from sklearn.base import RegressorMixin,BaseEstimator,TransformerMixin, defaultdict
+from sklearn.base import RegressorMixin, BaseEstimator, TransformerMixin, defaultdict
 from ..preprocessing.robcent import VersatileScaler
-from ._sudire_utils import * 
+from ._sudire_utils import *
 from scipy.linalg import orth
 import warnings
 import statsmodels.robust.scale as srs
 from scipy.stats import trim_mean
 import dcor as dc
-#import Ball
+
+# import Ball
 import statsmodels.api as sm
 import inspect
 from ..ipopt_temp.ipopt_wrapper import minimize_ipopt
-from ..ipopt_temp.jacobian import FunctionWithApproxJacobianCentral,FunctionWithApproxJacobian
+from ..ipopt_temp.jacobian import (
+    FunctionWithApproxJacobianCentral,
+    FunctionWithApproxJacobian,
+)
 from ..dicomo._dicomo_utils import *
 from ..utils.utils import *
 
-class sudire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
-    
+
+class sudire(_BaseComposition, BaseEstimator, TransformerMixin, RegressorMixin):
+
     """SUDIRE Sufficient Dimension Reduction 
     
     The class allows for Sufficient Dimension Reduction using a variety of 
@@ -129,26 +132,28 @@ class sudire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
     
     """
 
-    def __init__(self,
-                 sudiremeth = 'dcov-sdr', 
-                 n_components = 2, 
-                 trimming = 0,
-                 optimizer_options = {'max_iter': 1000}, 
-                 optimizer_constraints = None,
-                 optimizer_arguments =None,
-                 optimizer_start = None,
-                 center_data=True,
-                 center='mean',
-                 scale_data=True,
-                 whiten_data=False,
-                 compression = False,
-                 n_slices = 6,
-                 dmetric = 'euclidean',
-                 fit_ols = True,
-                 copy=True,
-                 response_type = 'continuous',
-                 verbose=True, 
-                 return_scaling_object=True):
+    def __init__(
+        self,
+        sudiremeth="dcov-sdr",
+        n_components=2,
+        trimming=0,
+        optimizer_options={"max_iter": 1000},
+        optimizer_constraints=None,
+        optimizer_arguments=None,
+        optimizer_start=None,
+        center_data=True,
+        center="mean",
+        scale_data=True,
+        whiten_data=False,
+        compression=False,
+        n_slices=6,
+        dmetric="euclidean",
+        fit_ols=True,
+        copy=True,
+        response_type="continuous",
+        verbose=True,
+        return_scaling_object=True,
+    ):
         # Called arguments
         self.sudiremeth = sudiremeth
         self.n_components = n_components
@@ -169,20 +174,34 @@ class sudire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
         self.response_type = response_type
         self.verbose = verbose
         self.return_scaling_object = return_scaling_object
-        
-        # Other global parameters 
-        self.licenter = ['mean','median']
-        if not(self.center in self.licenter):
-            raise(ValueError('Only location estimator classes allowed are: "mean", "median"'))
-            
-        self.limeths =['sir', 'save', 'dr','dcov-sdr','bcov-sdr','mdd-sdr','phd','iht']
-        if (not(self.sudiremeth in self.limeths) and not callable(self.sudiremeth)):            
-            raise(ValueError('Only SDR methods allowed are : "sir", "save", "dr", "dcov-sdr","bcov-sdr", "mdd-sdr", "iht","phd"'))
-            
-    
 
-    def fit(self,X,y,*args,**kwargs):
-        
+        # Other global parameters
+        self.licenter = ["mean", "median"]
+        if not (self.center in self.licenter):
+            raise (
+                ValueError(
+                    'Only location estimator classes allowed are: "mean", "median"'
+                )
+            )
+        self.limeths = [
+            "sir",
+            "save",
+            "dr",
+            "dcov-sdr",
+            "bcov-sdr",
+            "mdd-sdr",
+            "phd",
+            "iht",
+        ]
+        if not (self.sudiremeth in self.limeths) and not callable(self.sudiremeth):
+            raise (
+                ValueError(
+                    'Only SDR methods allowed are : "sir", "save", "dr", "dcov-sdr","bcov-sdr", "mdd-sdr", "iht","phd"'
+                )
+            )
+
+    def fit(self, X, y, *args, **kwargs):
+
         """
         Fit a Sufficient Dimension Reduction Model. 
         
@@ -204,66 +223,63 @@ class sudire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
         """
 
         # Collect optional fit arguments
-            
-        if 'dmetric' not in kwargs:
-            dmetric = 'euclidean'
+
+        if "dmetric" not in kwargs:
+            dmetric = "euclidean"
         else:
-            dmetric = kwargs.get('dmetric')
-            
-        if 'biascorr' not in kwargs:
+            dmetric = kwargs.get("dmetric")
+        if "biascorr" not in kwargs:
             biascorr = False
         else:
-            biascorr = kwargs.get('biascorr')
-            
-        if 'flag' not in kwargs:
-            flag = 'two-block'
-        else :
-            flag = kwargs.get('flag')     
-        
-        if 'is_distance_mat' not in kwargs : 
-            is_distance_mat =False
-        else : 
-            is_distance_mat = kwargs.pop('is_distance_mat')
-            
-            
-                               
-        
+            biascorr = kwargs.get("biascorr")
+        if "flag" not in kwargs:
+            flag = "two-block"
+        else:
+            flag = kwargs.get("flag")
+        if "is_distance_mat" not in kwargs:
+            is_distance_mat = False
+        else:
+            is_distance_mat = kwargs.pop("is_distance_mat")
         # Initiate some parameters and data frames
         if self.copy:
             X0 = copy.deepcopy(X)
             self.X0 = X0
         else:
-            X0 = X        
-        X = convert_X_input(X0)    
-        n,p = X0.shape 
+            X0 = X
+        X = convert_X_input(X0)
+        n, p = X0.shape
         trimming = self.trimming
-        
-        # Check dimensions 
-        if self.n_components > min(n,p):
-            raise(MyException('number of components cannot exceed number of variables or sample size'))
-            
+
+        # Check dimensions
+        if self.n_components > min(n, p):
+            raise (
+                MyException(
+                    "number of components cannot exceed number of variables or sample size"
+                )
+            )
         # Pre-processing adjustment if whitening
         if self.whiten_data:
             self.center_data = True
             self.scale_data = False
             self.compression = False
-            print('All results produced are for whitened data')
-            
-         #Store original X data mean and varcov matrix.
-        varmatx = np.cov(X,rowvar=0)
+            print("All results produced are for whitened data")
+        # Store original X data mean and varcov matrix.
+        varmatx = np.cov(X, rowvar=0)
         meanx = X.mean(axis=0)
         N2 = inv(sqrtm(varmatx))
-        
-                    
-         # Data Compression for flat tables if required                
-        if ((p>n) and self.compression):
-            V,S,U = np.linalg.svd(X.T,full_matrices=False)
-            X = np.matmul(U.T,np.diag(S))
-            n,p = X.shape
-            
-            if (srs.mad(X)==0).any(): 
-                warnings.warn('Due to low scales in data, compression would induce zero scales.' 
-                              + '\n' + 'Proceeding without compression.')
+
+        # Data Compression for flat tables if required
+        if (p > n) and self.compression:
+            V, S, U = np.linalg.svd(X.T, full_matrices=False)
+            X = np.matmul(U.T, np.diag(S))
+            n, p = X.shape
+
+            if (srs.mad(X) == 0).any():
+                warnings.warn(
+                    "Due to low scales in data, compression would induce zero scales."
+                    + "\n"
+                    + "Proceeding without compression."
+                )
                 dimensions = False
                 if copy:
                     X = copy.deepcopy(X0)
@@ -273,253 +289,297 @@ class sudire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
                 dimensions = True
         else:
             dimensions = False
-            
+
             # Centring and scaling
             # centering :
         if self.center_data:
-            if self.center != 'mean':
-                centring = VersatileScaler(center=self.center, scale ='None',trimming=self.trimming) 
+            if self.center != "mean":
+                centring = VersatileScaler(
+                    center=self.center, scale="None", trimming=self.trimming
+                )
                 Xs = centring.fit_transform(X0)
                 mX = centring.col_loc_
                 sX = centring.col_sca_
-            else :
-                Xs = X -trim_mean(X, self.trimming,axis=0) 
-                mX = trim_mean(X, self.trimming,axis=0)
-                sX = np.sqrt(np.diag(varmatx))                
+            else:
+                Xs = X - trim_mean(X, self.trimming, axis=0)
+                mX = trim_mean(X, self.trimming, axis=0)
+                sX = np.sqrt(np.diag(varmatx))
         else:
             Xs = X0
-            mX = np.zeros((1,p))
-            sX = np.ones((1,p))
-          
+            mX = np.zeros((1, p))
+            sX = np.ones((1, p))
         if self.scale_data:
-            if self.center=='mean': 
-                scale = 'std'
+            if self.center == "mean":
+                scale = "std"
                 N2 = inv(sqrtm(varmatx))
-                Xs = np.matmul(Xs,N2) 
-                
-            elif((self.center=='median') or (self.center=='l1median')):
-                scale = 'mad' 
-                centring = VersatileScaler(center=self.center,scale=scale,trimming=trimming) 
+                Xs = np.matmul(Xs, N2)
+            elif (self.center == "median") or (self.center == "l1median"):
+                scale = "mad"
+                centring = VersatileScaler(
+                    center=self.center, scale=scale, trimming=trimming
+                )
                 Xs = centring.fit_transform(X0)
                 mX = centring.col_loc_
                 sX = centring.col_sca_
-            else :
-                raise(MyException('centering options have to be either "mean", "median", or "l1median"'))
-                
+            else:
+                raise (
+                    MyException(
+                        'centering options have to be either "mean", "median", or "l1median"'
+                    )
+                )
         else:
-            scale = 'None'
-            warnings.warn('Without scaling, convergence to optima is not given')
-           
-        
-        # Initiate centring object and scale X data      
-            
+            scale = "None"
+            warnings.warn("Without scaling, convergence to optima is not given")
+        # Initiate centring object and scale X data
+
         if self.whiten_data:
-            V,S,U = np.linalg.svd(Xs.T,full_matrices=False)
+            V, S, U = np.linalg.svd(Xs.T, full_matrices=False)
             del U
-            K = (V/S)[:,:p]
+            K = (V / S)[:, :p]
             del S
             Xs = np.matmul(Xs, K)
             Xs *= np.sqrt(p)
-
-        # Pre-process y data  
+        # Pre-process y data
         ny = y.shape[0]
         y = convert_y_input(y)
         if len(y.shape) < 2:
-            y = np.matrix(y).reshape((ny,1))
+            y = np.matrix(y).reshape((ny, 1))
         if ny != n:
-            raise(MyException('X and y number of rows must agree'))
-        
-        # Pre-process y data when available 
-        if flag != 'one-block':    
+            raise (MyException("X and y number of rows must agree"))
+        # Pre-process y data when available
+        if flag != "one-block":
             ny = y.shape[0]
             y = convert_y_input(y)
             if len(y.shape) < 2:
-                y = np.matrix(y).reshape((ny,1))
+                y = np.matrix(y).reshape((ny, 1))
             if ny != n:
-                raise(MyException('X and y number of rows must agree'))
+                raise (MyException("X and y number of rows must agree"))
             if self.copy:
                 y0 = copy.deepcopy(y)
                 self.y0 = y0
-                
             if self.center_data:
-                ys=y # dont center y
+                ys = y  # dont center y
                 my = np.mean(y, axis=0)
-                sy = np.sqrt(np.var(y,axis=0))
+                sy = np.sqrt(np.var(y, axis=0))
             else:
                 ys = y
                 my = 0
                 sy = 1
-            ys = ys.astype('float64')
-        
+            ys = ys.astype("float64")
         else:
             ys = None
-        
-                   
-        if(self.sudiremeth == 'sir'):
-            P = SIR(Xs, ys, self.n_slices,self.n_components,self.response_type,self.center_data, self.scale_data)
+        if self.sudiremeth == "sir":
+            P = SIR(
+                Xs,
+                ys,
+                self.n_slices,
+                self.n_components,
+                self.response_type,
+                self.center_data,
+                self.scale_data,
+            )
             if self.scale_data:
-                P = np.matmul(N2,P)
-            projMat = np.matmul(np.matmul(P,inv(np.matmul(P.T,P))),P.T)
+                P = np.matmul(N2, P)
+            projMat = np.matmul(np.matmul(P, inv(np.matmul(P.T, P))), P.T)
             T = np.matmul(self.X0, P)
-            
-        elif(self.sudiremeth =='save'):
-            P = SAVE(Xs, ys, self.n_slices,self.n_components,self.response_type,self.center_data, self.scale_data)
+        elif self.sudiremeth == "save":
+            P = SAVE(
+                Xs,
+                ys,
+                self.n_slices,
+                self.n_components,
+                self.response_type,
+                self.center_data,
+                self.scale_data,
+            )
             if self.scale_data:
-                P = np.matmul(N2,P)
-            projMat = np.matmul(np.matmul(P,inv(np.matmul(P.T,P))),P.T)
+                P = np.matmul(N2, P)
+            projMat = np.matmul(np.matmul(P, inv(np.matmul(P.T, P))), P.T)
             T = np.matmul(self.X0, P)
-            
-        elif(self.sudiremeth == 'dr') : 
-            P = DR(Xs, ys, self.n_slices,self.n_components,self.response_type,self.center_data, self.scale_data)
+        elif self.sudiremeth == "dr":
+            P = DR(
+                Xs,
+                ys,
+                self.n_slices,
+                self.n_components,
+                self.response_type,
+                self.center_data,
+                self.scale_data,
+            )
             if self.scale_data:
-                P = np.matmul(N2,P)
-            projMat = np.matmul(np.matmul(P,inv(np.matmul(P.T,P))),P.T)
+                P = np.matmul(N2, P)
+            projMat = np.matmul(np.matmul(P, inv(np.matmul(P.T, P))), P.T)
             T = np.matmul(self.X0, P)
-            
-        elif(self.sudiremeth == 'phd'):
-            P = PHD(Xs, ys,self.n_components,self.center_data, self.scale_data)
+        elif self.sudiremeth == "phd":
+            P = PHD(Xs, ys, self.n_components, self.center_data, self.scale_data)
             if self.scale_data:
-                P = np.matmul(N2,P)
-            projMat = np.matmul(np.matmul(P,inv(np.matmul(P.T,P))),P.T)
+                P = np.matmul(N2, P)
+            projMat = np.matmul(np.matmul(P, inv(np.matmul(P.T, P))), P.T)
             T = np.matmul(self.X0, P)
-            
-        elif(self.sudiremeth == 'iht'):
-            P = IHT(Xs, ys,self.n_components,self.center_data, self.scale_data)
+        elif self.sudiremeth == "iht":
+            P = IHT(Xs, ys, self.n_components, self.center_data, self.scale_data)
             if self.scale_data:
-                P = np.matmul(N2,P)
-            projMat = np.matmul(np.matmul(P,inv(np.matmul(P.T,P))),P.T)
+                P = np.matmul(N2, P)
+            projMat = np.matmul(np.matmul(P, inv(np.matmul(P.T, P))), P.T)
             T = np.matmul(self.X0, P)
-            
-        
-        else : #SDR obtained through optimization of some function
-            
-             ## choose starting value for DCOV-SDR
-            if self.optimizer_start is None :
-                save_start=SAVE(Xs,ys,3,self.n_components,self.center_data, self.scale_data)
+        else:  # SDR obtained through optimization of some function
+
+            ## choose starting value for DCOV-SDR
+            if self.optimizer_start is None:
+                save_start = SAVE(
+                    Xs, ys, 3, self.n_components, self.center_data, self.scale_data
+                )
                 if self.scale_data:
-                    save_start = np.matmul(N2,save_start)
-                sir_start=SIR(Xs, ys,6,self.n_components,self.center_data, self.scale_data)
+                    save_start = np.matmul(N2, save_start)
+                sir_start = SIR(
+                    Xs, ys, 6, self.n_components, self.center_data, self.scale_data
+                )
                 if self.scale_data:
-                    sir_start = np.matmul(N2,sir_start)
-                beta_save= orth(save_start)
-                dc_save = dc.distance_covariance_sqr(np.matmul(Xs,beta_save),y)       
+                    sir_start = np.matmul(N2, sir_start)
+                beta_save = orth(save_start)
+                dc_save = dc.distance_covariance_sqr(np.matmul(Xs, beta_save), y)
                 beta_sir = orth(sir_start)
-                dc_sir = dc.distance_covariance_sqr(np.matmul(Xs,beta_sir),y)
-                DR_start = DR(Xs,y,6,self.n_components,self.center_data, self.scale_data)
+                dc_sir = dc.distance_covariance_sqr(np.matmul(Xs, beta_sir), y)
+                DR_start = DR(
+                    Xs, y, 6, self.n_components, self.center_data, self.scale_data
+                )
                 if self.scale_data:
                     DR_start = np.matmul(N2, DR_start)
                 beta_DR = orth(DR_start)
-                dc_DR = dc.distance_covariance_sqr(np.matmul(Xs,beta_DR),y)
-                if(dc_save >= dc_sir and dc_save >= dc_DR) : 
-                    self.optimizer_start= save_start.flatten(order='F')
-                elif (dc_sir >= dc_save and dc_sir >= dc_DR) :    
-                    self.optimizer_start = sir_start.flatten(order='F')
-                else :
-                    self.optimizer_start = DR_start.flatten(order='F')
-                
+                dc_DR = dc.distance_covariance_sqr(np.matmul(Xs, beta_DR), y)
+                if dc_save >= dc_sir and dc_save >= dc_DR:
+                    self.optimizer_start = save_start.flatten(order="F")
+                elif dc_sir >= dc_save and dc_sir >= dc_DR:
+                    self.optimizer_start = sir_start.flatten(order="F")
+                else:
+                    self.optimizer_start = DR_start.flatten(order="F")
             ## add constraints for the optimization
-            if  self.optimizer_constraints is None:
-                const_x=[]
-                const_z=[]
+            if self.optimizer_constraints is None:
+                const_x = []
+                const_z = []
                 for i in range(0, self.n_components):
-                    for j in range(0,self.n_components): 
-                        const_x.append({'type': 'eq', 'fun' : const_xscale,
-                                      'args':(Xs,self.n_components,i,j)}) # change const2 to const_func
-                        const_z.append({'type': 'eq', 'fun' : const_zscale,
-                                      'args':(Xs,self.n_components,i,j)})
-                
+                    for j in range(0, self.n_components):
+                        const_x.append(
+                            {
+                                "type": "eq",
+                                "fun": const_xscale,
+                                "args": (Xs, self.n_components, i, j),
+                            }
+                        )  # change const2 to const_func
+                        const_z.append(
+                            {
+                                "type": "eq",
+                                "fun": const_zscale,
+                                "args": (Xs, self.n_components, i, j),
+                            }
+                        )
                 if self.scale_data:
                     self.optimizer_constraints = tuple(const_z)
-                else :
+                else:
                     self.optimizer_constraints = tuple(const_x)
-                    
-            
-            if  self.optimizer_arguments is None:
+            if self.optimizer_arguments is None:
                 N2 = inv(sqrtm(varmatx))
-                self.optimizer_arguments = (Xs,ys, self.n_components,N2, is_distance_mat,
-                                            self.trimming, self.center, dmetric,biascorr)
-            
-            #perform DCOV-SDR optimization
-            res = minimize_ipopt(dcov_trim, self.optimizer_start,
-                                 args = self.optimizer_arguments,
-                                 constraints = self.optimizer_constraints,
-                                 options=self.optimizer_options)
-            if self.scale_data : 
-                dcov_res = np.matmul(N2,np.reshape(res.x,(-1,self.n_components),order = 'F'))
-            else : 
-                dcov_res = np.reshape(res.x,(-1,self.n_components),order = 'F')
-            
-            if(self.sudiremeth == 'dcov-sdr'):
+                self.optimizer_arguments = (
+                    Xs,
+                    ys,
+                    self.n_components,
+                    N2,
+                    is_distance_mat,
+                    self.trimming,
+                    self.center,
+                    dmetric,
+                    biascorr,
+                )
+            # perform DCOV-SDR optimization
+            res = minimize_ipopt(
+                dcov_trim,
+                self.optimizer_start,
+                args=self.optimizer_arguments,
+                constraints=self.optimizer_constraints,
+                options=self.optimizer_options,
+            )
+            if self.scale_data:
+                dcov_res = np.matmul(
+                    N2, np.reshape(res.x, (-1, self.n_components), order="F")
+                )
+            else:
+                dcov_res = np.reshape(res.x, (-1, self.n_components), order="F")
+            if self.sudiremeth == "dcov-sdr":
                 P = dcov_res
-                projMat = np.matmul(np.matmul(P,inv(np.matmul(P.T,P))),P.T)
+                projMat = np.matmul(np.matmul(P, inv(np.matmul(P.T, P))), P.T)
                 T = np.matmul(self.X0, P)
-                
-            elif(self.sudiremeth == 'bcov-sdr'):
-                self.optimizer_start = dcov_res.flatten(order='F')
-                res_ball = minimize_ipopt(ballcov_func,self.optimizer_start,
-                                          args = self.optimizer_arguments,
-                                          constraints = self.optimizer_constraints,
-                                          options=self.optimizer_options)
+            elif self.sudiremeth == "bcov-sdr":
+                self.optimizer_start = dcov_res.flatten(order="F")
+                res_ball = minimize_ipopt(
+                    ballcov_func,
+                    self.optimizer_start,
+                    args=self.optimizer_arguments,
+                    constraints=self.optimizer_constraints,
+                    options=self.optimizer_options,
+                )
                 if self.scale_data:
-                    P = np.matmul(N2,np.reshape(res_ball.x,(-1,self.n_components),order = 'F'))
-                else :
-                    P = np.reshape(res_ball.x,(-1,self.n_components),order = 'F')
-                projMat = np.matmul(np.matmul(P,inv(np.matmul(P.T,P))),P.T)
+                    P = np.matmul(
+                        N2, np.reshape(res_ball.x, (-1, self.n_components), order="F")
+                    )
+                else:
+                    P = np.reshape(res_ball.x, (-1, self.n_components), order="F")
+                projMat = np.matmul(np.matmul(P, inv(np.matmul(P.T, P))), P.T)
                 T = np.matmul(self.X0, P)
-                
-                
-            elif(self.sudiremeth == 'mdd-sdr'):
-                self.optimizer_start = dcov_res.flatten(order='F')
-                res_mdd = minimize_ipopt(mdd_trim,self.optimizer_start,
-                                          args = self.optimizer_arguments,
-                                          constraints = self.optimizer_constraints,
-                                          options=self.optimizer_options)
-                if self.scale_data :
-                    P = np.matmul(N2,np.reshape(res_mdd.x,(-1,self.n_components),order = 'F'))
-                else :
-                    P = np.reshape(res_mdd.x,(-1,self.n_components),order = 'F')
-                projMat = np.matmul(np.matmul(P,inv(np.matmul(P.T,P))),P.T)
+            elif self.sudiremeth == "mdd-sdr":
+                self.optimizer_start = dcov_res.flatten(order="F")
+                res_mdd = minimize_ipopt(
+                    mdd_trim,
+                    self.optimizer_start,
+                    args=self.optimizer_arguments,
+                    constraints=self.optimizer_constraints,
+                    options=self.optimizer_options,
+                )
+                if self.scale_data:
+                    P = np.matmul(
+                        N2, np.reshape(res_mdd.x, (-1, self.n_components), order="F")
+                    )
+                else:
+                    P = np.reshape(res_mdd.x, (-1, self.n_components), order="F")
+                projMat = np.matmul(np.matmul(P, inv(np.matmul(P.T, P))), P.T)
                 T = np.matmul(self.X0, P)
-                
-            else : ## user defined function   
-                self.optimizer_start = dcov_res.flatten(order='F')
-                opt_res = minimize_ipopt(self.sudiremeth, self.optimizer_start,
-                                          args = self.optimizer_arguments,
-                                          constraints = self.optimizer_constraints,
-                                          options=self.optimizer_options)
-                if self.scale_data : 
-                    P = np.matmul(N2,np.reshape(opt_res.x,(-1,self.n_components),order = 'F'))
-                else : 
-                    P = np.reshape(opt_res.x,(-1,self.n_components),order = 'F')
-                projMat = np.matmul(np.matmul(P,inv(np.matmul(P.T,P))),P.T)
+            else:  ## user defined function
+                self.optimizer_start = dcov_res.flatten(order="F")
+                opt_res = minimize_ipopt(
+                    self.sudiremeth,
+                    self.optimizer_start,
+                    args=self.optimizer_arguments,
+                    constraints=self.optimizer_constraints,
+                    options=self.optimizer_options,
+                )
+                if self.scale_data:
+                    P = np.matmul(
+                        N2, np.reshape(opt_res.x, (-1, self.n_components), order="F")
+                    )
+                else:
+                    P = np.reshape(opt_res.x, (-1, self.n_components), order="F")
+                projMat = np.matmul(np.matmul(P, inv(np.matmul(P.T, P))), P.T)
                 T = np.matmul(self.X0, P)
-                
         # perform OLS regression
-        T_reg = sm.add_constant(T) # adding a constant
-        ols_obj= sm.OLS(ys, T_reg).fit()
-        
-                                
-        # Re-adjust estimates to original dimensions if data have been compressed 
-        if dimensions:      
-            P = np.matmul(V[:,0:p],P)
-        
-        
+        T_reg = sm.add_constant(T)  # adding a constant
+        ols_obj = sm.OLS(ys, T_reg).fit()
 
-        setattr(self,"x_loadings_",P)
-        setattr(self,"x_scores_",T)
+        # Re-adjust estimates to original dimensions if data have been compressed
+        if dimensions:
+            P = np.matmul(V[:, 0:p], P)
+        setattr(self, "x_loadings_", P)
+        setattr(self, "x_scores_", T)
         setattr(self, "proj_mat_", projMat)
         if self.whiten_data:
-            setattr(self,"whitening_",K)   
-        setattr(self,"x_loc_",mX)
-        setattr(self,"x_sca_",sX)
-        setattr(self,'scaling_',scale)
-        setattr(self,'ols_obj_',ols_obj)
-        if self.return_scaling_object and self.center!= 'mean':
-            setattr(self,'scaling_object_',centring)
-        
-        return(self)
-    
-    def transform(self,Xn, distance_mat=False):
+            setattr(self, "whitening_", K)
+        setattr(self, "x_loc_", mX)
+        setattr(self, "x_sca_", sX)
+        setattr(self, "scaling_", scale)
+        setattr(self, "ols_obj_", ols_obj)
+        if self.return_scaling_object and self.center != "mean":
+            setattr(self, "scaling_object_", centring)
+        return self
+
+    def transform(self, Xn, distance_mat=False):
         """
         Computes the dimension reduction of the data Xn based on the fitted sudire model.
 
@@ -541,14 +601,17 @@ class sudire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
          -------
         """
         Xn = convert_X_input(Xn)
-        (n,p) = Xn.shape
-        (q,h) = self.x_loadings_.shape
-        if p!=q:
-            raise(ValueError('New data must have same number of columns as the ones the model has been trained with'))
-        return(np.matmul(Xn, self.x_loadings_))
+        (n, p) = Xn.shape
+        (q, h) = self.x_loadings_.shape
+        if p != q:
+            raise (
+                ValueError(
+                    "New data must have same number of columns as the ones the model has been trained with"
+                )
+            )
+        return np.matmul(Xn, self.x_loadings_)
 
-    
-    def predict(self,Xn, is_distance_mat=False):
+    def predict(self, Xn, is_distance_mat=False):
         """
         predicts the response  on new data Xn
 
@@ -567,40 +630,46 @@ class sudire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
         -------
         """
         Xn = convert_X_input(Xn)
-        (n,p) = Xn.shape
-        (q,h) = self.x_loadings_.shape
-        if p!=q:
-            raise(ValueError('New data must have same number of columns as the ones the model has been trained with'))
+        (n, p) = Xn.shape
+        (q, h) = self.x_loadings_.shape
+        if p != q:
+            raise (
+                ValueError(
+                    "New data must have same number of columns as the ones the model has been trained with"
+                )
+            )
         Xns = self.transform(Xn)
-        Xns = sm.add_constant(Xns) # adding a constant
+        Xns = sm.add_constant(Xns)  # adding a constant
         ys = self.ols_obj_.predict(Xns)
-        return(ys)
-        
-   
-    @classmethod   
+        return ys
+
+    @classmethod
     def _get_param_names(cls):
         """Get parameter names for the estimator"""
         # fetch the constructor or the original constructor before
         # deprecation wrapping if any
-        init = getattr(cls.__init__, 'deprecated_original', cls.__init__)
+        init = getattr(cls.__init__, "deprecated_original", cls.__init__)
         if init is object.__init__:
             # No explicit constructor to introspect
             return []
-
         # introspect the constructor arguments to find the model parameters
         # to represent
         init_signature = inspect.signature(init)
         # Consider the constructor parameters excluding 'self'
-        parameters = [p for p in init_signature.parameters.values()
-                    if p.name != 'self' and p.kind != p.VAR_KEYWORD]
+        parameters = [
+            p
+            for p in init_signature.parameters.values()
+            if p.name != "self" and p.kind != p.VAR_KEYWORD
+        ]
         for p in parameters:
             if p.kind == p.VAR_POSITIONAL:
-                raise RuntimeError("scikit-learn estimators should always "
-                                "specify their parameters in the signature"
-                                " of their __init__ (no varargs)."
-                                " %s with constructor %s doesn't "
-                                " follow this convention."
-                                % (cls, init_signature))
+                raise RuntimeError(
+                    "scikit-learn estimators should always "
+                    "specify their parameters in the signature"
+                    " of their __init__ (no varargs)."
+                    " %s with constructor %s doesn't "
+                    " follow this convention." % (cls, init_signature)
+                )
         # Extract and sort argument names excluding 'self'
         return sorted([p.name for p in parameters])
 
@@ -621,9 +690,9 @@ class sudire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
         out = dict()
         for key in self._get_param_names():
             value = getattr(self, key, None)
-            if deep and hasattr(value, 'get_params'):
+            if deep and hasattr(value, "get_params"):
                 deep_items = value.get_params().items()
-                out.update((key + '__' + k, val) for k, val in deep_items)
+                out.update((key + "__" + k, val) for k, val in deep_items)
             out[key] = value
         return out
 
@@ -644,25 +713,24 @@ class sudire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
 
         nested_params = defaultdict(dict)  # grouped by prefix
         for key, value in params.items():
-            key, delim, sub_key = key.partition('__')
+            key, delim, sub_key = key.partition("__")
             if key not in valid_params:
-                raise ValueError('Invalid parameter %s for estimator %s. '
-                                'Check the list of available parameters '
-                                'with `estimator.get_params().keys()`.' %
-                                (key, self))
-
+                raise ValueError(
+                    "Invalid parameter %s for estimator %s. "
+                    "Check the list of available parameters "
+                    "with `estimator.get_params().keys()`." % (key, self)
+                )
             if delim:
                 nested_params[key][sub_key] = value
             else:
                 setattr(self, key, value)
                 valid_params[key] = value
-
         for key, sub_params in nested_params.items():
             valid_params[key].set_params(**sub_params)
-
         return self
 
-def estimate_structural_dim(sudiremeth, Xn, y, B, *args,**kwargs):
+
+def estimate_structural_dim(sudiremeth, Xn, y, B, *args, **kwargs):
     """
     Estimates the dimension of the central subspace using 
     the sudiremeth.  This approach is based on the bootstrap method of Sheng and Yin (2016)
@@ -700,53 +768,55 @@ def estimate_structural_dim(sudiremeth, Xn, y, B, *args,**kwargs):
 
     ----------
     """
-    if 'n_slices' not in kwargs:
+    if "n_slices" not in kwargs:
         n_slices = 6
     else:
-        n_slices = kwargs.pop('n_slices')
-    
-    if 'center_data' not in kwargs :
+        n_slices = kwargs.pop("n_slices")
+    if "center_data" not in kwargs:
         center_data = True
-    else :
-        center_data = kwargs.pop('center_data')
-        
-    if 'scale_data' not in kwargs :
+    else:
+        center_data = kwargs.pop("center_data")
+    if "scale_data" not in kwargs:
         scale_data = True
-    else :
-        scale_data = kwargs.pop('scale_data')
-        
-    if 'center' not in kwargs :
-        center = 'mean'
-    else :
-        center = kwargs.pop('center')
-        
-            
+    else:
+        scale_data = kwargs.pop("scale_data")
+    if "center" not in kwargs:
+        center = "mean"
+    else:
+        center = kwargs.pop("center")
     Xn = convert_X_input(Xn)
-    y  = convert_y_input(y)  
-    n,p = Xn.shape
-    
-    diff_b= []
+    y = convert_y_input(y)
+    n, p = Xn.shape
+
+    diff_b = []
     mean_diff = []
-    for k in range(1,p+1):
-        print('possible dim', k)
-        sdr = sudire(sudiremeth, center_data= center_data,
-                     scale_data=scale_data, center=center,
-                     n_slices=n_slices, n_components = k)
+    for k in range(1, p + 1):
+        print("possible dim", k)
+        sdr = sudire(
+            sudiremeth,
+            center_data=center_data,
+            scale_data=scale_data,
+            center=center,
+            n_slices=n_slices,
+            n_components=k,
+        )
         sdr.fit(Xn, y=y)
         projMat = sdr.proj_mat_
-        
-        for b in range(B) :  
-            idx = np.random.randint(0,n,n)
-            X_b = Xn[idx, :].copy()
-            sdr_b = sudire(sudiremeth, center_data= center_data,
-                           scale_data=scale_data, center=center,
-                          n_slices = n_slices, n_components = k)
-            sdr_b.fit(X_b,y=y)
-            projMat_b = sdr_b.proj_mat_
-            uh,sh,vh=np.linalg.svd(projMat-projMat_b)
-            diff_b.append( np.nanmax(sh))
-            
-        mean_diff.append(np.mean(diff_b))   
-    return (np.argmin(mean_diff)+1, mean_diff)
 
- 
+        for b in range(B):
+            idx = np.random.randint(0, n, n)
+            X_b = Xn[idx, :].copy()
+            sdr_b = sudire(
+                sudiremeth,
+                center_data=center_data,
+                scale_data=scale_data,
+                center=center,
+                n_slices=n_slices,
+                n_components=k,
+            )
+            sdr_b.fit(X_b, y=y)
+            projMat_b = sdr_b.proj_mat_
+            uh, sh, vh = np.linalg.svd(projMat - projMat_b)
+            diff_b.append(np.nanmax(sh))
+        mean_diff.append(np.mean(diff_b))
+    return (np.argmin(mean_diff) + 1, mean_diff)
