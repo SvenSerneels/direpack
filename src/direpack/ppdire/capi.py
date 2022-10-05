@@ -10,11 +10,12 @@ from sklearn.base import BaseEstimator, defaultdict
 from sklearn.utils.metaestimators import _BaseComposition
 from collections import defaultdict
 import inspect
-from ..dicomo.dicomo import dicomo 
-from ..dicomo._dicomo_utils import * 
+from ..dicomo.dicomo import dicomo
+from ..dicomo._dicomo_utils import *
 
-class capi(_BaseComposition,BaseEstimator):
-    
+
+class capi(_BaseComposition, BaseEstimator):
+
     """
     CAPI Co-moment analysis projection index
     
@@ -50,16 +51,17 @@ class capi(_BaseComposition,BaseEstimator):
     the projection index. 
     
     """
-    
-    
-    def __init__(self,
-                 max_degree=2, 
-                 projection_index=dicomo,
-                 pi_arguments={},
-                 weights = [1,1,1,-1,-1,-1],
-                 centring=False,
-                 scaling=True, 
-                 options='all'):
+
+    def __init__(
+        self,
+        max_degree=2,
+        projection_index=dicomo,
+        pi_arguments={},
+        weights=[1, 1, 1, -1, -1, -1],
+        centring=False,
+        scaling=True,
+        options="all",
+    ):
         self.max_degree = max_degree
         self.projection_index = projection_index
         self.pi_arguments = pi_arguments
@@ -69,70 +71,71 @@ class capi(_BaseComposition,BaseEstimator):
         self.options = options
         self.capi_index_ = None
         if self.max_degree > 4:
-            raise(ValueError('Maximal degree is 4.'))
-        
-        
-    def fit(self,x,y,**kwargs):
-        
-        
-        if self.scaling:
-            order_kwargs =['cov','cos','cok']
-        else: 
-            order_kwargs =['com','com','com']
+            raise (ValueError("Maximal degree is 4."))
 
-        if self.max_degree < 2: 
-            raise(ValueError('capi not meaningful for max_degree < 2'))
-        if self.options=='all':
-            options = np.arange(1,4)
-        else: 
-            options = np.array(self.options,ndmin=1)
+    def fit(self, x, y, **kwargs):
+
+        if self.scaling:
+            order_kwargs = ["cov", "cos", "cok"]
+        else:
+            order_kwargs = ["com", "com", "com"]
+
+        if self.max_degree < 2:
+            raise (ValueError("capi not meaningful for max_degree < 2"))
+        if self.options == "all":
+            options = np.arange(1, 4)
+        else:
+            options = np.array(self.options, ndmin=1)
         moments = np.zeros(6)
-        fit_arguments = {'order': 0, 'y': y}
-        fit_arguments = {**kwargs,**fit_arguments}
+        fit_arguments = {"order": 0, "y": y}
+        fit_arguments = {**kwargs, **fit_arguments}
         init_moment_calc = 2
         k = 0
-        for i in range(init_moment_calc,self.max_degree+1):
-            fit_arguments['order'] = i
-            self.most.set_params(mode=order_kwargs[i-2])
-            l = min(i-1,len(options))
-            for j in options[np.arange(0,l)]:
-                fit_arguments['option'] = j
-                moments[i-3+j+k] = self.most.fit(x,**fit_arguments)
-            if i==3:
+        for i in range(init_moment_calc, self.max_degree + 1):
+            fit_arguments["order"] = i
+            self.most.set_params(mode=order_kwargs[i - 2])
+            l = min(i - 1, len(options))
+            for j in options[np.arange(0, l)]:
+                fit_arguments["option"] = j
+                moments[i - 3 + j + k] = self.most.fit(x, **fit_arguments)
+            if i == 3:
                 k += 1
-        capi_index_ = np.dot(self.weights,moments)
+        capi_index_ = np.dot(self.weights, moments)
         self.capi_index_ = capi_index_
         self.moments_ = moments
-        return(capi_index_)
-        
-        
-    @classmethod   
+        return capi_index_
+
+    @classmethod
     def _get_param_names(cls):
         """Get parameter names for the estimator"""
         # fetch the constructor or the original constructor before
         # deprecation wrapping if any
-        init = getattr(cls.__init__, 'deprecated_original', cls.__init__)
+        init = getattr(cls.__init__, "deprecated_original", cls.__init__)
         if init is object.__init__:
             # No explicit constructor to introspect
             return []
-    
+
         # introspect the constructor arguments to find the model parameters
         # to represent
         init_signature = inspect.signature(init)
         # Consider the constructor parameters excluding 'self'
-        parameters = [p for p in init_signature.parameters.values()
-                      if p.name != 'self' and p.kind != p.VAR_KEYWORD]
+        parameters = [
+            p
+            for p in init_signature.parameters.values()
+            if p.name != "self" and p.kind != p.VAR_KEYWORD
+        ]
         for p in parameters:
             if p.kind == p.VAR_POSITIONAL:
-                raise RuntimeError("scikit-learn estimators should always "
-                                   "specify their parameters in the signature"
-                                   " of their __init__ (no varargs)."
-                                   " %s with constructor %s doesn't "
-                                   " follow this convention."
-                                   % (cls, init_signature))
+                raise RuntimeError(
+                    "scikit-learn estimators should always "
+                    "specify their parameters in the signature"
+                    " of their __init__ (no varargs)."
+                    " %s with constructor %s doesn't "
+                    " follow this convention." % (cls, init_signature)
+                )
         # Extract and sort argument names excluding 'self'
         return sorted([p.name for p in parameters])
-    
+
     def get_params(self, deep=False):
         """Get parameters for this estimator.
         Parameters
@@ -150,12 +153,12 @@ class capi(_BaseComposition,BaseEstimator):
         out = dict()
         for key in self._get_param_names():
             value = getattr(self, key, None)
-            if deep and hasattr(value, 'get_params'):
+            if deep and hasattr(value, "get_params"):
                 deep_items = value.get_params().items()
-                out.update((key + '__' + k, val) for k, val in deep_items)
+                out.update((key + "__" + k, val) for k, val in deep_items)
             out[key] = value
         return out
-        
+
     def set_params(self, **params):
         """Set the parameters of this estimator.
         Copied from ScikitLearn, adapted to avoid calling 'deep=True'
@@ -169,27 +172,24 @@ class capi(_BaseComposition,BaseEstimator):
             # Simple optimization to gain speed (inspect is slow)
             return self
         valid_params = self.get_params()
-    
+
         nested_params = defaultdict(dict)  # grouped by prefix
         for key, value in params.items():
-            key, delim, sub_key = key.partition('__')
+            key, delim, sub_key = key.partition("__")
             if key not in valid_params:
-                raise ValueError('Invalid parameter %s for estimator %s. '
-                                 'Check the list of available parameters '
-                                 'with `estimator.get_params().keys()`.' %
-                                 (key, self))
-    
+                raise ValueError(
+                    "Invalid parameter %s for estimator %s. "
+                    "Check the list of available parameters "
+                    "with `estimator.get_params().keys()`." % (key, self)
+                )
+
             if delim:
                 nested_params[key][sub_key] = value
             else:
                 setattr(self, key, value)
                 valid_params[key] = value
-    
+
         for key, sub_params in nested_params.items():
             valid_params[key].set_params(**sub_params)
-    
+
         return self
-    
-            
-        
-        
