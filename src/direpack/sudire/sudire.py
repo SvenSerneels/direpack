@@ -343,7 +343,7 @@ class sudire(_BaseComposition, BaseEstimator, TransformerMixin, RegressorMixin):
         ny = y.shape[0]
         y = convert_y_input(y)
         if len(y.shape) < 2:
-            y = np.matrix(y).reshape((ny, 1))
+            y = np.array(y).reshape((ny, 1))
         if ny != n:
             raise (MyException("X and y number of rows must agree"))
         # Pre-process y data when available
@@ -351,7 +351,7 @@ class sudire(_BaseComposition, BaseEstimator, TransformerMixin, RegressorMixin):
             ny = y.shape[0]
             y = convert_y_input(y)
             if len(y.shape) < 2:
-                y = np.matrix(y).reshape((ny, 1))
+                y = np.array(y).reshape((ny, 1))
             if ny != n:
                 raise (MyException("X and y number of rows must agree"))
             if self.copy:
