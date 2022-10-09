@@ -209,7 +209,7 @@ class dicomo(_BaseComposition,BaseEstimator):
         ntrim = round(n * (1-trimming)) 
         
         if len(x.shape)==1:
-            x = np.matrix(x).reshape((n,1))
+            x = np.array(x).reshape((n,1))
         
         if mode=='corr':
             alpha = 1
@@ -264,7 +264,7 @@ class dicomo(_BaseComposition,BaseEstimator):
                 if n1!=n:
                     raise(MyException('Please feed x and y data of equal length'))
                 if len(y.shape)==1:
-                    y = np.matrix(y).reshape((n,1))
+                    y = np.array(y).reshape((n,1))
                 
                 como = trim_mom(x,y,locest,order,trimming,option,biascorr)
                 
