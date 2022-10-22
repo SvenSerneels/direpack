@@ -9,5 +9,5 @@ Created on Wed Jul 9 14:20:17 2019
 __name__ = "ppdire"
 __author__ = "Sven Serneels"
 __license__ = "MIT"
-__version__ = "0.2.11"
-__date__ = "2022-10-08"
+__version__ = "0.2.12"
+__date__ = "2022-10-22"

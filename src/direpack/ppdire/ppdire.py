@@ -15,7 +15,7 @@ from statsmodels.regression.quantile_regression import QuantReg
 import statsmodels.robust as srs
 import scipy.stats as sps
 from scipy.linalg import pinv
-from scipy.optimize import minimize
+from scipy.optimize import minimize, differential_evolution, NonlinearConstraint
 import copy
 from sklearn.utils.metaestimators import _BaseComposition
 from sklearn.base import RegressorMixin,BaseEstimator,TransformerMixin, defaultdict
@@ -30,6 +30,11 @@ from ._ppdire_utils import *
 from ..preprocessing._preproc_utilities import scale_data
 from ..utils.utils import MyException, convert_X_input, convert_y_input
 import inspect
+from ..ipopt_temp.ipopt_wrapper import minimize_ipopt
+from ..ipopt_temp.jacobian import (
+    FunctionWithApproxJacobianCentral,
+    FunctionWithApproxJacobian,
+)
 
 class ppdire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
     
@@ -44,8 +49,8 @@ class ppdire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
     it will only provide correct results for classical projection indices. The
     native grid algorithm should be used when the projection index involves 
     order statistics of any kind, such as ranks, trimming, winsorizing, or 
-    empirical quantiles. The grid optimization algorithm for projection pursuit implemented here, 
-    was outlined in: 
+    empirical quantiles. The grid optimization algorithm for projection pursuit 
+    implemented here, was outlined in: 
         
         Filzmoser, P., Serneels, S., Croux, C. and Van Espen, P.J., 
         Robust multivariate methods: The projection pursuit approach,
@@ -58,7 +63,9 @@ class ppdire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
     ------------ 
 
         projection_index : function or class. 
-                            dicomo and capi supplied in this package can both be used, but user defined projection indices can be processed ball covariance can be used. 
+                            dicomo and capi supplied in this package can both be used, 
+                            but user defined projection indices can be processed 
+                                    
             
         pi_arguments : dict 
                         arguments to be passed on to projection index 
@@ -70,10 +77,13 @@ class ppdire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
                      trimming percentage to be entered as pct/100 
 
         alpha : float.
-                 Continuum coefficient. Only relevant if ppdire is used to estimate (classical or robust) continuum regression 
+                 Continuum coefficient. Only relevant if ppdire is used to estimate 
+                 (classical or robust) continuum regression 
 
         optimizer : str.
-                    Presently: either 'grid' (native optimizer) or any of the options in scipy-optimize (e.g. 'SLSQP')
+                    Presently: either 'grid' (native optimizer), any of the 
+                    options in scipy-optimize (e.g. 'SLSQP'), 
+                    'IPOPT', or 'differential_evolution'
 
         optimizer_options : dict 
                             with options to pass on to the optimizer 
@@ -82,10 +92,13 @@ class ppdire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
                             maxiter: int. Maximal number of iterations.
 
         optimizer_constraints : dict or list of dicts, 
-                                further constraints to be passed on to the optimizer function.
+                                further constraints to be passed on to the 
+                                optimizer function.
 
         regopt : str. 
-                regression option for regression step y~T. Can be set to 'OLS' (default), 'robust' (will run sprm.rm) or 'quantile' (statsmodels.regression.quantreg). 
+                regression option for regression step y~T. Can be set to 
+                'OLS' (default), 'robust' (will run sprm.rm) or 
+                'quantile' (statsmodels.regression.quantreg). 
 
         center : str, 
                 how to center the data. options accepted are options from sprm.preprocessing 
@@ -93,7 +106,8 @@ class ppdire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
         center_data : bool 
 
         scale_data : bool. 
-                    Note: if set to False, convergence to correct optimum  is not a given. Will throw a warning. 
+                    Note: if set to False, convergence to correct optimum  is 
+                    not a given. Will throw a warning. 
 
         whiten_data : bool. 
                     Typically used for ICA (kurtosis as PI)
@@ -154,7 +168,7 @@ class ppdire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
                  alpha = 1,
                  optimizer = 'SLSQP',
                  optimizer_options = {'maxiter': 100000}, 
-                 optimizer_constraints = {},
+                 optimizer_constraints = None,
                  regopt = 'OLS',
                  center = 'mean',
                  center_data=True,
@@ -565,7 +579,39 @@ class ppdire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
                     wi = afinbest
                     Maxobjf[i] = objf
                 # endif;%if p>2;
-            else: # do not optimize by the grid algorithm
+                
+            elif self.optimizer == 'IPOPT':
+                constraint = {'type':'eq',
+                              'fun': lambda x: np.linalg.norm(x) -1,
+                              }
+                if self.optimizer_constraints is not None: 
+                    constraint = [constraint,self.optimizer_constraints]
+                wi = minimize_ipopt(
+                    pp_objective,
+                    E[0,:].transpose(),
+                    args=(self.most,E,opt_args),
+                    constraints=constraint,
+                    options=self.optimizer_options,
+                ).x
+                wi = np.array(wi).reshape((p,1))
+                wi /= np.sqrt(np.sum(np.square(wi)))
+                
+            elif self.optimizer == 'differential_evolution':
+                constraint = NonlinearConstraint(lambda x: np.linalg.norm(x) -1, lb=0, ub=0)
+                if self.optimizer_constraints is not None: 
+                    constraint = [constraint,self.optimizer_constraints]
+                wi = differential_evolution(
+                    pp_objective,
+                    [(-1e8,1e8) for i in range(p)],
+                    x0=E[0,:].transpose(),
+                    popsize=100,
+                    args=(self.most,E,opt_args),
+                    constraints=constraint,
+                ).x
+                wi = np.array(wi).reshape((p,1))
+                wi /= np.sqrt(np.sum(np.square(wi)))
+                
+            else: # use scipy.optimize
                 if self.trimming > 0: 
                     warnings.warn('Optimization that involves a trimmed objective is not a quadratic program. The scipy-optimize result will be off!!')
                 if 'center' in self.pi_arguments:
@@ -574,7 +620,7 @@ class ppdire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
                 constraint = {'type':'eq',
                               'fun': lambda x: np.linalg.norm(x) -1,
                               }
-                if len(self.optimizer_constraints)>0: 
+                if self.optimizer_constraints is not None: 
                     constraint = [constraint,self.optimizer_constraints]
                 wi = minimize(pp_objective,
                               E[0,:].transpose(),
