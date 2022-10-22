@@ -36,7 +36,8 @@ class sudire(_BaseComposition, BaseEstimator, TransformerMixin, RegressorMixin):
         
     Parameters
     ----------
-        sudiremeth: function or class. sudiremeth in this package can also be used, but user defined functions  can be processed. Built in options are : 
+        sudiremeth: function or class. sudiremeth in this package can also be used, 
+        but user defined functions  can be processed. Built in options are : 
 
             save : Sliced Average Variance Estimation
 
@@ -71,10 +72,12 @@ class sudire(_BaseComposition, BaseEstimator, TransformerMixin, RegressorMixin):
                         Desired threshold for the constraint violation.
             
         optimizer_constraints : dict or list of dicts
-                                 further constraints to be passed on to the optimizer function.
+                                 further constraints to be passed on to the 
+                                 optimizer function.
             
         optimizer_arguments: dict
-                             extra arguments to be passed to the sudiremeth function during optimization.
+                             extra arguments to be passed to the sudiremeth 
+                             function during optimization.
         
         optimizer_start : numpy array
                          starting value for the optimization.
@@ -86,7 +89,8 @@ class sudire(_BaseComposition, BaseEstimator, TransformerMixin, RegressorMixin):
                     If True, the data will be centered before the dimension reduction   
         
         scale_data : bool
-                    if set to False, convergence to correct optimum  is not a given. Will throw a warning. 
+                    if set to False, convergence to correct optimum  is not a given.
+                    Will throw a warning. 
             
         compression : bool
                      Use internal data compresion step for flat data. 
@@ -110,7 +114,8 @@ class sudire(_BaseComposition, BaseEstimator, TransformerMixin, RegressorMixin):
                  Set to True prints the iteration number. 
         
         return_scaling_object: bool. 
-                                If True, the scaling object will be return after the dimension reduction. 
+                                If True, the scaling object will be return after the 
+                                dimension reduction. 
 
     Attributes
     ----------
