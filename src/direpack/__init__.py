@@ -9,8 +9,8 @@ Created on Sun Jul 22 12:17:17 2018
 __name__ = "direpack"
 __author__ = "Sven Serneels, Emmanuel Jordy Menvouta, Tim Verdonck"
 __license__ = "MIT"
-__version__ = "1.0.23"
-__date__ = "2022-10-22"
+__version__ = "1.0.24"
+__date__ = "2022-12-11"
 
 # The commented lines can be uncommented if IPOPT has been installed independently.  
 
