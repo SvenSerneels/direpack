@@ -10,7 +10,7 @@ The categories of methods delivered in this package, are:
 - Robust M-estimators for dimension reduction (`sprm`)
 each of which are presented as `scikit-learn` compatible objects in the corresponding folders.
 
-We hope that this package leads to scientific success. If it does so, we kindly ask to cite the `direpack` vignette \[0\], as well as the original publication of the corresponding method.  
+We hope that this package leads to scientific success. If it does so, we kindly ask to cite the [official `direpack` publication](https://www.sciencedirect.com/science/article/pii/S235271102200200X) \[0\], as well as the original publication of the corresponding method.  
 
 The package also contains a set of tools for pre- and postprocessing: 
 - The `preprocessing` folder provides classical and robust centring and scaling, as well as spatial sign transforms \[4\]
@@ -66,7 +66,7 @@ Documentation
 =============
 
 - Detailed documentation can be found in the [ReadTheDocs page](https://direpack.readthedocs.io/en/latest/index.html). 
-- A more extensive description on the background is presented in the [`direpack` vignette](https://arxiv.org/abs/2006.01635). 
+- A more extensive description on the background is presented in the [official `direpack` publication](https://www.sciencedirect.com/science/article/pii/S235271102200200X). 
 - Examples on how to use each of the `dicomo`, `ppdire`, `sprm` and `sudire` classes are presented as Jupyter notebooks in the [examples](https://github.com/SvenSerneels/direpack/blob/master/examples) folder
 - Furthemore, the [docs](https://github.com/SvenSerneels/direpack/blob/master/docs) folder contains a few markdown files on usage of the classes. 
 
@@ -74,7 +74,7 @@ Documentation
         
 References
 ==========
-0. [`direpack`: A Python 3 package for state-of-the-art statistical dimension reduction methods](https://arxiv.org/abs/2006.01635)
+0. [`direpack`: A Python 3 package for state-of-the-art statistical dimensionality reduction methods](https://www.sciencedirect.com/science/article/pii/S235271102200200X), Emmanuel Jordy Menvouta, Sven Serneels, Tim Verdonck, SoftwareX, 21 (2023), 101282.
 1. [Sparse partial robust M regression](https://www.sciencedirect.com/science/article/abs/pii/S0169743915002440), Irene Hoffmann, Sven Serneels, Peter Filzmoser, Christophe Croux, Chemometrics and Intelligent Laboratory Systems, 149 (2015), 50-59.
 2. [Partial robust M regression](https://doi.org/10.1016/j.chemolab.2005.04.007), Sven Serneels, Christophe Croux, Peter Filzmoser, Pierre J. Van Espen, Chemometrics and Intelligent Laboratory Systems, 79 (2005), 55-64.
 3. [Sparse and robust PLS for binary classification](https://onlinelibrary.wiley.com/doi/abs/10.1002/cem.2775), I. Hoffmann, P. Filzmoser, S. Serneels, K. Varmuza, Journal of Chemometrics, 30 (2016), 153-162.
