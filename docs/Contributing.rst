@@ -25,12 +25,12 @@ for ease of maintainability.
 
 Article
 ================
-An article with further information on the package is available. Menvouta, E. J., S. Serneels, T. Verdonck (2020). direpack: A Python 3 pack-age for state-of-the-art statistical dimension reduction methods.arXiv  e-prints, arXiv:2006.01635.
+An article with further information on the package is available. Menvouta, E.J., Serneels, S., Verdonck, T., 2023. direpack: A python 3 package for state-of-the-art statistical dimensionality reduction methods. SoftwareX 21, 101282.
 
 Contacts
 ================
 
-* Dr Sven Serneels is Sr. Director of Data Science at  Aspen Technology and can be contacted at svenserneel (at) gmail.com.
+* Dr Sven Serneels is co-founder at Gallop Data, Inc. and can be contacted at svenserneel (at) gmail.com.
 
 * Emmanuel Jordy Menvouta is a PhD researcher in Statistics and Data Science at KU Leuven and can be contacted at emmanueljordy.menvoutankpwele (at) kuleuven.be. 
 
