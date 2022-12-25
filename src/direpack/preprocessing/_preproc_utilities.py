@@ -235,26 +235,56 @@ def scaleTau2(x0, c1 = 4.5, c2 = 3, consistency = True, **kwargs):
     
 def scale_data(X,m,s):
         
-        """
-        Column-wise data scaling on location and scale estimates. 
-        
-        """
-        
-        n = X.shape
-        if len(n) > 1:
-            p = n[1]
-        else:
-            p = 1
-        n = n[0]
-        
-        s = _handle_zeros_in_scale(s)
-        
-        if p == 1:
-            Xm = X - float(m)
-            Xs = Xm / s
-        else:
-            Xm = X - np.array([m for i in range(1,n+1)])
-            Xs = Xm / np.array([s for i in range(1,n+1)])
-        return(Xs)       
+    """
+    Column-wise data scaling on location and scale estimates. 
+    
+    """
+    
+    n = X.shape
+    if len(n) > 1:
+        p = n[1]
+    else:
+        p = 1
+    n = n[0]
+    
+    s = _handle_zeros_in_scale(s)
+    
+    if p == 1:
+        Xm = X - float(m)
+        Xs = Xm / s
+    else:
+        Xm = X - np.array([m for i in range(1,n+1)])
+        Xs = Xm / np.array([s for i in range(1,n+1)])
+    return(Xs)       
+    
+def wrap_univ(dd, scale =False, locX=None, scaleX=None):
+    """
+    # Computes the univariate wrapping transformation 
+    # see: https://rdrr.io/cran/cellWise/src/R/Wrap.R
+    args:
+        dd, np.array: vector of distances
+        scale, bool: if True, will scale data about med/mad 
+    returns:
+        xi, np.array: wrapped vector
+    """
+    b = 1.5
+    c = 4
+    q1 = 1.540793
+    q2 = 0.8622731
+    if dd.dtype == 'O':
+        dd = dd.astype('float')
+    if scale:
+        locX = median(dd)
+        scaleX = mad(dd)
+        xi = (dd - locX)/scaleX
+    else:
+        xi = np.array(dd)
+    indMid = np.where((np.abs(xi) < c) & (np.abs(xi) >= b))[0]
+    indHigh = np.where(np.abs(xi) >= c)[0]
+    xi[indMid] = q1 * np.tanh(q2*(c-np.abs(xi[indMid]))) * np.abs(xi[indMid])/xi[indMid]
+    xi[indHigh] = 0
+    xi = (xi*scaleX + locX)
+  
+    return xi
 
         
