@@ -67,8 +67,8 @@ class Testsudire(unittest.TestCase):
         
         #mod_auto = sudire('sir', center_data= True, scale_data=True,n_components=self.struct_dim)
         #mod_auto.fit(self.x_train.values, self.y_train.values)
-        res_sir = SIR(self.x_train.values, self.y_train.values,6,self.struct_dim,'continuous',False,False)
-        test_ans = 1.4142135623730947
+        res_sir = SIR(self.x_train.values, self.y_train.values,6,self.struct_dim,'continuous',True,True)
+        test_ans = 1.0753424489329935
         np.testing.assert_almost_equal(np.linalg.norm(res_sir),test_ans,decimal=14)
         
     def test_save(self):
@@ -76,8 +76,8 @@ class Testsudire(unittest.TestCase):
         
         #mod_auto = sudire('save', center_data= True, scale_data=True,n_components=self.struct_dim)
         #mod_auto.fit(self.x_train.values, self.y_train.values)
-        res_save = SAVE(self.x_train.values, self.y_train.values,6,self.struct_dim,'continuous',False,False)
-        test_ans = 1.4142135623730943
+        res_save = SAVE(self.x_train.values, self.y_train.values,6,self.struct_dim,'continuous',True,True)
+        test_ans = 0.9701109796042792
         np.testing.assert_almost_equal(np.linalg.norm(res_save),test_ans,decimal=14)
         
     def test_dr(self):
@@ -85,8 +85,8 @@ class Testsudire(unittest.TestCase):
         
         #mod_auto = sudire('dr', center_data= True, scale_data=True,n_components=self.struct_dim)
         #mod_auto.fit(self.x_train.values, self.y_train.values)
-        res_dr = DR(self.x_train.values, self.y_train.values,6,self.struct_dim,'continuous',False,False)
-        test_ans = 1.4142135623730934
+        res_dr = DR(self.x_train.values, self.y_train.values,6,self.struct_dim,'continuous',True,True)
+        test_ans = 0.8887002988632406
         np.testing.assert_almost_equal(np.linalg.norm(res_dr),test_ans,decimal=14)
         
     def test_iht(self):
@@ -94,8 +94,8 @@ class Testsudire(unittest.TestCase):
         
         #mod_auto = sudire('iht', center_data= True, scale_data=True,n_components=self.struct_dim)
         #mod_auto.fit(self.x_train.values, self.y_train.values)
-        res_iht = IHT(self.x_train.values, self.y_train.values,self.struct_dim,False,False)
-        test_ans = 1.4142135623730934
+        res_iht = IHT(self.x_train.values, self.y_train.values,self.struct_dim,True,True)
+        test_ans = 0.28689312954375684
         np.testing.assert_almost_equal(np.linalg.norm(res_iht),test_ans,decimal=14)
         
     def test_phd(self):
@@ -103,8 +103,8 @@ class Testsudire(unittest.TestCase):
         
         #mod_auto = sudire('phd', center_data= True, scale_data=True,n_components=self.struct_dim)
         #mod_auto.fit(self.x_train.values, self.y_train.values)
-        res_phd = PHD(self.x_train.values, self.y_train.values,self.struct_dim,False,False)
-        test_ans = 1.4142135623730894
+        res_phd = PHD(self.x_train.values, self.y_train.values,self.struct_dim,True,True)
+        test_ans = 0.7582403380187772
         np.testing.assert_almost_equal(np.linalg.norm(res_phd),test_ans,decimal=14)
         
         
