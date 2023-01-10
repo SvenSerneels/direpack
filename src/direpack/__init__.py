@@ -9,13 +9,22 @@ Created on Sun Jul 22 12:17:17 2018
 __name__ = "direpack"
 __author__ = "Sven Serneels, Emmanuel Jordy Menvouta, Tim Verdonck"
 __license__ = "MIT"
-__version__ = "1.0.25"
-__date__ = "2022-12-25"
+__version__ = "1.0.26-beta.1"
+__date__ = "2023-01-10"
 
-# The commented lines can be uncommented if IPOPT has been installed independently.  
+# The commented lines can be uncommented if IPOPT has been installed independently.
 
-from .preprocessing.robcent import VersatileScaler, versatile_scale
-from .preprocessing.gsspp import GenSpatialSignPreProcessor, gen_ss_pp, gen_ss_covmat
+from .preprocessing.robcent import (
+    VersatileScaler,
+    versatile_scale,
+    Wrapper,
+    wrap,
+)
+from .preprocessing.gsspp import (
+    GenSpatialSignPreProcessor,
+    gen_ss_pp,
+    gen_ss_covmat,
+)
 from .sprm.sprm import sprm
 from .sprm.snipls import snipls
 from .sprm.rm import rm
@@ -26,11 +35,6 @@ from .dicomo.dicomo import dicomo
 from .sudire.sudire import sudire, estimate_structural_dim
 from .plot.sudire_plot import sudire_plot
 from .plot.ppdire_plot import ppdire_plot
-from .plot.sprm_plot import sprm_plot,sprm_plot_cv
+from .plot.sprm_plot import sprm_plot, sprm_plot_cv
 from .ipopt_temp.ipopt_wrapper import minimize_ipopt
 from .ipopt_temp.jacobian import *
-
-
-
-
-
