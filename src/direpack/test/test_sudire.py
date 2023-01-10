@@ -37,13 +37,6 @@ class Testsudire(unittest.TestCase):
         self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(
         self.x, self.y, test_size=0.3, random_state=42)
         
-        
-        
-        
-        
-        
-        
-        
     def tearDown(self):
         del self.x
         del self.y
@@ -67,45 +60,46 @@ class Testsudire(unittest.TestCase):
         
         #mod_auto = sudire('sir', center_data= True, scale_data=True,n_components=self.struct_dim)
         #mod_auto.fit(self.x_train.values, self.y_train.values)
-        res_sir = SIR(self.x_train.values, self.y_train.values,6,self.struct_dim,'continuous',False,False)
-        test_ans = 1.4142135623730947
-        np.testing.assert_almost_equal(np.linalg.norm(res_sir),test_ans,decimal=14)
+        res_sir = SIR(self.x_train.values, self.y_train.values,6,self.struct_dim,'continuous',True,True)
+        test_ans = 1.07534244
+        np.testing.assert_almost_equal(np.linalg.norm(res_sir),test_ans,decimal=8)
         
     def test_save(self):
         """ Tests Sliced Average Variance Estimation """
         
         #mod_auto = sudire('save', center_data= True, scale_data=True,n_components=self.struct_dim)
         #mod_auto.fit(self.x_train.values, self.y_train.values)
-        res_save = SAVE(self.x_train.values, self.y_train.values,6,self.struct_dim,'continuous',False,False)
-        test_ans = 1.4142135623730943
-        np.testing.assert_almost_equal(np.linalg.norm(res_save),test_ans,decimal=14)
+        res_save = SAVE(self.x_train.values, self.y_train.values,6,self.struct_dim,'continuous',True,True)
+        test_ans = 0.97011097
+        np.testing.assert_almost_equal(np.linalg.norm(res_save),test_ans,decimal=8)
         
     def test_dr(self):
         """ Tests Directional Regression """
         
         #mod_auto = sudire('dr', center_data= True, scale_data=True,n_components=self.struct_dim)
         #mod_auto.fit(self.x_train.values, self.y_train.values)
-        res_dr = DR(self.x_train.values, self.y_train.values,6,self.struct_dim,'continuous',False,False)
-        test_ans = 1.4142135623730934
-        np.testing.assert_almost_equal(np.linalg.norm(res_dr),test_ans,decimal=14)
-        
+        res_dr = DR(self.x_train.values, self.y_train.values,6,self.struct_dim,'continuous',True,True)
+        test_ans = 0.88870029
+        np.testing.assert_almost_equal(np.linalg.norm(res_dr),test_ans,decimal=8)
     def test_iht(self):
         """ Tests Iterative Hessian Transformations """
         
         #mod_auto = sudire('iht', center_data= True, scale_data=True,n_components=self.struct_dim)
         #mod_auto.fit(self.x_train.values, self.y_train.values)
-        res_iht = IHT(self.x_train.values, self.y_train.values,self.struct_dim,False,False)
-        test_ans = 1.4142135623730934
-        np.testing.assert_almost_equal(np.linalg.norm(res_iht),test_ans,decimal=14)
+        res_iht = IHT(self.x_train.values, self.y_train.values,self.struct_dim,True,True)
+        # local linux -- resolve platform sensitivity!!
+        # test_ans = 0.22443355
+        test_ans = 0.13084683
+        np.testing.assert_almost_equal(np.linalg.norm(res_iht),test_ans,decimal=8)
         
     def test_phd(self):
         """ Tests Principal Hessian Directions """
         
         #mod_auto = sudire('phd', center_data= True, scale_data=True,n_components=self.struct_dim)
         #mod_auto.fit(self.x_train.values, self.y_train.values)
-        res_phd = PHD(self.x_train.values, self.y_train.values,self.struct_dim,False,False)
-        test_ans = 1.4142135623730894
-        np.testing.assert_almost_equal(np.linalg.norm(res_phd),test_ans,decimal=14)
+        res_phd = PHD(self.x_train.values, self.y_train.values,self.struct_dim,True,True)
+        test_ans = 0.75824033
+        np.testing.assert_almost_equal(np.linalg.norm(res_phd),test_ans,decimal=8)
         
         
 #    def test_dcov(self):  
@@ -125,16 +119,6 @@ class Testsudire(unittest.TestCase):
 #        test_ans = 0.3793912951554523
 #        np.testing.assert_almost_equal(np.linalg.norm(mod_auto.x_loadings_),test_ans,decimal=5)
     
-        
-    
-        
-        
-        
-        
-        
-        
-        
-        
         
         
 if __name__ =='__main__':
