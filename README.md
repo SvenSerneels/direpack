@@ -13,7 +13,7 @@ each of which are presented as `scikit-learn` compatible objects in the correspo
 We hope that this package leads to scientific success. If it does so, we kindly ask to cite the [official `direpack` publication](https://www.sciencedirect.com/science/article/pii/S235271102200200X) \[0\], as well as the original publication of the corresponding method.  
 
 The package also contains a set of tools for pre- and postprocessing: 
-- The `preprocessing` folder provides classical and robust centring and scaling, as well as spatial sign transforms \[4\]
+- The `preprocessing` folder provides classical and robust centring and scaling, as well as spatial sign transforms \[4\] and the robbustness inducing wrapping transformation \[15\].  
 - The `dicomo` folder contains a versatile class to access a wide variety of moment and co-moment statistics, and statistics derived from those. Check out the [dicomo Documentation file](https://github.com/SvenSerneels/direpack/blob/master/docs/dicomo.md) and the [dicomo Examples Notebook](https://github.com/SvenSerneels/direpack/blob/master/examples/dicomo_example.ipynb).
 - Plotting utilities in the `plot` folder 
 - Cross-validation utilities in the `cross-validation` folder  
@@ -89,7 +89,7 @@ References
 12. [Sufficient Dimension Reduction via Distance Covariance](https://doi.org/10.1080/10618600.2015.1026601), Wenhui Sheng and Xiangrong Yin in: Journal of Computational and Graphical Statistics (2016),  25, issue 1, pages 91-104.
 13. [A martingale-difference-divergence-based estimation of central mean subspace](https://dx.doi.org/10.4310/19-SII562), Yu Zhang, Jicai Liu, Yuesong Wu and Xiangzhong Fang, in: Statistics and Its Interface (2019),  12, number 3, pages 489-501.
 14. [Robust Sufficient Dimension Reduction Via Ball Covariance](https://www.sciencedirect.com/science/article/pii/S0167947319301380) Jia Zhang and Xin Chen, Computational Statistics and Data Analysis 140 (2019) 144–154 
- 
+15. [Fast Robust Correlation for High-Dimensional Data](https://www.tandfonline.com/doi/full/10.1080/00401706.2019.1677270) Jakob Raymaekers and Peter J. Rousseeuw, Technometrics, 63 (2021), 184-198. 
  
         
 [Release Notes](https://github.com/SvenSerneels/direpack/blob/master/direpack_Release_Notes.md) can be checked out in the repository.  
