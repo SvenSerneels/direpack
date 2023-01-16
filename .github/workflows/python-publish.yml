@@ -42,7 +42,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python
       uses: conda-incubator/setup-miniconda@v2
       with:
@@ -68,7 +68,6 @@ jobs:
     - name: install ipopt
       run: |
         $CONDA/bin/conda install -c conda-forge cyipopt
-    - name: 
     - name: Build and publish
       env:
         TWINE_USERNAME: ${{ secrets.PYPIUID }}
