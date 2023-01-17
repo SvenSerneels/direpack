@@ -38,7 +38,7 @@ jobs:
         $CONDA/bin/conda install -c conda-forge dcor
         $CONDA/bin/conda install -c conda-forge sympy
         $CONDA/bin/conda install -c conda-forge matplotlib
-        apt install gcc gcc-libs
+        sudo apt install gcc gcc-libs
     - name: Conda info
       shell: bash -l {0}
       run: conda info
