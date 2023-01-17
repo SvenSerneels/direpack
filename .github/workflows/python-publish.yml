@@ -61,6 +61,7 @@ jobs:
         $CONDA/bin/conda install -c conda-forge dcor
         $CONDA/bin/conda install -c conda-forge sympy
         $CONDA/bin/conda install -c conda-forge matplotlib
+        pacman -S libtool gcc gcc-libs
     - name: Conda info
       shell: bash -l {0}
       run: conda info
