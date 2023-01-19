@@ -24,18 +24,13 @@ class Testsudire(unittest.TestCase):
         
         
     def setUp(self):
-        self.data=pd.read_csv('./data/auto-mpg.csv', index_col='car_name')
-        self.data = self.data[self.data.horsepower != '?']
-        self.data.horsepower = self.data.horsepower.astype('float')
+        self.data=pd.read_csv('./data/boston_housing.csv')
         self.x = self.data
-        self.y = self.x['mpg']
-        self.x.drop('mpg', axis=1, inplace=True)
-        self.x.drop('origin', axis = 1, inplace = True)            
+        self.y = self.x['MEDV']
+        self.x.drop('MEDV', axis=1, inplace=True)          
         self.n=self.x.shape[0]
         self.p = self.x.shape[1]
         self.struct_dim = 2
-        self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(
-        self.x, self.y, test_size=0.3, random_state=42)
         
     def tearDown(self):
         del self.x
@@ -44,10 +39,7 @@ class Testsudire(unittest.TestCase):
         del self.p
         del self.data
         del self.struct_dim
-        del self.x_train
-        del self.x_test
-        del self.y_train
-        del self.y_test
+
         
 #    def test_estimdim(self):
 #        """ Tests the estimation of the central subspace via Bootstrap """
@@ -60,8 +52,8 @@ class Testsudire(unittest.TestCase):
         
         #mod_auto = sudire('sir', center_data= True, scale_data=True,n_components=self.struct_dim)
         #mod_auto.fit(self.x_train.values, self.y_train.values)
-        res_sir = SIR(self.x_train.values, self.y_train.values,6,self.struct_dim,'continuous',True,True)
-        test_ans = 1.07534244
+        res_sir = SIR(self.x.values, self.y.values,6,self.struct_dim,'continuous',True,True)
+        test_ans = 3.9759408796493894
         np.testing.assert_almost_equal(np.linalg.norm(res_sir),test_ans,decimal=8)
         
     def test_save(self):
@@ -69,8 +61,8 @@ class Testsudire(unittest.TestCase):
         
         #mod_auto = sudire('save', center_data= True, scale_data=True,n_components=self.struct_dim)
         #mod_auto.fit(self.x_train.values, self.y_train.values)
-        res_save = SAVE(self.x_train.values, self.y_train.values,6,self.struct_dim,'continuous',True,True)
-        test_ans = 0.97011097
+        res_save = SAVE(self.x.values, self.y.values,6,self.struct_dim,'continuous',True,True)
+        test_ans = 6.347895320407837
         np.testing.assert_almost_equal(np.linalg.norm(res_save),test_ans,decimal=8)
         
     def test_dr(self):
@@ -78,18 +70,18 @@ class Testsudire(unittest.TestCase):
         
         #mod_auto = sudire('dr', center_data= True, scale_data=True,n_components=self.struct_dim)
         #mod_auto.fit(self.x_train.values, self.y_train.values)
-        res_dr = DR(self.x_train.values, self.y_train.values,6,self.struct_dim,'continuous',True,True)
-        test_ans = 0.88870029
+        res_dr = DR(self.x.values, self.y.values,6,self.struct_dim,'continuous',True,True)
+        test_ans = 4.013789664544885
         np.testing.assert_almost_equal(np.linalg.norm(res_dr),test_ans,decimal=8)
     def test_iht(self):
         """ Tests Iterative Hessian Transformations """
         
         #mod_auto = sudire('iht', center_data= True, scale_data=True,n_components=self.struct_dim)
         #mod_auto.fit(self.x_train.values, self.y_train.values)
-        res_iht = IHT(self.x_train.values, self.y_train.values,self.struct_dim,True,True)
+        res_iht = IHT(self.x.values, self.y.values,self.struct_dim,True,True)
         # local linux -- resolve platform sensitivity!!
         # test_ans = 0.22443355
-        test_ans = 0.13084683
+        test_ans = 2.0746178888821882
         np.testing.assert_almost_equal(np.linalg.norm(res_iht),test_ans,decimal=8)
         
     def test_phd(self):
@@ -97,8 +89,8 @@ class Testsudire(unittest.TestCase):
         
         #mod_auto = sudire('phd', center_data= True, scale_data=True,n_components=self.struct_dim)
         #mod_auto.fit(self.x_train.values, self.y_train.values)
-        res_phd = PHD(self.x_train.values, self.y_train.values,self.struct_dim,True,True)
-        test_ans = 0.75824033
+        res_phd = PHD(self.x.values, self.y.values,self.struct_dim,True,True)
+        test_ans = 3.2904239864118763
         np.testing.assert_almost_equal(np.linalg.norm(res_phd),test_ans,decimal=8)
         
         
