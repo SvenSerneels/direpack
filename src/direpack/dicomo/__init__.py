@@ -9,11 +9,5 @@ Created on Wed Jul 9 14:20:17 2019
 __name__ = "dicomo"
 __author__ = "Sven Serneels"
 __license__ = "MIT"
-__version__ = "1.0.4"
-__date__ = "2022-10-08"
-
-
-
-
-
-
+__version__ = "1.2.0"
+__date__ = "2023-10-10"
