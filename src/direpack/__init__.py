@@ -9,7 +9,7 @@ Created on Sun Jul 22 12:17:17 2018
 __name__ = "direpack"
 __author__ = "Sven Serneels, Emmanuel Jordy Menvouta, Tim Verdonck"
 __license__ = "MIT"
-__version__ = "1.1.0"
+__version__ = "1.2.0-beta.2"
 __date__ = "2023-01-25"
 
 # The commented lines can be uncommented if IPOPT has been installed independently.
@@ -38,3 +38,4 @@ from .plot.ppdire_plot import ppdire_plot
 from .plot.sprm_plot import sprm_plot, sprm_plot_cv
 from .ipopt_temp.ipopt_wrapper import minimize_ipopt
 from .ipopt_temp.jacobian import *
+from .fast_soft_sort import numpy_ops

@@ -10,7 +10,7 @@ import scipy.stats as sps
 import scipy.spatial as spp
 import numpy as np
 import copy
-from fast_soft_sort.numpy_ops import soft_sort
+from ..fast_soft_sort.numpy_ops import soft_sort
 from ..utils.utils import MyException
 
 
@@ -23,7 +23,7 @@ def trim_mean(x, trimming, axis=0):
         axis, int or None : Axis along which the trimmed means are computed
 
     Output:
-        The trimmed mean of x according to axis.
+        The trimmed mean of x along axis.
 
     """
 
@@ -45,7 +45,7 @@ def strim_mean(x, trimming, axis=None, srs=0.1):
            (as it approaches 0, harder and more similar to trim_mean)
 
     Output:
-        The trimmed mean of x according to axis.
+        The trimmed mean of x along axis.
     """
 
     if trimming == 0:
@@ -77,6 +77,48 @@ def strim_mean(x, trimming, axis=None, srs=0.1):
         return np.mean(xssort[tuple(ss)], axis=axis)
 
 
+def smedian(x, axis=None, srs=0.1):
+    """
+    Computes the soft median of array x according to axis.
+    Input :
+        x : input data as numpy array
+        axis, int or None : Axis along which the trimmed means are computed.
+           None will ravel the array and return an integer
+        srs, int, in (0,1], default .1: regularization threshold
+           (as it approaches 0, harder and more similar to trim_mean)
+
+    Output:
+        The soft median of x along axis.
+    """
+
+    x = np.asarray(x)
+
+    if x.size == 0:
+        return np.nan
+    if axis is None:
+        x = x.ravel()
+        axis = 0
+    if x.ndim == 2:
+        if x.shape[1] == 1:
+            x = x.ravel()
+
+    lx = x.shape[axis]
+
+    xssort = np.apply_along_axis(
+        soft_sort, axis, x, regularization_strength=srs
+    )
+
+    ss = [slice(None)] * xssort.ndim
+
+    if lx % 2 == 0:
+        ss[axis] = slice(int(lx/2-1), int(lx/2+1))
+    else:
+        num = int((lx-1)/2)
+        ss[axis] = slice(num, num+1)
+
+    return np.mean(xssort[tuple(ss)], axis=axis)
+
+
 def trimvar(x, trimming):
     """
     computes the trimmed variance of array x .
@@ -106,7 +148,7 @@ def strimvar(x, trimming, axis=None, srs=0.1):
            (as it approaches 0, harder and more similar to trim_mean)
 
     Output:
-        The trimmed variance of x according to axis.
+        The trimmed variance of x along axis.
     """
 
     x = np.asarray(x)
@@ -130,6 +172,45 @@ def strimvar(x, trimming, axis=None, srs=0.1):
         sd = sd.transpose()
 
     return strim_mean(sd, trimming, axis=axis, srs=srs)
+
+
+def smad(x, c=1.482602218505602, axis=None, srs=.1):
+    """
+    computes the soft median absolute deviation of array x .
+    Input :
+        x : input data as numpy array
+        c : float, consistenct factor. Defaults to being consistent at the 
+            standard normal distribution. 
+        axis, int or None : Axis along which the MADs are computed.
+           None will ravel the array and return an integer
+        srs, int, in (0,1], default .1: regularization threshold
+           (as it approaches 0, harder and more similar to trim_mean)
+
+    Output:
+        The soft median absolute deviation of x along axis.
+    """
+
+    x = np.asarray(x)
+
+    if x.size == 0:
+        return np.nan
+    if axis is None:
+        x = x.ravel()
+        axis = 0
+    if x.ndim == 2:
+        if x.shape[1] == 1:
+            x = x.ravel()
+
+    xt = x
+    if axis == 1:
+        xt = x.transpose()
+
+    absdev = np.abs(xt - smedian(x, axis=axis, srs=srs))
+
+    if axis == 1:
+        absdev = absdev.transpose()
+
+    return c*smedian(absdev, axis=axis, srs=srs)
 
 
 def identity(x):
@@ -165,7 +246,7 @@ def trim_mom(x, y, locest, order, trimming, option, fscorr=True):
             iter_stop_1 = 1
             iter_stop_2 = 1
 
-        if locest == np.median:
+        if locest in (np.median, smedian):
             trimming = 0
             factor = 1
             if (x == y).all():
