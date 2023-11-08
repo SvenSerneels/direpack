@@ -29,7 +29,7 @@ class rm(_BaseComposition, BaseEstimator, RegressorMixin):
 
     """
     Robust M Regression 
-    
+
     Parameters:
     -----------
     fun: str, downweighting function. 'Hampel' (recommended), 'Fair' or 
@@ -53,7 +53,7 @@ class rm(_BaseComposition, BaseEstimator, RegressorMixin):
         CRAN. 
     copy (def True): boolean, whether to copy data
         Note: copy not yet aligned with sklearn def  
-    
+
     """
 
     def __init__(
@@ -98,7 +98,8 @@ class rm(_BaseComposition, BaseEstimator, RegressorMixin):
                 "Invalid weighting function. Choose Hampel, Huber or Fair for parameter fun."
             )
         if (self.probp1 > 1) | (self.probp1 <= 0):
-            raise MyException("probp1 is a probability. Choose a value between 0 and 1")
+            raise MyException(
+                "probp1 is a probability. Choose a value between 0 and 1")
         if self.fun == "Hampel":
             if not (
                 (self.probp1 < self.probp2)
@@ -135,7 +136,8 @@ class rm(_BaseComposition, BaseEstimator, RegressorMixin):
         if [self.centre, self.scale] == ["median", "mad"]:
             wy = np.array(abs(ys), dtype=np.float64)
         else:
-            wy = (y - np.median(y)) / (1.4826 * np.median(abs(y - np.median(y))))
+            wy = (y - np.median(y)) / (1.4826 *
+                                       np.median(abs(y - np.median(y))))
         self.probcty_ = norm.ppf(self.probp1)
         if self.start_cutoff_mode == "specific":
             self.probctx_ = chi2.ppf(self.probp1, p)
@@ -189,7 +191,8 @@ class rm(_BaseComposition, BaseEstimator, RegressorMixin):
             if self.fun == "Huber":
                 wye = Huber(wye, self.probcty_)
             if self.fun == "Hampel":
-                wye = Hampel(wye, self.probcty_, self.hampelby_, self.hampelry_)
+                wye = Hampel(wye, self.probcty_,
+                             self.hampelby_, self.hampelry_)
             b2sum = np.sum(np.square(b))
             difference = abs(b2sum - rold) / rold
             rold = b2sum
@@ -225,20 +228,26 @@ class rm(_BaseComposition, BaseEstimator, RegressorMixin):
         yp_rescaled = np.matmul(X, b_rescaled).reshape(-1)
         if self.centre == "mean":
             intercept = np.mean(y - yp_rescaled)
+        elif self.centre == "None":
+            intercept = 0
         else:
             intercept = np.median(y - yp_rescaled)
         yfit = yp_rescaled + intercept
         if self.scale != "None":
             if self.centre == "mean":
-                b0 = np.mean(ys.astype("float64") - np.matmul(Xs.astype("float64"), b))
+                b0 = np.mean(ys.astype("float64") -
+                             np.matmul(Xs.astype("float64"), b))
             else:
                 b0 = np.median(
-                    np.array(ys.astype("float64") - np.matmul(Xs.astype("float64"), b))
+                    np.array(ys.astype("float64") -
+                             np.matmul(Xs.astype("float64"), b))
                 )
         else:
             if self.centre == "mean":
                 ytil = np.array(np.matmul(X, b)).reshape(-1)
                 intercept = np.mean(y - ytil)
+            elif self.centre == "None":
+                intercept = 0
             else:
                 intercept = np.median(y - ytil)
             b0 = intercept
