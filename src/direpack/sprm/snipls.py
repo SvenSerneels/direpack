@@ -18,12 +18,12 @@ from ..preprocessing._preproc_utilities import scale_data
 class snipls(_BaseComposition, BaseEstimator, TransformerMixin, RegressorMixin):
     """
     SNIPLS Sparse Nipals Algorithm 
-    
+
     Algorithm first outlined in: 
         Sparse and robust PLS for binary classification, 
         I. Hoffmann, P. Filzmoser, S. Serneels, K. Varmuza, 
         Journal of Chemometrics, 30 (2016), 153-162.
-    
+
     Parameters
     -----------
 
@@ -47,8 +47,8 @@ class snipls(_BaseComposition, BaseEstimator, TransformerMixin, RegressorMixin):
 
     copy : (def True): boolean,
              whether to copy data.  Note : copy not yet aligned with sklearn def  - we always copy  
-    
-             
+
+
     Attributes
     ------------
     Attributes always provided:
@@ -72,7 +72,7 @@ class snipls(_BaseComposition, BaseEstimator, TransformerMixin, RegressorMixin):
         -  `x_sca_`: X block scale estimate
         -  `y_sca_`: y scale estimate
         -  `centring_`: scaling object used internally (from `VersatileScaler`)
-    
+
     """
 
     def __init__(
@@ -96,10 +96,10 @@ class snipls(_BaseComposition, BaseEstimator, TransformerMixin, RegressorMixin):
     def fit(self, X, y):
         """
             Fit a  SNIPLS model. 
-            
+
             Parameters
             ------------ 
-                
+
                 X : numpy array 
                     Input data.
 
@@ -195,7 +195,8 @@ class snipls(_BaseComposition, BaseEstimator, TransformerMixin, RegressorMixin):
                 / np.sum(np.square(X0))
                 * 100
             )
-            yev[i - 1] = np.sum(nth ** 2 * (ch ** 2)) / np.sum(np.power(y0, 2)) * 100
+            yev[i - 1] = np.sum(nth ** 2 * (ch ** 2)) / \
+                np.sum(np.power(y0, 2)) * 100
             if type(self.columns) == bool:
                 colret = goodies
             else:
@@ -212,14 +213,16 @@ class snipls(_BaseComposition, BaseEstimator, TransformerMixin, RegressorMixin):
         if len(goodies) > 0:
             R = np.matmul(
                 W[:, range(0, i)],
-                np.linalg.inv(np.matmul(P[:, range(0, i)].T, W[:, range(0, i)])),
+                np.linalg.inv(
+                    np.matmul(P[:, range(0, i)].T, W[:, range(0, i)])),
             )
             B = np.matmul(
                 W[:, range(0, i)],
                 np.matmul(
                     np.linalg.inv(
                         np.matmul(
-                            np.matmul(W[:, range(0, i)].T, np.matmul(X0.T, X0)),
+                            np.matmul(W[:, range(0, i)].T,
+                                      np.matmul(X0.T, X0)),
                             W[:, range(0, i)],
                         )
                     ),
@@ -236,11 +239,13 @@ class snipls(_BaseComposition, BaseEstimator, TransformerMixin, RegressorMixin):
         yp_rescaled = np.dot(X, B_rescaled)
         if self.centre == "mean":
             intercept = np.mean(y - yp_rescaled)
+        elif self.centre == "None":
+            intercept = 0
         else:
             intercept = np.median(y - yp_rescaled)
         yfit = yp_rescaled + intercept
         yfit = yfit.reshape(-1)
-        r = y - yfit
+        r = y.ravel() - yfit
         setattr(self, "x_weights_", W)
         setattr(self, "x_loadings_", P)
         setattr(self, "C_", C)
@@ -264,10 +269,10 @@ class snipls(_BaseComposition, BaseEstimator, TransformerMixin, RegressorMixin):
     def predict(self, Xn):
         """
         Predict using a  SNIPLS model. 
-        
+
         Parameters
         ------------ 
-            
+
             Xn : numpy array or data frame 
                 Input data.
 
@@ -284,11 +289,11 @@ class snipls(_BaseComposition, BaseEstimator, TransformerMixin, RegressorMixin):
     def transform(self, Xn):
         """
         Transform input data. 
-        
-        
+
+
         Parameters
         ------------ 
-            
+
             Xn : numpy array or data frame 
                 Input data.
 
