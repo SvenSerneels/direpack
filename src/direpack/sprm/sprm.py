@@ -18,12 +18,12 @@ class sprm(_BaseComposition, BaseEstimator, TransformerMixin, RegressorMixin):
 
     """
     SPRM Sparse Partial Robust M Regression 
-    
+
     Algorithm first outlined in: 
         Sparse partial robust M regression, 
         Irene Hoffmann, Sven Serneels, Peter Filzmoser, Christophe Croux, 
         Chemometrics and Intelligent Laboratory Systems, 149 (2015), 50-59. 
-    
+
     Parameters
     -----------
 
@@ -98,7 +98,7 @@ class sprm(_BaseComposition, BaseEstimator, TransformerMixin, RegressorMixin):
         -  `y_sca_`: y scale estimate
         -  `non_zero_scale_vars_`: indicator vector of variables in X with nonzero scale
 
-    
+
     """
 
     def __init__(
@@ -145,10 +145,10 @@ class sprm(_BaseComposition, BaseEstimator, TransformerMixin, RegressorMixin):
     def fit(self, X, y):
         """
         Fit a  SPRM model. 
-        
+
         Parameters
         ------------ 
-            
+
             X : numpy array 
                 Input data.
 
@@ -161,7 +161,8 @@ class sprm(_BaseComposition, BaseEstimator, TransformerMixin, RegressorMixin):
             self.y = copy.deepcopy(y)
         (n, p) = X.shape
         if not (type(self.n_components) == int) | (self.n_components <= 0):
-            raise MyException("Number of components has to be a positive integer")
+            raise MyException(
+                "Number of components has to be a positive integer")
         if (self.n_components > n) | (self.n_components > p):
             raise MyException("The number of components is too large.")
         if self.n_components <= 0:
@@ -177,7 +178,8 @@ class sprm(_BaseComposition, BaseEstimator, TransformerMixin, RegressorMixin):
                 "Invalid weighting function. Choose Hampel, Huber or Fair for parameter fun."
             )
         if (self.probp1 > 1) | (self.probp1 <= 0):
-            raise MyException("probp1 is a probability. Choose a value between 0 and 1")
+            raise MyException(
+                "probp1 is a probability. Choose a value between 0 and 1")
         if self.fun == "Hampel":
             if not (
                 (self.probp1 < self.probp2)
@@ -259,7 +261,8 @@ class sprm(_BaseComposition, BaseEstimator, TransformerMixin, RegressorMixin):
             U, S, V = np.linalg.svd(Xs)
             spc = np.square(S)
             spc /= np.sum(spc)
-            relcomp = max(np.where(spc - brokenstick(min(p, n))[:, 0] <= 0)[0][0], 1)
+            relcomp = max(
+                np.where(spc - brokenstick(min(p, n))[:, 0] <= 0)[0][0], 1)
             Urc = np.array(U[:, 0:relcomp])
             Us = scaling.fit_transform(Urc)
         else:
@@ -324,7 +327,8 @@ class sprm(_BaseComposition, BaseEstimator, TransformerMixin, RegressorMixin):
         )
         while (difference > self.tol) & (loops < self.maxit):
             res_snipls.fit(Xw, yw)
-            T = np.divide(res_snipls.x_scores_, WEmat[:, 0 : (self.n_components)])
+            T = np.divide(res_snipls.x_scores_,
+                          WEmat[:, 0: (self.n_components)])
             b = res_snipls.coef_
             yp = res_snipls.fitted_
             r = ys - yp
@@ -351,8 +355,10 @@ class sprm(_BaseComposition, BaseEstimator, TransformerMixin, RegressorMixin):
                 self.probctx_ = chi2.ppf(self.probp1, self.n_components)
                 self.hampelbx_ = chi2.ppf(self.probp2, self.n_components)
                 self.hampelrx_ = chi2.ppf(self.probp3, self.n_components)
-                wte = Hampel(wtn, self.probctx_, self.hampelbx_, self.hampelrx_)
-                wye = Hampel(wye, self.probcty_, self.hampelby_, self.hampelry_)
+                wte = Hampel(wtn, self.probctx_,
+                             self.hampelbx_, self.hampelrx_)
+                wye = Hampel(wye, self.probcty_,
+                             self.hampelby_, self.hampelry_)
             b2sum = np.sum(np.power(b, 2))
             difference = abs(b2sum - rold) / rold
             rold = b2sum
@@ -402,22 +408,28 @@ class sprm(_BaseComposition, BaseEstimator, TransformerMixin, RegressorMixin):
         yp_rescaled = np.matmul(X, b_rescaled)
         if self.centre == "mean":
             intercept = np.mean(y - yp_rescaled, axis=0)
+        elif self.centre == "None":
+            intercept = 0
         else:
             intercept = np.median(y - yp_rescaled, axis=0)
         # This median calculation produces slightly different result in R and Py
         yfit = yp_rescaled + intercept
         if self.scale != "None":
             if self.centre == "mean":
-                b0 = np.mean(ys.astype("float64") - np.matmul(Xs.astype("float64"), b))
+                b0 = np.mean(ys.astype("float64") -
+                             np.matmul(Xs.astype("float64"), b))
             else:
                 b0 = np.median(
-                    np.array(ys.astype("float64") - np.matmul(Xs.astype("float64"), b))
+                    np.array(ys.astype("float64") -
+                             np.matmul(Xs.astype("float64"), b))
                 )
             # yfit2 = (np.matmul(Xrc.Xs.astype("float64"),b) + b0)*yrc.col_sca + yrc.col_loc
             # already more generally included
         else:
             if self.centre == "mean":
                 b0 = np.mean(y - np.matmul(X, b))
+            elif self.centre == "None":
+                b0 = 0
             else:
                 b0 = np.median(np.array(y - np.matmul(X, b)))
             # yfit = np.matmul(X,b) + intercept
@@ -448,10 +460,10 @@ class sprm(_BaseComposition, BaseEstimator, TransformerMixin, RegressorMixin):
     def predict(self, Xn):
         """
         Predict using a  SPRM model. 
-        
+
         Parameters
         ------------ 
-            
+
             Xn : numpy array or data frame 
                 Input data.
         """
@@ -468,11 +480,11 @@ class sprm(_BaseComposition, BaseEstimator, TransformerMixin, RegressorMixin):
     def transform(self, Xn):
         """
         Transform input data. 
-        
-        
+
+
         Parameters
         ------------ 
-            
+
             Xn : numpy array or data frame 
                 Input data.
 
