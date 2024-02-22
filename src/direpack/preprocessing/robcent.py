@@ -93,7 +93,6 @@ class VersatileScaler(_BaseComposition, TransformerMixin, BaseEstimator):
     """
 
     def __init__(self, center="mean", scale="std", trimming=0):
-
         """
         Initialize values. Check if correct options provided.
         """
@@ -103,7 +102,6 @@ class VersatileScaler(_BaseComposition, TransformerMixin, BaseEstimator):
         self.trimming = trimming
 
     def fit(self, X):
-
         """
         Estimate location and scale, store these in the class object.
         Trimming fraction can be provided as keyword argument.
@@ -151,7 +149,6 @@ class VersatileScaler(_BaseComposition, TransformerMixin, BaseEstimator):
         setattr(self, "scale_", s)
 
     def transform(self, X):
-
         """
         Center and/or scale training data to pre-estimated location and scale
         """
@@ -165,7 +162,6 @@ class VersatileScaler(_BaseComposition, TransformerMixin, BaseEstimator):
         return Xs
 
     def predict(self, Xn):
-
         """
         Standardize new data on previously estimated location and scale.
         Number of columns needs to match.
@@ -178,7 +174,6 @@ class VersatileScaler(_BaseComposition, TransformerMixin, BaseEstimator):
         return Xns
 
     def fit_transform(self, X):
-
         """
         Estimate center and scale for training data and scale these data
         """
@@ -189,7 +184,6 @@ class VersatileScaler(_BaseComposition, TransformerMixin, BaseEstimator):
         return self.datas_
 
     def inverse_transform(self, Xs=None):
-
         """
         Transform scaled data back to their original scale
         """
@@ -208,7 +202,6 @@ robcent = VersatileScaler
 
 
 def versatile_scale(X, center="l1median", scale="mad", trimming=0):
-
     """
     Wrapper to scale based on present robcent implementation that uses
     `fit` instead of `transform`
@@ -241,7 +234,6 @@ class Wrapper(_BaseComposition, TransformerMixin, BaseEstimator):
     """
 
     def __init__(self):
-
         """
         Initialize values. Check if correct options provided.
         """
@@ -251,7 +243,6 @@ class Wrapper(_BaseComposition, TransformerMixin, BaseEstimator):
         self.trimming = 0
 
     def fit(self, X):
-
         """
         Estimate location and scale, store these in the class object.
         Trimming fraction can be provided as keyword argument.
@@ -299,7 +290,6 @@ class Wrapper(_BaseComposition, TransformerMixin, BaseEstimator):
         setattr(self, "scale_", s)
 
     def transform(self, X):
-
         """
         Project data points to their wrapped counterparts
         """
@@ -313,7 +303,6 @@ class Wrapper(_BaseComposition, TransformerMixin, BaseEstimator):
         return Xw
 
     def predict(self, Xn):
-
         """
         Wrap new data using previously estimated location and scale.
         Number of columns needs to match.
@@ -326,7 +315,6 @@ class Wrapper(_BaseComposition, TransformerMixin, BaseEstimator):
         return Xnw
 
     def fit_transform(self, X):
-
         """
         Estimate center and scale for training data wrap these data
         """
