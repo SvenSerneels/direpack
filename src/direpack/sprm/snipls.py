@@ -24,6 +24,8 @@ class snipls(_BaseComposition, BaseEstimator, TransformerMixin, RegressorMixin):
         I. Hoffmann, P. Filzmoser, S. Serneels, K. Varmuza, 
         Journal of Chemometrics, 30 (2016), 153-162.
 
+    As of driepack-1.1.2, snipls works when there are missing data in the inputs
+
     Parameters
     -----------
 
@@ -85,6 +87,9 @@ class snipls(_BaseComposition, BaseEstimator, TransformerMixin, RegressorMixin):
         scale="None",
         copy=True,
     ):
+        assert eta >= 0 and eta < 1,  "eta needs to be in [0,1)"
+        assert isinstance(
+            n_components, int) and n_components > 0, "number of components needs to be positive integer"
         self.eta = eta
         self.n_components = n_components
         self.verbose = verbose
@@ -175,6 +180,7 @@ class snipls(_BaseComposition, BaseEstimator, TransformerMixin, RegressorMixin):
             goodies = np.union1d(oldgoodies, goodies)
             oldgoodies = goodies
             if len(goodies) == 0:
+                colret = None
                 print(
                     "No variables retained at"
                     + str(i)
