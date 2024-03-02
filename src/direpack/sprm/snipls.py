@@ -11,7 +11,7 @@ import copy
 import numpy as np
 import pandas as ps
 from ..preprocessing.robcent import VersatileScaler
-from ..utils.utils import MyException, _predict_check_input, _check_input
+from ..utils.utils import MyException, _predict_check_input, _check_input, nandot, nanmatdot
 from ..preprocessing._preproc_utilities import scale_data
 
 
@@ -23,6 +23,8 @@ class snipls(_BaseComposition, BaseEstimator, TransformerMixin, RegressorMixin):
         Sparse and robust PLS for binary classification, 
         I. Hoffmann, P. Filzmoser, S. Serneels, K. Varmuza, 
         Journal of Chemometrics, 30 (2016), 153-162.
+
+    As of driepack-1.1.2, snipls works when there are missing data in the inputs
 
     Parameters
     -----------
@@ -85,6 +87,9 @@ class snipls(_BaseComposition, BaseEstimator, TransformerMixin, RegressorMixin):
         scale="None",
         copy=True,
     ):
+        assert eta >= 0 and eta < 1,  "eta needs to be in [0,1)"
+        assert isinstance(
+            n_components, int) and n_components > 0, "number of components needs to be positive integer"
         self.eta = eta
         self.n_components = n_components
         self.verbose = verbose
@@ -95,7 +100,7 @@ class snipls(_BaseComposition, BaseEstimator, TransformerMixin, RegressorMixin):
 
     def fit(self, X, y):
         """
-            Fit a  SNIPLS model. 
+            Fit a SNIPLS model. 
 
             Parameters
             ------------ 
@@ -148,6 +153,13 @@ class snipls(_BaseComposition, BaseEstimator, TransformerMixin, RegressorMixin):
         y0 = centring.fit_transform(y0).astype("float64")
         my = centring.col_loc_
         sy = centring.col_sca_
+        if np.isnan(X0).any() or np.isnan(y0).any():
+            S = nanmatdot(X0.T, X0)
+            dot = nandot
+        else:
+            S = np.matmul(X0.T, X0)
+            dot = np.dot
+        s0 = dot(X0.T, y0)
         T = np.empty((n, self.n_components), float)
         W = np.empty((p, self.n_components), float)
         P = np.empty((p, self.n_components), float)
@@ -159,7 +171,7 @@ class snipls(_BaseComposition, BaseEstimator, TransformerMixin, RegressorMixin):
         Xi = X0
         yi = y0
         for i in range(1, self.n_components + 1):
-            wh = np.dot(Xi.T, yi)
+            wh = dot(Xi.T, yi)
             wh = wh / np.linalg.norm(wh, "fro")
             # goodies = abs(wh)-llambda/2 lambda definition
             goodies = abs(wh) - self.eta * max(abs(wh))
@@ -168,6 +180,7 @@ class snipls(_BaseComposition, BaseEstimator, TransformerMixin, RegressorMixin):
             goodies = np.union1d(oldgoodies, goodies)
             oldgoodies = goodies
             if len(goodies) == 0:
+                colret = None
                 print(
                     "No variables retained at"
                     + str(i)
@@ -179,10 +192,10 @@ class snipls(_BaseComposition, BaseEstimator, TransformerMixin, RegressorMixin):
                 break
             elimvars = np.setdiff1d(range(0, p), goodies)
             wh[elimvars] = 0
-            th = np.dot(Xi, wh)
+            th = dot(Xi, wh)
             nth = np.linalg.norm(th, "fro")
-            ch = np.dot(yi.T, th) / (nth ** 2)
-            ph = np.dot(Xi.T, np.dot(Xi, wh)) / (nth ** 2)
+            ch = dot(yi.T, th) / (nth ** 2)
+            ph = dot(Xi.T, dot(Xi, wh)) / (nth ** 2)
             Xi = Xi - np.dot(th, ph.T)
             yi = yi - np.dot(th, ch)
             ph[elimvars] = 0
@@ -192,11 +205,11 @@ class snipls(_BaseComposition, BaseEstimator, TransformerMixin, RegressorMixin):
             T[:, i - 1] = np.reshape(th, n)
             Xev[i - 1] = (
                 (nth ** 2 * np.linalg.norm(ph, "fro") ** 2)
-                / np.sum(np.square(X0))
+                / np.nansum(np.square(X0))
                 * 100
             )
-            yev[i - 1] = np.sum(nth ** 2 * (ch ** 2)) / \
-                np.sum(np.power(y0, 2)) * 100
+            yev[i - 1] = np.nansum(nth ** 2 * (ch ** 2)) / \
+                np.nansum(np.power(y0, 2)) * 100
             if type(self.columns) == bool:
                 colret = goodies
             else:
@@ -221,12 +234,11 @@ class snipls(_BaseComposition, BaseEstimator, TransformerMixin, RegressorMixin):
                 np.matmul(
                     np.linalg.inv(
                         np.matmul(
-                            np.matmul(W[:, range(0, i)].T,
-                                      np.matmul(X0.T, X0)),
+                            np.matmul(W[:, range(0, i)].T, S),
                             W[:, range(0, i)],
                         )
                     ),
-                    np.matmul(np.matmul(W[:, range(0, i)].T, X0.T), y0),
+                    np.matmul(W[:, range(0, i)].T, s0),
                 ),
             )
         else:
@@ -236,13 +248,13 @@ class snipls(_BaseComposition, BaseEstimator, TransformerMixin, RegressorMixin):
             T = np.empty((n, self.n_components))
             T.fill(0)
         B_rescaled = np.multiply(np.array(sy / sX).reshape((p, 1)), B)
-        yp_rescaled = np.dot(X, B_rescaled)
+        yp_rescaled = dot(X, B_rescaled)
         if self.centre == "mean":
-            intercept = np.mean(y - yp_rescaled)
+            intercept = np.nanmean(y - yp_rescaled)
         elif self.centre == "None":
             intercept = 0
         else:
-            intercept = np.median(y - yp_rescaled)
+            intercept = np.nanmedian(y - yp_rescaled)
         yfit = yp_rescaled + intercept
         yfit = yfit.reshape(-1)
         r = y.ravel() - yfit

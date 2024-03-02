@@ -6,9 +6,8 @@ Created on Sat Apr 11 17:22:09 2020
 """
 
 
-
 __name__ = "utils"
 __author__ = "Emmanuel Jordy Menvouta and Sven Serneels"
 __license__ = "MIT"
-__version__ = "0.0.2"
-__date__ = "2020-12-24"
+__version__ = "0.1.0"
+__date__ = "2024-02-23"

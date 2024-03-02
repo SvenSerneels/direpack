@@ -47,7 +47,7 @@ def mad(X, c=0.6744897501960817, **kwargs):
     general function call in scale_data.
     """
 
-    s = np.median(np.abs(X - np.median(X, axis=0)), axis=0) / c
+    s = median(np.abs(X - median(X, axis=0)), axis=0) / c
     s = np.array(s).reshape(-1)
     # statsmodels.robust.mad is not as flexible toward matrix input,
     # sometimes throws a value error in ufunc
@@ -60,8 +60,12 @@ def median(X, **kwargs):
     general function call in scale_data.
     """
 
-    m = np.median(X, axis=0)
+    if np.isnan(X).any():
+        m = np.nanmedian(X, axis=0)
+    else:
+        m = np.median(X, axis=0)
     m = np.array(m).reshape(-1)
+
     return m
 
 
@@ -70,7 +74,15 @@ def mean(X, trimming=0):
     Column-wise mean or trimmed mean. Trimming to be entered as fraction.
     """
 
-    m = sps.trim_mean(X, trimming, 0)
+    if trimming == 0:
+        if np.isnan(X).any():
+            m = np.nanmean(X, axis=0)
+        else:
+            m = np.mean(X, axis=0)
+    else:
+        # Returns all NaN if missings in X
+        m = sps.trim_mean(X, trimming, 0)
+
     return m
 
 
@@ -81,7 +93,10 @@ def std(X, trimming=0):
     """
 
     if trimming == 0:
-        s = np.power(np.var(X, axis=0), 0.5)
+        if np.isnan(X).any():
+            s = np.power(np.nanvar(X, axis=0), 0.5)
+        else:
+            s = np.power(np.var(X, axis=0), 0.5)
         s = np.array(s).reshape(-1)
     else:
         var = sps.trim_mean(
@@ -96,7 +111,10 @@ def _euclidnorm(x):
     Euclidean norm of a vector
     """
 
-    return np.sqrt(np.sum(np.square(x)))
+    if np.isnan(x).any():
+        return np.sqrt(np.nansum(np.square(x)))
+    else:
+        return np.sqrt(np.sum(np.square(x)))
 
 
 def _diffmat_objective(a, X):
@@ -113,9 +131,14 @@ def _l1m_objective(a, X, *args):
     Optimization objective for l1median
     """
 
-    return np.sum(
-        np.apply_along_axis(_euclidnorm, 1, _diffmat_objective(a, X))
-    )
+    if np.isnan(X).any():
+        return np.nansum(
+            np.apply_along_axis(_euclidnorm, 1, _diffmat_objective(a, X))
+        )
+    else:
+        return np.sum(
+            np.apply_along_axis(_euclidnorm, 1, _diffmat_objective(a, X))
+        )
 
 
 def _l1m_jacobian(a, X):
@@ -128,7 +151,10 @@ def _l1m_jacobian(a, X):
     dists = np.apply_along_axis(_euclidnorm, 1, dX)
     dists = _handle_zeros_in_scale(dists)
     dX /= np.tile(np.array(dists).reshape(n, 1), (1, p))
-    return -np.sum(dX, axis=0)
+    if np.isnan(X).any():
+        return -np.nansum(dX, axis=0)
+    else:
+        return -np.sum(dX, axis=0)
 
 
 def _l1median(
@@ -157,8 +183,7 @@ def l1median(X, **kwargs):
     """
 
     if "x0" not in kwargs:
-        x0 = np.median(X, axis=0)
-        x0 = np.array(x0.T).reshape(-1)
+        x0 = median(X)
 
     if type(X) == np.matrix:
         X = np.array(X)
@@ -193,13 +218,17 @@ def kstepLTS(X, maxit=5, tol=1e-10, **kwargs):
     iteration = 0
     unconverged = True
     while unconverged and (iteration < maxit):
-        dists = np.sum(np.square(X - m1), axis=1)
+        if np.isnan(X).any():
+            dists = np.nansum(np.square(X - m1), axis=1)
+        else:
+            dists = np.sum(np.square(X - m1), axis=1)
         cutdist = np.sort(dists, axis=0)[int(np.floor((n + 1) / 2)) - 1]
         hsubset = np.where(dists <= cutdist)[0]
-        m2 = np.array(np.mean(X[hsubset, :], axis=0)).reshape((p,))
+        m2 = np.array(mean(X[hsubset, :])).reshape((p,))
         unconverged = max(abs(m1 - m2)) > tol
         iteration += 1
         m1 = copy.deepcopy(m2)
+
     return m2
 
 
@@ -218,14 +247,18 @@ def scaleTau2(x0, c1=4.5, c2=3, consistency=True, **kwargs):
 
     x = copy.deepcopy(x0)
     n, p = x.shape
-    medx = np.median(x, axis=0)
+    if np.isnan(x).any():
+        summ = np.nansum
+    else:
+        summ = np.sum
+    medx = median(x)
     xc = abs(x - medx)
-    sigma0 = np.median(xc, axis=0)
+    sigma0 = median(xc)
     if c1 > 0:
         xc /= sigma0 * c1
         w = 1 - np.square(xc)
         w = np.square((abs(w) + w) / 2)
-        mu = np.sum(np.multiply(x, w)) / np.sum(w)
+        mu = summ(np.multiply(x, w)) / summ(w)
     else:
         mu = medx
     x -= mu
@@ -254,7 +287,7 @@ def scaleTau2(x0, c1=4.5, c2=3, consistency=True, **kwargs):
             nEs2 = n * Es2(c2)
     else:
         nEs2 = n
-    return np.array(sigma0 * np.sqrt(np.sum(rho) / nEs2)).reshape((p,))
+    return np.array(sigma0 * np.sqrt(summ(rho) / nEs2)).reshape((p,))
 
 
 def scale_data(X, m, s):
