@@ -318,4 +318,4 @@ class snipls(_BaseComposition, BaseEstimator, TransformerMixin, RegressorMixin):
                 )
             )
         Xnc = scale_data(Xn, self.x_loc_, self.x_sca_)
-        return Xnc * self.x_Rweights_
+        return np.dot(Xnc, self.x_Rweights_)
