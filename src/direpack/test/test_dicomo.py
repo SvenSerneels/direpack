@@ -30,7 +30,7 @@ class Testdicomo(unittest.TestCase):
     @classmethod    
     def setUp(self):
         self.data=ps.read_csv("./data/Returns_shares.csv")
-        self.datav = np.matrix(self.data.values[:,2:8].astype('float64'))
+        self.datav = np.array(self.data.values[:,2:8].astype('float64'))
         self.est = dicomo()
         self.x = self.datav[:,1]
         self.y = self.datav[:,0]
@@ -55,12 +55,12 @@ class Testdicomo(unittest.TestCase):
         self.assertAlmostEquals(self.est.fit(self.x,biascorr=False),np.var(self.x))# biased var
         self.assertAlmostEquals(self.est.fit(self.x,biascorr=True),np.var(self.x)*self.n/(self.n-1))#unbiased var
         self.est.set_params(center='median')
-        self.assertAlmostEquals(self.est.fit(self.x),srs.mad(self.x)[0],places=4)
+        self.assertAlmostEquals(self.est.fit(self.x),srs.mad(self.x),places=4)
         self.est.set_params(center='mean')
-        self.assertAlmostEquals(self.est.fit(self.x,biascorr=False,order=3),sps.moment(self.x,3)[0])#third moment
+        self.assertAlmostEquals(self.est.fit(self.x,biascorr=False,order=3),sps.moment(self.x,3))#third moment
         self.est.set_params(mode='skew')
-        self.assertAlmostEquals(self.est.fit(self.x,biascorr=False),sps.skew(self.x)[0])# skew without small sample corr
-        self.assertAlmostEquals(self.est.fit(self.x,biascorr=True),sps.skew(self.x,bias=False)[0])
+        self.assertAlmostEquals(self.est.fit(self.x,biascorr=False),sps.skew(self.x))# skew without small sample corr
+        self.assertAlmostEquals(self.est.fit(self.x,biascorr=True),sps.skew(self.x,bias=False))
         
         
         
