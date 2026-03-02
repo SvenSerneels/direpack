@@ -306,8 +306,8 @@ def scale_data(X, m, s):
     s = _handle_zeros_in_scale(s)
 
     if p == 1:
-        Xm = X - float(m)
-        Xs = Xm / s
+        Xm = X - np.asarray(m).ravel()[0]
+        Xs = Xm / np.asarray(s).ravel()[0]
     else:
         Xm = X - np.array([m for i in range(1, n + 1)])
         Xs = Xm / np.array([s for i in range(1, n + 1)])
