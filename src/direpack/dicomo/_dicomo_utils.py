@@ -95,7 +95,7 @@ def trim_mom(x,y,locest,order,trimming,option,fscorr=True):
             if fscorr:
                 ntrim = round(n * (1-trimming)) 
                 factor = ntrim
-                factor /= np.product(ntrim - np.arange(max(1,order-2),order))
+                factor /= np.prod(ntrim - np.arange(max(1,order-2),order))
             else:
                 factor = 1
     

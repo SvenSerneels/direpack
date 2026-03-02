@@ -36,7 +36,12 @@ else:
         from scipy.optimize import Result
         OptimizeResult = Result
 
-import cyipopt
+try:
+    import cyipopt
+    CYIPOPT_INSTALLED = True
+except ImportError:
+    CYIPOPT_INSTALLED = False
+    cyipopt = None
 from .jacobian import FunctionWithApproxJacobianCentral,FunctionWithApproxJacobian
 
 
@@ -189,6 +194,9 @@ def minimize_ipopt(fun, x0, args=(), kwargs=None, method=None, jac=None, hess=No
     """
     if not SCIPY_INSTALLED:
         raise ImportError('Install SciPy to use the `minimize_ipopt` function.')
+    if not CYIPOPT_INSTALLED:
+        raise ImportError('Install cyipopt to use the `minimize_ipopt` function. '
+                          'Use: conda install -c conda-forge cyipopt')
 
     _x0 = np.atleast_1d(x0)
     problem = IpoptProblemWrapper(fun, args=args, kwargs=kwargs, jac=jac, hess=hess,

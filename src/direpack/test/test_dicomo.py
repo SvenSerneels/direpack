@@ -27,19 +27,15 @@ class Testdicomo(unittest.TestCase):
         print('...teardownClass')
         
         
-    @classmethod    
     def setUp(self):
-        self.data=ps.read_csv("./data/Returns_shares.csv")
-        self.datav = np.array(self.data.values[:,2:8].astype('float64'))
+        self.data = ps.read_csv("./data/Returns_shares.csv")
+        self.datav = np.array(self.data.values[:, 2:8].astype('float64'))
         self.est = dicomo()
-        self.x = self.datav[:,1]
-        self.y = self.datav[:,0]
-        self.n=self.data.shape[0]
+        self.x = self.datav[:, 1]
+        self.y = self.datav[:, 0]
+        self.n = self.data.shape[0]
         self.p = self.data.shape[1]
-        
-        
-        
-    @classmethod    
+
     def tearDown(self):
         del self.est
         del self.x
