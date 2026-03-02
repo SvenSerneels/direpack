@@ -26,7 +26,7 @@ class Testsprm(unittest.TestCase):
 
     def setUp(self):
         self.data = ps.read_csv("./data/Returns_shares.csv")
-        self.datav = np.matrix(self.data.values[:, 2:8].astype("float64"))
+        self.datav = np.asarray(self.data.values[:, 2:8].astype("float64"))
         self.x = self.datav[:, 0:5]
         self.y = self.datav[:, 5]
         self.n = self.data.shape[0]
