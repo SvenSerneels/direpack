@@ -295,7 +295,12 @@ def SAVE(x, y, n_slices, d, ytype="continuous", center_data=True, scale_data=Tru
 
     vxy = np.zeros((n_slices, p, p))
     for i in range(n_slices):
-        vxy[i, :, :] = np.cov(xstd[ydis == ylabel[i], :], rowvar=0)
+        slice_data = xstd[ydis == ylabel[i], :]
+        if slice_data.shape[0] > 1:
+            vxy[i, :, :] = np.cov(slice_data, rowvar=0)
+        else:
+            # Not enough samples for covariance, use identity matrix
+            vxy[i, :, :] = np.identity(p)
 
     savemat = np.zeros((p, p))
     for i in range(n_slices):
@@ -364,8 +369,13 @@ def DR(x, y, n_slices, d, ytype="continuous", center_data=True, scale_data=True)
     vxy = np.zeros((n_slices, p, p,))
     exy = []
     for i in range(n_slices):
-        vxy[i, :, :,] = np.cov(xstd[ydis == ylabel[i], :], rowvar=0)
-        xres = np.apply_along_axis(np.mean, 0, xstd[ydis == ylabel[i], :])
+        slice_data = xstd[ydis == ylabel[i], :]
+        if slice_data.shape[0] > 1:
+            vxy[i, :, :,] = np.cov(slice_data, rowvar=0)
+        else:
+            # Not enough samples for covariance, use identity matrix
+            vxy[i, :, :,] = np.identity(p)
+        xres = np.apply_along_axis(np.mean, 0, slice_data)
         exy.append(xres)
 
     exy = np.vstack(exy)
