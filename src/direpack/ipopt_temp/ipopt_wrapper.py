@@ -233,7 +233,7 @@ def minimize_ipopt(fun, x0, args=(), kwargs=None, method=None, jac=None, hess=No
             options[b'hessian_approximation'] = b'limited-memory'
     for option, value in options.items():
         try:
-            nlp.addOption(option, value)
+            nlp.add_option(option, value)
         except TypeError as e:
             raise TypeError('Invalid option for IPOPT: {0}: {1} (Original message: "{2}")'.format(option, value, e))
 
