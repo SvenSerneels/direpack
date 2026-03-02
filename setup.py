@@ -8,13 +8,41 @@ Created on Sun Jul 22 12:18:53 2018
 
 from setuptools import setup, find_packages
 import re
-import sys
 import os
 
-SRC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),"./src")
-if SRC_DIR not in sys.path:
-    sys.path.insert(0,SRC_DIR)
-from direpack import __version__, __author__, __license__
+
+def get_version():
+    """Read version from __init__.py without importing the module."""
+    init_file = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)),
+        "src", "direpack", "__init__.py"
+    )
+    with open(init_file, "r") as f:
+        content = f.read()
+    version_match = re.search(r'^__version__\s*=\s*["\']([^"\']+)["\']', content, re.MULTILINE)
+    if version_match:
+        return version_match.group(1)
+    raise RuntimeError("Unable to find version string.")
+
+
+def get_metadata():
+    """Read author and license from __init__.py without importing."""
+    init_file = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)),
+        "src", "direpack", "__init__.py"
+    )
+    with open(init_file, "r") as f:
+        content = f.read()
+    author_match = re.search(r'^__author__\s*=\s*["\']([^"\']+)["\']', content, re.MULTILINE)
+    license_match = re.search(r'^__license__\s*=\s*["\']([^"\']+)["\']', content, re.MULTILINE)
+    return (
+        author_match.group(1) if author_match else "Unknown",
+        license_match.group(1) if license_match else "MIT"
+    )
+
+
+__version__ = get_version()
+__author__, __license__ = get_metadata()
 
 readme_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'README.md')
 try:
