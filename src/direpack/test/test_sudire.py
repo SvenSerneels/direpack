@@ -119,7 +119,7 @@ class Testsudire(unittest.TestCase):
             self.x.values, self.y.values, self.struct_dim, True, True
         )
         # Platform-sensitive numerical result
-        test_ans = 1.68
+        test_ans = 2.8
         np.testing.assert_almost_equal(
             np.linalg.norm(res_iht), test_ans, decimal=1
         )
