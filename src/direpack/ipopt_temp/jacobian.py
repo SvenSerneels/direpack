@@ -36,7 +36,7 @@ class FunctionWithApproxJacobian(object):
 
     def jac(self, x, *args, **kwargs):
         self.log('G[')
-        x0 = np.asfarray(x)
+        x0 = np.asarray(x)
         #print x0
         dxs = np.zeros((len(x0), len(x0) + 1))
         for i in range(len(x0)):
@@ -52,7 +52,7 @@ class FunctionWithApproxJacobian(object):
 class FunctionWithApproxJacobianCentral(FunctionWithApproxJacobian):
     def jac(self, x, *args, **kwargs):
         self.log('G[')
-        x0 = np.asfarray(x)
+        x0 = np.asarray(x)
         #print x0
         dxs = np.zeros((len(x0), 2*len(x0)))
         for i in range(len(x0)):
