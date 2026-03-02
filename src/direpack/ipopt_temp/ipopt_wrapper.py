@@ -208,7 +208,7 @@ def minimize_ipopt(fun, x0, args=(), kwargs=None, method=None, jac=None, hess=No
     if options is None:
         options = {}
 
-    nlp = cyipopt.problem(n = len(_x0),
+    nlp = cyipopt.Problem(n = len(_x0),
                           m = len(cl),
                           problem_obj=problem,
                           lb=lb,
