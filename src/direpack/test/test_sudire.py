@@ -8,17 +8,31 @@ Created on Tue Jun 30 13:17:46 2020
 import unittest
 import numpy as np
 import pandas as pd
-from direpack.sudire._sudire_utils import *
-from direpack import sudire
 from sklearn.model_selection import train_test_split
 
+# Check if cyipopt is installed first
 try:
     import cyipopt
     CYIPOPT_INSTALLED = True
 except ImportError:
     CYIPOPT_INSTALLED = False
 
+# Only import sudire modules if cyipopt is available, or if the basic utils work
+try:
+    from direpack.sudire._sudire_utils import *
+    SUDIRE_UTILS_AVAILABLE = True
+except ImportError:
+    SUDIRE_UTILS_AVAILABLE = False
 
+# sudire class requires cyipopt via ipopt_wrapper
+try:
+    from direpack import sudire
+    SUDIRE_AVAILABLE = True
+except ImportError:
+    SUDIRE_AVAILABLE = False
+
+
+@unittest.skipUnless(SUDIRE_UTILS_AVAILABLE, "sudire utils not available")
 class Testsudire(unittest.TestCase):
     """Test some methods in the sudire class"""
 
