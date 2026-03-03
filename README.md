@@ -41,6 +41,8 @@ The code is orghanized in
 
 Methods in the `sudire` folder
 ------------------------------
+**Note:** The `sudire` module requires the IPOPT installation option: `pip install direpack[ipopt]`
+
 The `sudire` folder gives access to an extensive set of methods that resort under the umbrella of sufficient dimension reduction. 
 These range from meanwhile long-standing, well-accepted approaches, such as sliced inverse regression (SIR) and the closely related SAVE \[8,9\], 
 through methods such as directional regression \[10\] and principal Hessian directions \[11\], and more. However, the package also contains some 
@@ -52,15 +54,24 @@ since it depends on the `Ball` package that seems to be difficult to install on 
 
 How to install
 --------------
-The package is distributed through PyPI, so install through: 
-        
+The package is distributed through PyPI and provides two installation options:
+
+**Standard installation** (without IPOPT/sudire):
+
         pip install direpack
-        
-Note that some of the key methods in the `sudire` subpackage rely on the IPOPT 
-optimization package, which according to their recommendation, can best be installed
-directly as: 
+
+This installs the core functionality including `sprm`, `ppdire`, `dicomo`, and `preprocessing`.
+
+**Full installation** (with IPOPT/sudire):
+
+        pip install direpack[ipopt]
+
+This includes all functionality, including the `sudire` subpackage which requires the IPOPT
+optimization package. Note that `cyipopt` may require additional system dependencies.
+On some systems, it may be easier to install via conda:
 
         conda install -c conda-forge cyipopt
+        pip install direpack
         
 Documentation
 =============

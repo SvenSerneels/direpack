@@ -369,12 +369,20 @@ class sprm_plot_cv(GridSearchCV,sprm):
         """
         
         if not(hasattr(self,'cv_score_table_')):
-            cv_score_table_ = cv_score_table(self.res_sprm_cv) 
+            cv_score_table_ = cv_score_table(self.res_sprm_cv)
             setattr(self,'cv_score_table_',cv_score_table_)
         fig = pp.figure()
         fig.set_facecolor(self.colors[0])
         pp.rcParams['axes.facecolor'] = self.colors[1]
         ax1 = fig.add_subplot(111)
-        ax1.tricontour(self.cv_score_table_.values[:,0],self.cv_score_table_.values[:,1],self.cv_score_table_.values[:,2])
+        # Filter out rows with NaN values to avoid tricontour errors
+        data = self.cv_score_table_.values
+        valid_mask = np.isfinite(data[:,2])
+        valid_data = data[valid_mask]
+        if len(valid_data) >= 3:
+            ax1.tricontour(valid_data[:,0], valid_data[:,1], valid_data[:,2])
+        else:
+            ax1.text(0.5, 0.5, 'Insufficient valid data for contour plot',
+                    transform=ax1.transAxes, ha='center', va='center')
         pp.title(title)
         pp.show()          

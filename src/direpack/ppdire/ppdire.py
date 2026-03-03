@@ -514,9 +514,9 @@ class ppdire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
                                               opt_args
                                               )
                         
-                        Zopt = Zopt*float(wi[0]) + Z[:,j].reshape(-1,1)*float(wi[1])
-                        afin[0:(j+1)] = afin[0:(j+1)]*float(wi[0])
-                        afin[j] = float(wi[1])
+                        Zopt = Zopt*np.asarray(wi[0]).item() + Z[:,j].reshape(-1,1)*np.asarray(wi[1]).item()
+                        afin[0:(j+1)] = afin[0:(j+1)]*np.asarray(wi[0]).item()
+                        afin[j] = np.asarray(wi[1]).item()
 
                     tj = np.dot(Z,afin)
                     objf = self.most.fit(tj,
@@ -548,9 +548,9 @@ class ppdire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
                                                     div=divv,
                                                     pi_arguments=grid_args_2
                                                     )
-                            Zopt = Zopt*float(wi[0,0]) + Z[:,j].reshape(-1,1)*float(wi[1,0])
-                            afin *= float(wi[0,0])
-                            afin[j] += float(wi[1,0])
+                            Zopt = Zopt*np.asarray(wi[0,0]).item() + Z[:,j].reshape(-1,1)*np.asarray(wi[1,0]).item()
+                            afin *= np.asarray(wi[0,0]).item()
+                            afin[j] += np.asarray(wi[1,0]).item()
                         
                         # % evaluate the objective function:
                         tj = np.dot(Z,afin)
@@ -804,7 +804,7 @@ class ppdire(_BaseComposition,BaseEstimator,TransformerMixin,RegressorMixin):
         if p!= self.x_loadings_.shape[0]:
             raise(ValueError('New data must have seame number of columns as the ones the model has been trained with'))
         Xnc = scale_data(Xn,self.x_loc_,self.x_sca_)
-        return(Xnc*self.x_rotations_)
+        return(np.dot(Xnc, self.x_rotations_))
         
     @classmethod   
     def _get_param_names(cls):

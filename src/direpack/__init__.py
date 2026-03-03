@@ -10,7 +10,7 @@ __name__ = "direpack"
 __author__ = "Emmanuel Jordy Menvouta, Sven Serneels, Tim Verdonck"
 __license__ = "MIT"
 __version__ = "1.1.4"
-__date__ = "2024-05-23"
+__date__ = "2026-03-03"
 
 from .preprocessing.robcent import (
     VersatileScaler,
