@@ -31,7 +31,8 @@ jobs:
 
     - name: Install dependencies
       run: |
-        conda install -y -c conda-forge scikit-learn pandas numpy statsmodels dcor sympy matplotlib cyipopt flake8 pytest
+        # cyipopt commented out to test standard install without ipopt
+        conda install -y -c conda-forge scikit-learn pandas numpy statsmodels dcor sympy matplotlib flake8 pytest
 
     - name: Conda info
       run: conda info
