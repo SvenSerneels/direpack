@@ -9,7 +9,7 @@ Created on Sun Jul 22 12:17:17 2018
 __name__ = "direpack"
 __author__ = "Emmanuel Jordy Menvouta, Sven Serneels, Tim Verdonck"
 __license__ = "MIT"
-__version__ = "1.1.5"
+__version__ = "1.2.0"
 __date__ = "2026-03-03"
 
 from .preprocessing.robcent import (

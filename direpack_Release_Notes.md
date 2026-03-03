@@ -81,10 +81,43 @@ Version 1.0
 - 1.0.5: `sudire` notebook adapted
 - 1.0.9: function to calculate the martingale difference divergence matrix (MDDM) added in `_dicomo_utils.py` 
 - 1.0.11: documentation updated to accommodate for go-live of readthedocs page
-- 1.0.13: fixed bug in option to use `Ball` in `sudire`. Adjusted readthedocs. 
+- 1.0.13: fixed bug in option to use `Ball` in `sudire`. Adjusted readthedocs.
+
+Version 1.2
+-----------
+Updated to Python 3.10-3.12 standards and NumPy 2.0 compatibility.
+
+**CI/CD Updates:**
+- Updated GitHub Actions to latest versions (`actions/checkout@v4`, `setup-miniconda@v3`)
+- Updated Python test matrix from 3.8-3.10 to 3.9-3.12
+- Fixed `setup.py` to read version without importing package (avoids dependency issues during install)
+
+**NumPy 2.0 Compatibility:**
+- Replaced deprecated `np.matrix` with `np.asarray` throughout codebase and notebooks
+- Fixed `np.product` → `np.prod` (removed in NumPy 2.0)
+- Fixed `np.asfarray` → `np.asarray` (removed in NumPy 2.0)
+- Fixed `float()` conversion on non-0D arrays using `.item()` or proper indexing
+- Fixed matrix multiplication in `ppdire.transform()` using `np.dot()` instead of `*` operator
+
+**Python 3.12 Compatibility:**
+- Fixed deprecated `assertAlmostEquals` → `assertAlmostEqual` in test files
+
+**cyipopt/IPOPT Changes:**
+- Made `cyipopt` an optional dependency: standard install with `pip install direpack`, full install with `pip install direpack[ipopt]`
+- Fixed cyipopt API changes: `cyipopt.problem` → `cyipopt.Problem`, `addOption` → `add_option`
+- `sudire` module only available when cyipopt is installed
+- Added `IPOPT_AVAILABLE` flag to check availability at runtime
+
+**Bug Fixes:**
+- Fixed `sprm_plot_cv.eta_ncomp_contour()` to handle NaN values in cross-validation results
+- Fixed sklearn `PLSRegression.coef_` transposition in example notebooks (API changed in sklearn 1.3)
+- Fixed edge cases in `_sudire_utils.py` for slices with ≤1 sample
+
+**Documentation:**
+- Updated README with two installation options (standard and full with ipopt)
+- Updated example notebooks (`dicomo_example.ipynb`, `ppdire_example.ipynb`) for NumPy 2.0 compatibility
 
 
 
 
- 
 
